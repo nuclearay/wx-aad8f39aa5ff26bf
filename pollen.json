@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-10-10T19:56:10+00:00",
+ "fetchedAt": "2026-10-10T20:41:35+00:00",
  "source": "Google Pollen API",
  "location": {
   "lat": 27.96,
@@ -460,11 +460,12 @@
     "TREE": {
      "name": "Tree",
      "inSeason": true,
-     "upi": 3,
-     "category": "Moderate",
+     "upi": 2,
+     "category": "Low",
      "color": {
-      "red": 1,
-      "green": 1
+      "red": 0.5176471,
+      "green": 0.8117647,
+      "blue": 0.2
      }
     },
     "WEED": {
@@ -492,8 +493,8 @@
      }
     },
     {
-     "code": "ELM",
-     "name": "Elm",
+     "code": "GRAMINALES",
+     "name": "Grasses",
      "type": null,
      "inSeason": true,
      "upi": 3,
@@ -504,15 +505,16 @@
      }
     },
     {
-     "code": "GRAMINALES",
-     "name": "Grasses",
+     "code": "ELM",
+     "name": "Elm",
      "type": null,
      "inSeason": true,
-     "upi": 3,
-     "category": "Moderate",
+     "upi": 2,
+     "category": "Low",
      "color": {
-      "red": 1,
-      "green": 1
+      "red": 0.5176471,
+      "green": 0.8117647,
+      "blue": 0.2
      }
     },
     {
