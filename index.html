@@ -87,6 +87,17 @@ a{color:var(--acc)}
 #t-pv .l{white-space:nowrap}
 #t-aqi{position:relative}#t-aqi .aqg{position:absolute;top:7px;right:6px}
 .tg svg,.now svg{flex:none;display:block}
+.radar{padding:0;overflow:hidden;margin-bottom:4px}
+.radar[hidden]{display:none}
+.rmap{position:relative;height:178px;overflow:hidden;background:#0e1626;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rmap img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
+.rmap .bm{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.95) saturate(.5)}
+.rmap .rx{opacity:.85}
+.rmap svg{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.rcap{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 8px;color:#cdd7e5}
+.rcap .x{background:none;border:0;color:var(--mut);font-size:15px;padding:0 4px;cursor:pointer}
+.rlink{float:right;text-transform:none;letter-spacing:0;color:var(--acc);font-weight:600}
+#t-rain{cursor:pointer}
 .foot{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
 </style>
 </head>
@@ -101,7 +112,7 @@ a{color:var(--acc)}
 <div class="card ltg" id="ltg" hidden></div>
 <div class="card now" id="now"><div class="mut">Loading current conditions…</div></div>
 <div class="grid" id="grid">
-  <div class="tile wide" id="t-rain"><h3>🌧 Rain</h3><div class="l mut">…</div></div>
+  <div class="tile wide" id="t-rain"><h3>🌧 Rain <span class="rlink">📡 radar ›</span></h3><div class="l mut">…</div></div>
   <div class="tile" id="t-wind"><h3>💨 Wind</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-hum"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-uv"><h3>☀️ UV</h3><div class="l mut">…</div></div>
@@ -113,7 +124,9 @@ a{color:var(--acc)}
 <div class="card sky24" id="sky24"><div class="mut">Loading…</div></div>
 <div class="sec">5 days</div>
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
-<div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)</div>
+<div class="sec" style="margin-top:6px">Radar</div>
+<div class="card radar" id="radar"><div class="mut" style="padding:6px 8px">Loading radar…</div></div>
+<div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)<span id="rcred"> · Radar: NWS NEXRAD via <a href="https://mesonet.agron.iastate.edu/" target="_blank" rel="noopener">IEM</a> · map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</span></div>
 
 <script>
 const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
@@ -204,6 +217,8 @@ async function loadForecast(){
     ['t-rain','t-wind','t-hum','t-uv','t-pv'].forEach(id=>tileErr(id,'unavailable'));
     $('sky24').innerHTML='<div class="err">⚠ Forecast unavailable</div>';$('days').innerHTML='<div class="err">⚠ Forecast unavailable</div>';return false}
   const c=d.current,D=d.daily,H=d.hourly;
+  { const k0=H.time.findIndex(t=>t.slice(0,13)===nowLocal()),k1=k0+1,wet=x=>x!=null&&((x>=51&&x<=67)||(x>=80&&x<=82)||x>=95);
+    RADAR.wx=(c.precipitation>0)||(k0>=0&&((H.precipitation[k1]||0)>0||wet(H.weather_code[k1])||(H.precipitation_probability[k1]||0)>=40))||wet(c.weather_code); }
   const w=wx(c.weather_code,c.is_day);
   // Now card
   $('now').innerHTML=`<div><div class="big">${r(c.temperature_2m)}°</div></div>
@@ -482,6 +497,51 @@ function whatChanged(){
   const since=new Date(base.t).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'});
   el.hidden=false;el.innerHTML=`🔄 <span class="mut">Since ${since}:</span> ${ch.slice(0,2).join(' · ')}${ch.length>2?` <span class="mut">+${ch.length-2}</span>`:''}`;
 }
+// ===== Radar snapshot: NWS NEXRAD single-site reflectivity (IEM RIDGE tiles, public domain) on a CARTO dark basemap =====
+const RADAR={wx:false,manual:null,site:'TBW',z:10};
+function radarWanted(){
+  return RADAR.manual??true;   // always shown at the bottom unless hidden with ✕
+}
+async function radarSite(){
+  if(LOC.mode!=='here')return 'TBW';
+  try{const pt=LOC.points||await getJSON('https://api.weather.gov/points/'+LAT.toFixed(4)+','+LON.toFixed(4),NWSH);LOC.points=pt;
+    const id=pt.properties.radarStation||'KTBW';return id.length===4&&id[0]==='K'?id.slice(1):id}catch(e){return 'TBW'}
+}
+async function radarUpdate(){
+  const el=$('radar'),cred=$('rcred');
+  if(!radarWanted()){el.innerHTML=`<div class="rcap"><span class="mut">Radar hidden</span><button class="x" id="ropen">Show</button></div>`;$('ropen').onclick=()=>{RADAR.manual=true;radarUpdate()};return}
+  el.hidden=false;
+  // QC'd NEXRAD base-reflectivity mosaic (5-min). Single-site RIDGE tiles were tried but show heavy clear-air/sea clutter.
+  const site=await radarSite(),label=(site.length===3?'K':'')+site,layer='nexrad-n0q-900913';let valid=null;
+  try{const m=await getJSON('https://mesonet.agron.iastate.edu/data/gis/images/4326/USCOMP/n0q_0.json');valid=m.meta.valid}catch(e){}
+  const z=RADAR.z,n=2**z,W=el.clientWidth||396,Hh=178;
+  const wx=(LON+180)/360*n*256,wy=(1-Math.log(Math.tan(LAT*Math.PI/180)+1/Math.cos(LAT*Math.PI/180))/Math.PI)/2*n*256;
+  const ox=wx-W/2,oy=wy-Hh/2,v=valid?Date.parse(valid):Math.floor(Date.now()/3e5);
+  let base='',rx='',lab='';
+  for(let tx=Math.floor(ox/256);tx<=Math.floor((ox+W)/256);tx++)for(let ty=Math.floor(oy/256);ty<=Math.floor((oy+Hh)/256);ty++){
+    const st=`left:${Math.round(tx*256-ox)}px;top:${Math.round(ty*256-oy)}px`;
+    base+=`<img alt="" class="bm" src="https://tile.openstreetmap.org/${z}/${tx}/${ty}.png" style="${st}">`;
+    rx+=`<img alt="" class="rx" src="https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/${layer}/${z}/${tx}/${ty}.png?v=${v}" style="${st}" onerror="this.remove()">`;
+}
+  const mpp=156543.03*Math.cos(LAT*Math.PI/180)/n,r5=8046.7/mpp;
+  const ov=`<svg viewBox="0 0 ${W} ${Hh}"><circle cx="${W/2}" cy="${Hh/2}" r="${r5.toFixed(1)}" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>
+    <text x="${(W/2+r5*0.71+2).toFixed(0)}" y="${(Hh/2-r5*0.71).toFixed(0)}" font-size="9" fill="#e2e8f0" opacity=".7">5 mi</text>
+    <circle cx="${W/2}" cy="${Hh/2}" r="5" fill="#7dd3fc" stroke="#0b1220" stroke-width="2"/><circle cx="${W/2}" cy="${Hh/2}" r="9" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity=".6"/></svg>`;
+  const ageM=valid?Math.round((Date.now()-Date.parse(valid))/60e3):null;
+  const t=valid?new Date(valid).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'}):'time n/a';
+  el.innerHTML=`<div class="rmap" id="rmap" role="button" aria-label="Radar ${label} ${t}. Tap to open RadarScope">${base}${rx}${lab}${ov}</div>
+   <div class="rcap"><span>📡 <b>NEXRAD</b> <span class="mut">(${label} area)</span> · ${t}${ageM!=null&&ageM>20?` <span style="color:#fca5a5">(${ageM}m old)</span>`:''} <span class="mut">· tap for RadarScope</span></span><button class="x" id="rclose" aria-label="Hide radar">✕</button></div>`;
+  $('rmap').onclick=()=>radarOpen(label);
+  $('rclose').onclick=e=>{e.stopPropagation();RADAR.manual=false;radarUpdate()};
+}
+function radarOpen(label){
+  const site=label.length===4?label:'KTBW',fb='https://radar.weather.gov/station/'+site.toLowerCase()+'/standard';
+  if(/Android/i.test(navigator.userAgent))
+    location.href='intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.basevelocity.radarscope;S.browser_fallback_url='+encodeURIComponent(fb)+';end';
+  else window.open(fb,'_blank','noopener');
+}
+$('t-rain').addEventListener('click',()=>{if($('radar').hidden){RADAR.manual=true;radarUpdate()}$('radar').scrollIntoView({block:'end',behavior:'smooth'})});
+setInterval(()=>{if(!$('radar').hidden)radarUpdate()},5*60e3);
 // Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (Google Pollen API; key never reaches the browser)
 const POLLEN_LINK='<a href="https://www.pollen.com/forecast/current/pollen/33764" target="_blank" rel="noopener">pollen.com ›</a>';
 async function loadPollen(){
@@ -531,6 +591,7 @@ async function refresh(){
   if(busy)return;busy=true;$('rf').classList.add('spin');
   await Promise.allSettled([loadForecast(),loadAir(),loadPollen(),loadAlerts(),loadObs()]);
   try{whatChanged()}catch(e){}
+  radarUpdate().catch(()=>{});
   last=Date.now();
   $('upd').textContent=(LOC.note?'⚠ Home · ':'')+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   $('rf').classList.remove('spin');busy=false;document.body.dataset.loaded='1';
