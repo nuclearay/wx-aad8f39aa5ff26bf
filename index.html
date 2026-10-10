@@ -40,6 +40,9 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .now .lines div{font-size:14px}
 .now .obs{grid-column:1/-1;font-size:12px;color:#cdd7e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--line);padding-top:2px;margin-top:0}
 .now .obs.stale{opacity:.5}
+.now .note{grid-column:1/-1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}
+.now .note[hidden]{display:none}
+.chip{display:inline-block;padding:0 5px;border-radius:5px;font-weight:700;color:#0b1220;font-size:11px}
 .now .obs b{color:#fff}
 .mode{flex:none;background:#1c2a44;border:1px solid #33507a;color:#cfe3ff;border-radius:999px;font-size:12px;font-weight:600;padding:2px 9px;height:24px;cursor:pointer}
 .mode.here{background:#123a2c;border-color:#2f8f6a;color:#c7f5df}
@@ -81,6 +84,7 @@ a{color:var(--acc)}
 .mini{background:#2a2410;border:1px solid #a16207;color:#fde68a;border-radius:6px;font-size:12px;padding:1px 6px}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
+#t-pv .l{white-space:nowrap}
 #t-aqi{position:relative}#t-aqi .aqg{position:absolute;top:7px;right:6px}
 .tg svg,.now svg{flex:none;display:block}
 .foot{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
@@ -107,7 +111,7 @@ a{color:var(--acc)}
 </div>
 <div class="sec">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · wind <span style="text-transform:none;font-weight:400">(┄ gusts)</span></div>
 <div class="card sky24" id="sky24"><div class="mut">Loading…</div></div>
-<div class="sec">7 days</div>
+<div class="sec">5 days</div>
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
 <div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)</div>
 
@@ -191,7 +195,7 @@ async function getJSON(url,opt){const res=await fetch(url,opt);if(!res.ok)throw 
 async function loadForecast(){
   const u='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+
   '&current=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,uv_index'+
-  '&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day,uv_index,visibility,pressure_msl,apparent_temperature,dew_point_2m,shortwave_radiation_instant,wind_speed_10m,wind_gusts_10m,wind_direction_10m'+
+  '&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day,uv_index,visibility,pressure_msl,apparent_temperature,dew_point_2m,wet_bulb_temperature_2m,shortwave_radiation_instant,wind_speed_10m,wind_gusts_10m,wind_direction_10m'+
   '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset,uv_index_max,wind_speed_10m_max,wind_gusts_10m_max,daylight_duration'+
   '&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(TZ)+'&forecast_days=7';
   let d;
@@ -205,7 +209,7 @@ async function loadForecast(){
   $('now').innerHTML=`<div><div class="big">${r(c.temperature_2m)}°</div></div>
    <div class="lines"><div class="cond">${w.i} ${w.t}</div>
    <div>Feels like <b>${r(c.apparent_temperature)}°</b></div>
-   <div>H <b>${r(D.temperature_2m_max[0])}°</b> · L <b>${r(D.temperature_2m_min[0])}°</b></div></div>${gTemp(c.temperature_2m,c.apparent_temperature)}<div class="obs${OBS.stale?' stale':''}" id="obs">${OBS.html}</div>`;
+   <div>H <b>${r(D.temperature_2m_max[0])}°</b> · L <b>${r(D.temperature_2m_min[0])}°</b></div></div>${gTemp(c.temperature_2m,c.apparent_temperature)}<div class="obs${OBS.stale?' stale':''}" id="obs">${OBS.html}</div><div class="note" id="wbl" hidden></div><div class="note" id="chg" hidden></div>`;
   // index of current hour
   const key=nowLocal();let i0=H.time.findIndex(t=>t.slice(0,13)===key);if(i0<0)i0=0;
   // Rain
@@ -226,12 +230,24 @@ async function loadForecast(){
   const pin=c.pressure_msl*0.02953, p3=H.pressure_msl[Math.max(0,i0-3)], tr=c.pressure_msl-p3;
   const vis=c.visibility!=null?c.visibility/1609.34:H.visibility[i0]/1609.34;
   setTileG('t-pv',`<div class="v">${pin.toFixed(2)}″</div><div class="l">${tr>0.7?'Rising ↗':tr<-0.7?'Falling ↘':'Steady →'}</div>
-    <div class="l">Vis ${isNaN(vis)?'–':vis>=10?'10+':vis.toFixed(1)}mi</div>`,gBaro(pin));
+    <div class="l">Vis ${isNaN(vis)?'–':vis>=10?'10+':vis.toFixed(1)}mi</div>`,`<span id="psp">${gBaro(pin)}</span>`);
+  loadPressure24(c.pressure_msl);
   let iDay=H.time.findIndex(t=>t.slice(0,10)===D.time[0]);if(iDay<0)iDay=0;  // today 00:00 local -> midnight-to-midnight axis
   drawSky24(H,D,iDay);
+  // Wet-bulb heat check (Open-Meteo wet_bulb_temperature_2m; Stull formula fallback). Shown only when >= 78°F.
+  try{
+    const stull=(tf,rh)=>{const t=(tf-32)/1.8,w=t*Math.atan(0.151977*Math.sqrt(rh+8.313659))+Math.atan(t+rh)-Math.atan(rh-1.676331)+0.00391838*rh**1.5*Math.atan(0.023101*rh)-4.686035;return w*1.8+32};
+    const wbH=k=>H.wet_bulb_temperature_2m?.[k]??null;
+    const wbNow=wbH(i0)??stull(c.temperature_2m,c.relative_humidity_2m);
+    let pk=null,pkT=null;for(let k=Math.max(i0,iDay);k<iDay+24&&k<H.time.length;k++){const v=wbH(k);if(v!=null&&(pk==null||v>pk)){pk=v;pkT=H.time[k]}}
+    const lvl=v=>v>=85?['Extreme','#ef4444']:v>=82?['High','#f97316']:v>=78?['Caution','#facc15']:null;
+    const top=Math.max(wbNow??0,pk??0),L=lvl(top),el=$('wbl');
+    if(L){el.hidden=false;el.innerHTML=`💦 Wet-bulb <b>${r(wbNow)}°</b> now${pk!=null&&r(pk)>r(wbNow)?` · peak <b>${r(pk)}°</b> ${hh(pkT)}`:''} ${pill(L[0],L[1])} <span class="mut">${top>=82?'limit hard outdoor work':'take breaks in shade'}</span>`}
+  }catch(e){}
+  WXSNAP.fc={hi:r(D.temperature_2m_max[0]),lo:r(D.temperature_2m_min[0]),r0:D.precipitation_probability_max[0]??0,r1:D.precipitation_probability_max[1]??0,g:r(Math.max(D.wind_gusts_10m_max[0]??0,D.wind_gusts_10m_max[1]??0))};
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
-  $('days').innerHTML=D.time.map((t,k)=>{const ww=wx(D.weather_code[k]);
+  $('days').innerHTML=D.time.slice(0,5).map((t,k)=>{const ww=wx(D.weather_code[k]);
     return `<div class="d"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl">${r(D.temperature_2m_max[k])}° <span>/ ${r(D.temperature_2m_min[k])}°</span></span></div>`}).join('');
   return true;
 }
@@ -243,7 +259,7 @@ function moonInfo(date=new Date()){
   const ph=P[Math.floor((age/SYN)*8+0.5)%8];
   const dFull=((SYN/2-age)+SYN)%SYN; let dNew=SYN-age; if(dNew<1.5)dNew+=SYN;
   const fmt=d=>new Date(date.getTime()+d*864e5).toLocaleDateString('en-US',{timeZone:TZ,month:'short',day:'numeric'});
-  return {name:ph[0],emoji:ph[1],illum,next:dFull<dNew?'Full '+fmt(dFull):'New '+fmt(dNew)};
+  return {name:ph[0].charAt(0)+ph[0].slice(1).toLowerCase(),age:Math.floor(age)+1,emoji:ph[1],illum,next:dFull<dNew?'Full '+fmt(dFull):'New '+fmt(dNew)};
 }
 function drawSky24(H,D,i0){
   const el=$('sky24');
@@ -345,7 +361,7 @@ function drawSky24(H,D,i0){
     g+=`<text x="${Math.min(X1-8,Math.max(X0+8,xx)).toFixed(1)}" y="172" fill="#9fb0c8" font-size="12" text-anchor="middle">${lb}</text>`}
   g+=`<g id="xh" visibility="hidden"><line id="xhl" y1="2" y2="236" stroke="#e2e8f0" stroke-width="1.2" opacity=".9"/><circle id="xht" r="3.8" fill="#fb7185" stroke="#fff" stroke-width="1.3"/><circle id="xhf" r="3.3" fill="#fb923c" stroke="#fff" stroke-width="1.2"/><circle id="xhd" r="3.3" fill="#6bbf59" stroke="#fff" stroke-width="1.2"/></g>`;
   const svg=`<svg viewBox="0 0 ${W} 238" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
-  el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
+  el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[0]/3600, m=moonInfo();
   el.innerHTML=svg+`<div class="sl"><span>🌅 <b>${hm(D.sunrise[0])}</b></span><span>☀️ <b>${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span>🌇 <b>${hm(D.sunset[0])}</b></span></div>
    <div class="ml"><span>${m.emoji} ${m.name} · ${m.illum}% lit</span><span class="mut">${m.next}</span></div><div class="xtip" id="xtip" hidden></div>`;
@@ -366,7 +382,7 @@ function xhShow(el,clientX){
   const h=(Math.floor(D.t0)+k)%24,lbl=(k===D.kNow?'Now · ':'')+(h%12||12)+' '+(h<12?'AM':'PM');
   const tip=$('xtip');
   tip.innerHTML=`<div class="xt">${lbl}</div><div><i style="background:#fb7185"></i>Temp <b>${r(D.tp[k])}°</b></div><div><i style="background:#fb923c"></i>Feels <b>${r(D.fl[k])}°</b></div>`+
-   `<div><i style="background:#6bbf59"></i>Dew <b>${r(D.dw[k])}°</b></div><div><i style="background:#38bdf8"></i>Rain <b>${D.pr[k]??0}%</b></div>`+
+   `<div><i style="background:#6bbf59"></i>Dew <b>${r(D.dw[k])}°</b>${D.wb[k]!=null?` · WB <b>${r(D.wb[k])}°</b>`:''}</div><div><i style="background:#38bdf8"></i>Rain <b>${D.pr[k]??0}%</b></div>`+
    (D.sw[k]>0||D.uvh[k]>0?`<div><i style="background:#fbbf24"></i>Sun <b>${Math.round(D.sw[k])}</b> W/m²</div><div><i style="background:${uvInfo(D.uvh[k])[1]}"></i>UV <b>${(+D.uvh[k]).toFixed(1)}</b></div>`:`<div><i style="background:#64748b"></i>Sun <b>0</b> · UV <b>0</b></div>`)+
    `<div><i style="background:#2dd4bf"></i>Wind <b>${r(D.ws[k])}</b> g${r(D.wg[k])} ${card(D.wd[k])}</div>`;
   tip.hidden=false;
@@ -431,6 +447,41 @@ async function resolveLoc(){
   if(LOC.mode==='here')document.querySelector('#t-pol h3').textContent='🌾 Pollen · Home';
 }
 $('mode').onclick=()=>{let cur=LOC.mode;try{localStorage.setItem('wxMode',cur==='here'?'home':'here')}catch(e){}location.reload()};
+// ===== Pressure: last-24h sparkline (separate small Open-Meteo call with past_hours) =====
+async function loadPressure24(curHpa){
+  try{
+    const d=await getJSON('https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=pressure_msl&past_hours=24&forecast_hours=1&timezone='+encodeURIComponent(TZ));
+    const v=d.hourly.pressure_msl.filter(x=>x!=null);if(v.length<6)return;
+    const W=46,Hh=44,top=7,bot=33,mn=Math.min(...v),mx=Math.max(...v),span=Math.max(2,mx-mn),mid=(mx+mn)/2;
+    const y=p=>bot-((p-(mid-span/2))/span)*(bot-top),x=k=>2+k/(v.length-1)*(W-6);
+    const path=v.map((p,k)=>(k?'L':'M')+x(k).toFixed(1)+' '+y(p).toFixed(1)).join('');
+    const ch=v[v.length-1]-v[0],col=ch>1?'#7dd3fc':ch<-1?'#fca5a5':'#cdd7e5';
+    const g=`<path d="${path}L${x(v.length-1).toFixed(1)} ${bot}L${x(0)} ${bot}Z" fill="${col}" opacity=".12"/><path d="${path}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/>`+
+      `<circle cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.3" fill="${col}"/><line x1="2" y1="${bot}" x2="${W-4}" y2="${bot}" stroke="#33445f"/>`+
+      `<text x="1" y="${Hh-1}" font-size="7.5" fill="#9fb0c8">24h</text><text x="${W-4}" y="${Hh-1}" font-size="7.5" fill="${col}" text-anchor="end">${ch>=0?'+':''}${ch.toFixed(1)}</text>`+
+      `<text x="${W-4}" y="5" font-size="7" fill="#64748b" text-anchor="end">${Math.round(curHpa??v[v.length-1])} hPa</text>`;
+    const el=$('psp');if(el)el.innerHTML=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="Pressure last 24 hours">${g}</svg>`;
+  }catch(e){}  // keep the barometer dial if this fails
+}
+// ===== What changed since the first view today (localStorage baseline per day + mode) =====
+const WXSNAP={fc:null,alerts:null};
+function whatChanged(){
+  const el=$('chg');if(!el||!WXSNAP.fc)return;
+  const cur={...WXSNAP.fc,al:WXSNAP.alerts||[]},day=new Date().toLocaleDateString('sv-SE',{timeZone:TZ}),key='wxBase:'+LOC.mode;
+  let base=null;try{base=JSON.parse(localStorage.getItem(key)||'null')}catch(e){}
+  if(!base||base.day!==day){try{localStorage.setItem(key,JSON.stringify({day,t:Date.now(),s:cur}))}catch(e){}el.hidden=true;return}
+  const b=base.s,ch=[];
+  if(Math.abs(cur.r0-b.r0)>=20)ch.push(`Rain today ${b.r0}%→${cur.r0}%`);
+  if(Math.abs(cur.r1-b.r1)>=20)ch.push(`Rain tmrw ${b.r1}%→${cur.r1}%`);
+  if(Math.abs(cur.hi-b.hi)>=3)ch.push(`High ${b.hi}°→${cur.hi}°`);
+  if(Math.abs(cur.lo-b.lo)>=3)ch.push(`Low ${b.lo}°→${cur.lo}°`);
+  if(Math.abs(cur.g-b.g)>=10)ch.push(`Peak gust ${b.g}→${cur.g} mph`);
+  if(WXSNAP.alerts){const add=cur.al.filter(a=>!(b.al||[]).includes(a)),gone=(b.al||[]).filter(a=>!cur.al.includes(a));
+    add.forEach(a=>ch.push('New: '+a));gone.forEach(a=>ch.push('Ended: '+a))}
+  if(!ch.length){el.hidden=true;return}
+  const since=new Date(base.t).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'});
+  el.hidden=false;el.innerHTML=`🔄 <span class="mut">Since ${since}:</span> ${ch.slice(0,2).join(' · ')}${ch.length>2?` <span class="mut">+${ch.length-2}</span>`:''}`;
+}
 // Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (Google Pollen API; key never reaches the browser)
 const POLLEN_LINK='<a href="https://www.pollen.com/forecast/current/pollen/33764" target="_blank" rel="noopener">pollen.com ›</a>';
 async function loadPollen(){
@@ -468,6 +519,7 @@ async function loadAlerts(){
   try{
     const d=await getJSON('https://api.weather.gov/alerts/active?point='+LAT+','+LON,{headers:{Accept:'application/geo+json'}});
     const f=(d.features||[]).filter(a=>!SKIP_ALERTS.has((a.properties.event||'').trim().toLowerCase()));
+    WXSNAP.alerts=[...new Set(f.map(a=>a.properties.event))];
     box.innerHTML=f.map(a=>{const p=a.properties,ex=new Date(p.ends||p.expires);
       const exs=ex.toLocaleString('en-US',{timeZone:TZ,weekday:'short',hour:'numeric',minute:'2-digit'});
       const esc=s=>(s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
@@ -478,6 +530,7 @@ let busy=false,last=0;
 async function refresh(){
   if(busy)return;busy=true;$('rf').classList.add('spin');
   await Promise.allSettled([loadForecast(),loadAir(),loadPollen(),loadAlerts(),loadObs()]);
+  try{whatChanged()}catch(e){}
   last=Date.now();
   $('upd').textContent=(LOC.note?'⚠ Home · ':'')+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   $('rf').classList.remove('spin');busy=false;document.body.dataset.loaded='1';
