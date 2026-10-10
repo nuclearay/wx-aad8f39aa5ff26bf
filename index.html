@@ -493,15 +493,15 @@ async function loadPollen(){
   let i=d.days.findIndex(x=>x.date===today);if(i<0)i=stale?0:0;
   const day=d.days[i],col=c=>c?`rgb(${Math.round((c.red||0)*255)},${Math.round((c.green||0)*255)},${Math.round((c.blue||0)*255)})`:'#475569';
   const SH={'None':'None','Very Low':'V.Lo','Low':'Low','Moderate':'Mod','High':'Hi','Very High':'V.Hi'};
-  const t=(code,lbl)=>{const x=(day.types||{})[code];if(!x||x.upi==null)return `${lbl} <b class="mut">–</b>`;
-    return `${lbl} <span class="pill" style="background:${col(x.color)};padding:0 4px">${x.upi}</span> ${SH[x.category]||x.category||''}`};
-  const top=(day.plants||[]).filter(p=>p.inSeason&&p.upi>0).slice(0,2).map(p=>`${p.name} ${SH[p.category]||p.upi}`).join(', ');
-  const mx=x=>Math.max(0,...Object.values(x.types||{}).map(v=>v.upi||0));
-  const catOf=v=>['None','V.Lo','Low','Mod','Hi','V.Hi'][v]||'–';
-  const trend=d.days.slice(i+1,i+4).map(x=>`${new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'})} ${catOf(mx(x))}`).join(' → ');
-  setTile('t-pol',`<div class="l" style="white-space:nowrap;font-size:12px;letter-spacing:-.1px">${t('TREE','Tree')} · ${t('GRASS','Grass')} · ${t('WEED','Weed')}</div>
-   <div class="l">${top?'Top: '+top:'No major plants in season'}</div>
-   <div class="l">${stale?`<span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}`:(trend||'')}</div>`);
+  const CAT=['None','Very Low','Low','Moderate','High','Very High'];
+  const badge=(upi,color,cat,what)=>{const c=cat||CAT[upi]||'';return `<span class="pill" role="img" style="background:${col(color)};padding:0 4px" title="${what}: ${c} (${upi} of 5)" aria-label="${what}: ${c}, ${upi} of 5">${upi}</span>`};
+  const t=(code,lbl)=>{const x=(day.types||{})[code];if(!x||x.upi==null)return `${lbl} <b class="mut">–</b>`;return `${lbl} ${badge(x.upi,x.color,x.category,lbl+' pollen')}`};
+  const top=(day.plants||[]).filter(p=>p.inSeason&&p.upi>0).slice(0,3).map(p=>`${p.name} ${badge(p.upi,p.color,p.category,p.name)}`).join(' · ');
+  const mxT=x=>Object.values(x.types||{}).reduce((m,v)=>(v.upi||0)>(m?.upi??-1)?v:m,null);
+  const trend=d.days.slice(i+1,i+5).map(x=>{const m=mxT(x),dn=new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'});return m?`${dn} ${badge(m.upi||0,m.color,m.category,dn+' pollen')}`:`${dn} –`}).join(' · ');
+  setTile('t-pol',`<div class="l" style="white-space:nowrap">${t('TREE','Tree')} · ${t('GRASS','Grass')} · ${t('WEED','Weed')}</div>
+   <div class="l" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${top?'Top: '+top:'No major plants in season'}</div>
+   <div class="l" style="white-space:nowrap;overflow:hidden">${stale?`<span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}`:(trend||'')}</div>`);
 }
 async function loadAir(){
   const u='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+LAT+'&longitude='+LON+
