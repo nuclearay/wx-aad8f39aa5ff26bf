@@ -89,7 +89,7 @@ a{color:var(--acc)}
 .tg svg,.now svg{flex:none;display:block}
 .radar{padding:0;overflow:hidden;margin-bottom:4px}
 .radar[hidden]{display:none}
-.rmap{position:relative;height:178px;overflow:hidden;background:#0e1626;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rmap{display:block;position:relative;height:178px;overflow:hidden;background:#0e1626;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .rmap img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
 .rmap .bm{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.95) saturate(.5)}
 .rmap .rx{opacity:.85}
@@ -529,16 +529,20 @@ async function radarUpdate(){
     <circle cx="${W/2}" cy="${Hh/2}" r="5" fill="#7dd3fc" stroke="#0b1220" stroke-width="2"/><circle cx="${W/2}" cy="${Hh/2}" r="9" fill="none" stroke="#7dd3fc" stroke-width="1.2" opacity=".6"/></svg>`;
   const ageM=valid?Math.round((Date.now()-Date.parse(valid))/60e3):null;
   const t=valid?new Date(valid).toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit'}):'time n/a';
-  el.innerHTML=`<div class="rmap" id="rmap" role="button" aria-label="Radar ${label} ${t}. Tap to open RadarScope">${base}${rx}${lab}${ov}</div>
-   <div class="rcap"><span>📡 <b>NEXRAD</b> <span class="mut">(${label} area)</span> · ${t}${ageM!=null&&ageM>20?` <span style="color:#fca5a5">(${ageM}m old)</span>`:''} <span class="mut">· tap for RadarScope</span></span><button class="x" id="rclose" aria-label="Hide radar">✕</button></div>`;
-  $('rmap').onclick=()=>radarOpen(label);
+  const L=radarLinks(label),android=/Android/i.test(navigator.userAgent);
+  el.innerHTML=`<a class="rmap" id="rmap" href="${android?L.app:L.nws}" ${android?'':'target="_blank" rel="noopener"'} aria-label="Radar ${label} ${t}. Open in ${android?'RadarScope':'NWS radar'}">${base}${rx}${lab}${ov}</a>
+   <div class="rcap"><span>📡 <b>NEXRAD</b> <span class="mut">(${label} area)</span> · ${t}${ageM!=null&&ageM>20?` <span style="color:#fca5a5">(${ageM}m old)</span>`:''}${android?' <span class="mut">· map → RadarScope</span>':''} · <a href="${L.nws}" target="_blank" rel="noopener">NWS ›</a></span><button class="x" id="rclose" aria-label="Hide radar">✕</button></div>`;
   $('rclose').onclick=e=>{e.stopPropagation();RADAR.manual=false;radarUpdate()};
 }
-function radarOpen(label){
-  const site=label.length===4?label:'KTBW',fb='https://radar.weather.gov/station/'+site.toLowerCase()+'/standard';
-  if(/Android/i.test(navigator.userAgent))
-    location.href='intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.basevelocity.radarscope;S.browser_fallback_url='+encodeURIComponent(fb)+';end';
-  else window.open(fb,'_blank','noopener');
+// RadarScope deep link: documented custom scheme radarscope://viewInMap?lat=..&long=.. (centers map, picks nearest radar).
+// Chrome only launches apps through BROWSABLE intent filters, so a MAIN/LAUNCHER intent always fell through to the fallback.
+// Sent as a plain <a href> tapped by the user (works in Chrome tabs and installed PWAs). If the app doesn't take the link,
+// Chrome follows browser_fallback_url -> RadarScope's Play listing, whose "Open" button launches the app.
+function radarLinks(label){
+  const site=label.length===4?label:'KTBW',lat=LAT.toFixed(4),lon=LON.toFixed(4);
+  const play='https://play.google.com/store/apps/details?id=com.basevelocity.radarscope';
+  return {nws:'https://radar.weather.gov/station/'+site.toLowerCase()+'/standard',
+    app:`intent://viewInMap?lat=${lat}&long=${lon}#Intent;scheme=radarscope;package=com.basevelocity.radarscope;S.browser_fallback_url=${encodeURIComponent(play)};end`};
 }
 $('t-rain').addEventListener('click',()=>{if($('radar').hidden){RADAR.manual=true;radarUpdate()}$('radar').scrollIntoView({block:'end',behavior:'smooth'})});
 setInterval(()=>{if(!$('radar').hidden)radarUpdate()},5*60e3);
