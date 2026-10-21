@@ -99,6 +99,7 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
+.prings{display:flex;justify-content:space-between;margin:1px 0 2px}.pring{flex:1;text-align:center;line-height:1.1}.pring svg{display:block;margin:0 auto}.pring .pv{font-size:12px;font-weight:700;color:#fff;margin-top:-4px}.pring .pw{font-size:11px;color:#cdd7e5}
 #t-aqi{position:relative}#t-aqi .aqg{position:absolute;top:7px;right:6px}
 .tg svg,.now svg{flex:none;display:block}
 .radar{padding:0;overflow:hidden;margin-bottom:4px}
@@ -577,7 +578,13 @@ async function loadPollen(){
   const top=(day.plants||[]).filter(p=>p.inSeason&&p.upi>0).slice(0,3).map(p=>`${p.name} ${badge(p.upi,p.color,p.category,p.name)}`).join(' · ');
   const mxT=x=>Object.values(x.types||{}).reduce((m,v)=>(v.upi||0)>(m?.upi??-1)?v:m,null);
   const trend=d.days.slice(i+1,i+5).map(x=>{const m=mxT(x),dn=new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'});return m?`${dn} ${badge(m.upi||0,m.color,m.category,dn+' pollen')}`:`${dn} –`}).join(' · ');
-  setTile('t-pol',`<div class="l" style="white-space:nowrap">${t('TREE','Tree')} · ${t('GRASS','Grass')} · ${t('WEED','Weed')}</div>
+  const ICO={GRASS:'<path d="M-6 5 L-3 -3 M0 5 L0 -6 M6 5 L3 -3 M-8 5 H8" />',TREE:'<circle cx="0" cy="-2" r="5"/><path d="M0 3 V7 M-3 7 H3"/>',WEED:'<path d="M0 7 V-1 M0 0 C-1 -5 -5 -6 -7 -5 C-6 -2 -3 0 0 0 M0 -1 C1 -6 5 -7 7 -6 C6 -3 3 -1 0 -1"/>'};
+  const ring=(code,lbl)=>{const x=(day.types||{})[code],u=x&&x.upi!=null?x.upi:null,R=27,cx=34,cy=32,a0=135,sw=270;
+   const pt=a=>{const r_=a*Math.PI/180;return [(cx+R*Math.cos(r_)).toFixed(1),(cy+R*Math.sin(r_)).toFixed(1)]};
+   const arc=(f,c)=>{if(f<=0)return '';const e=a0+sw*Math.min(f,1),[x1,y1]=pt(a0),[x2,y2]=pt(e);return `<path d="M${x1} ${y1} A${R} ${R} 0 ${sw*f>180?1:0} 1 ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`};
+   const cat=u==null?'':(x.category||CAT[u]);
+   return `<div class="pring" role="img" aria-label="${lbl} pollen: ${u==null?'no data':cat+', '+u+' of 5'}"><svg width="68" height="58" viewBox="0 0 68 58">${arc(1,'#3a4558')}${u?arc(u/5,col(x.color)):''}<g transform="translate(34 23)" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</g><text x="34" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${lbl}</text></svg><div class="pv">${u==null?'–':u+'/5'}</div><div class="pw">${u==null?'&nbsp;':cat}</div></div>`};
+  setTile('t-pol',`<div class="prings">${ring('GRASS','Grass')}${ring('TREE','Tree')}${ring('WEED','Weed')}</div>
    <div class="l" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${top?'Top: '+top:'No major plants in season'}</div>
    <div class="l" style="white-space:nowrap;overflow:hidden">${stale?`<span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}`:(trend||'')}</div>`);
 }
