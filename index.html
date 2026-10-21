@@ -167,9 +167,14 @@ a{color:var(--acc)}
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
 <div class="sec" style="margin-top:3px">Radar</div>
 <div class="card radar" id="radar"><div class="mut" style="padding:6px 8px">Loading radar…</div></div>
+<button id="szb" aria-label="Change dashboard size"></button>
 <div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)<span id="rcred"> · Radar: NWS NEXRAD via <a href="https://mesonet.agron.iastate.edu/" target="_blank" rel="noopener">IEM</a> · map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</span></div>
 
-<style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/245}</style>
+<style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/var(--ch,245)}
+html.size-fit{--z:1;--ch:274}html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap}html.size-big #t-rain .tg>div>*{white-space:normal}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain{align-content:center}html.size-big #t-rain .tg svg{height:96px}html.size-big #t-rain .v{font-size:13px}html.size-big #t-rain .l{font-size:11.5px}html.size-big #t-pol .pring svg{max-width:96px}html.size-big .pring .pv{font-size:14px}html.size-big .tile.mt{justify-content:center;gap:4px}html.size-big .tile.mt .v{font-size:19px}html.size-big .tile.mt svg{transform:scale(1.25);margin:6px 0}
+#szb{background:none;border:.5px solid var(--line);color:var(--acc);border-radius:999px;font-size:12px;padding:3px 10px;margin:4px auto 0;display:block;cursor:pointer}</style>
+<script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','fit','big'];let v=ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
+if(!v)try{v=localStorage.getItem('wxSize')}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
 <script>
 const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
 let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
@@ -752,7 +757,20 @@ async function refresh(){
   $('upd').textContent=(LOC.note?'⚠ Home · ':'')+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   $('rf').classList.remove('spin');busy=false;document.body.dataset.loaded='1';
 }
-$('rf').onclick=refresh;
+$('rf').onclick=e=>{if(RFLP){RFLP=false;return}refresh()};
+let RFLP=false,rfT;$('rf').addEventListener('pointerdown',()=>{rfT=setTimeout(()=>{RFLP=true;sizeCycle()},600)});['pointerup','pointerleave','pointercancel'].forEach(t=>$('rf').addEventListener(t,()=>clearTimeout(rfT)));
+$('rf').addEventListener('contextmenu',e=>e.preventDefault());
+const SZN={current:'Compact',fit:'Fit',big:'Big'};
+function sizeSet(v){const h=document.documentElement;h.classList.remove('size-current','size-fit','size-big');h.classList.add('size-'+v);WXSIZE=v;try{localStorage.setItem('wxSize',v)}catch(e){}
+  const u=new URL(location.href);if(u.searchParams.has('size')){u.searchParams.set('size',v);history.replaceState(null,'',u)}sizeLabel();sizeLayout()}
+function sizeCycle(){const o=['current','fit','big'];sizeSet(o[(o.indexOf(WXSIZE)+1)%3])}
+function sizeLabel(){$('szb').textContent='Size: '+SZN[WXSIZE]+' · tap to change'}
+function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:WXSIZE==='fit'?1:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
+  d.style.marginTop='';g.style.height='';d.querySelectorAll('.d').forEach(r=>r.style.lineHeight='');
+  if(WXSIZE==='fit'){const rows=d.querySelectorAll('.d'),ex=(innerHeight-6-abs(d))/z;if(ex>0&&rows.length){const lh=Math.min(30,18+ex/rows.length);rows.forEach(r=>r.style.lineHeight=lh+'px')}}
+  if(WXSIZE==='big'){const ex=(innerHeight-4-abs(g))/z;if(ex>0)g.style.height=(g.offsetHeight+Math.min(ex,260))+'px';
+    const top=d.getBoundingClientRect().top+scrollY,gap=(innerHeight-top)/z;if(gap>0)d.style.marginTop=gap+'px'}}
+$('szb').onclick=sizeCycle;sizeLabel();addEventListener('resize',sizeLayout);const RO_SZ=new ResizeObserver(()=>{if(WXSIZE!=='current'&&!sizeLayout.busy){sizeLayout.busy=1;requestAnimationFrame(()=>{sizeLayout();sizeLayout.busy=0})}});[$('grid'),$('sky24'),$('now')].forEach(e=>RO_SZ.observe(e));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-last>5*60e3)refresh()});
 setInterval(refresh,15*60e3);
 // ===== Lightning: GOES-19 GLM flashes via WxAlerts public MQTT-over-WebSocket feed =====
