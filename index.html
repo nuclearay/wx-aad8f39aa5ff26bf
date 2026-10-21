@@ -100,6 +100,8 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
+#mdet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#mdet[hidden]{display:none}
+.mdls{margin-top:8px;background:var(--card);border-radius:14px;padding:4px 12px}.mdl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #22304a;font-size:14px}.mdl:last-child{border-bottom:0}.mdl span{color:#9fb0c8}.mdl b{text-align:right}
 #poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
 .pdt{display:flex;align-items:center;gap:10px;margin-bottom:4px}.pdx{background:none;border:0;color:#fff;font-size:26px;line-height:1;padding:2px 6px;cursor:pointer}
 .pdtt{font-size:20px;font-weight:700}.pdu{font-size:12px;color:#cdd7e5}
@@ -145,14 +147,15 @@ a{color:var(--acc)}
 <div class="card ltg" id="ltg" hidden></div>
 <div class="card now" id="now"><div class="mut">Loading current conditions…</div></div>
 <div id="poldet" hidden></div>
+<div id="mdet" hidden></div>
 <div class="grid" id="grid">
   <div class="tile wide" id="t-rain"><h3>🌧 Rain <span class="rlink">📡 radar ›</span></h3><div class="l mut">…</div></div>
   <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()"><h3>🌾 Pollen</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-wind"><h3>💨 Wind</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-hum"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-uv"><h3>☀️ UV</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-pv"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-aqi"><h3>🫁 Air</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-wind" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('wind')" onkeydown="if(event.key==='Enter')mdOpen('wind')"><h3>💨 Wind</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-hum" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('humidity')" onkeydown="if(event.key==='Enter')mdOpen('humidity')"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-uv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('uv')" onkeydown="if(event.key==='Enter')mdOpen('uv')"><h3>☀️ UV</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-pv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('pressure')" onkeydown="if(event.key==='Enter')mdOpen('pressure')"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-aqi" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('air')" onkeydown="if(event.key==='Enter')mdOpen('air')"><h3>🫁 Air</h3><div class="l mut">…</div></div>
 </div>
 <div class="sec">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · wind <span style="text-transform:none;font-weight:400">(┄ gusts)</span></div>
 <div class="card sky24" id="sky24"><div class="mut">Loading…</div></div>
@@ -645,6 +648,71 @@ async function loadAir(){
   const main=Object.entries(pol).filter(e=>e[1]!=null).sort((x,y)=>y[1]-x[1])[0];
   setTile('t-aqi',`<div class="v">${pill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l">${a[0]}</div><div class="l">${main?'Main: '+main[0]:''}</div>`);
 }
+// ===== Row B detail screens: 24h history + 24h forecast (Open-Meteo past_days=1 / air-quality past_days=1) =====
+const MD={cache:{},push:false,keys:{wind:'Wind',humidity:'Humidity',uv:'UV index',pressure:'Pressure',air:'Air quality'}};
+function mdOpen(k){if(location.hash!=='#'+k){MD.push=true;location.hash=k}else mdShow(k)}
+function mdClose(){if(MD.keys[location.hash.slice(1)]){if(MD.push){MD.push=false;history.back()}else{history.replaceState(null,'',location.pathname+location.search);mdHide()}}else mdHide()}
+function mdHide(){const e=$('mdet');if(e){e.hidden=true;document.body.style.overflow=''}}
+async function mdData(air){const key=(air?'a':'f')+LAT+','+LON,c=MD.cache[key];if(c&&Date.now()-c.t<10*60e3)return c.d;
+  const u=air?'https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+LAT+'&longitude='+LON+'&hourly=us_aqi,pm2_5&past_days=1&forecast_days=2&timezone='+encodeURIComponent(TZ)
+   :'https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,dew_point_2m,uv_index,pressure_msl&past_days=1&forecast_days=2&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone='+encodeURIComponent(TZ);
+  const d=await getJSON(u);MD.cache[key]={t:Date.now(),d};return d}
+function mdSlice(h){ // returns index window: 24 past .. now .. 24 ahead
+  const now=Date.now(),ts=h.time.map(t=>new Date(t+':00').getTime());let i0=0;ts.forEach((t,k)=>{if(t<=now)i0=k});
+  const a=Math.max(0,i0-24),b=Math.min(ts.length-1,i0+24);return {a,b,i0,ts}}
+const DIRS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const dir16=d=>d==null?'–':DIRS[Math.round(d/22.5)%16];
+function mdChart(o){ // o:{ts,a,b,i0,ser:[{v,col,w,dash,fill,bars,colf}],min,max,fmt,arrows}
+  const W=388,H=196,L=30,R=6,T=18,B=H-26,n=o.b-o.a;
+  const x=k=>L+(k-o.a)/n*(W-L-R),y=v=>B-(v-o.min)/(o.max-o.min||1)*(B-T);
+  let g='';for(let q=0;q<=4;q++){const v=o.min+(o.max-o.min)*q/4,yy=y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#22304a"/><text x="${L-4}" y="${yy+3}" font-size="9" fill="#9fb0c8" text-anchor="end">${o.fmt(v)}</text>`}
+  g+=`<rect x="${x(o.i0)}" y="${T}" width="${W-R-x(o.i0)}" height="${B-T}" fill="#ffffff" opacity=".035"/>`;
+  for(let k=o.a;k<=o.b;k++){const t=new Date(o.ts[k]),hh=+t.toLocaleString('en-US',{hour:'numeric',hour12:false,timeZone:TZ})%24;
+    if(hh%6===0)g+=`<text x="${x(k)}" y="${B+12}" font-size="9" fill="#9fb0c8" text-anchor="middle">${hh===0?t.toLocaleDateString('en-US',{weekday:'short',timeZone:TZ}):(hh%12||12)+(hh<12?'a':'p')}</text><line x1="${x(k)}" x2="${x(k)}" y1="${B}" y2="${B+3}" stroke="#475569"/>`}
+  for(const s of o.ser){const pts=[];for(let k=o.a;k<=o.b;k++){const v=s.v[k];if(v!=null)pts.push([k,v])}
+    if(s.bars){const bw=(W-L-R)/n*0.8;pts.forEach(([k,v])=>g+=`<rect x="${x(k)-bw/2}" y="${y(v)}" width="${bw}" height="${Math.max(0,B-y(v))}" fill="${s.colf(v)}" opacity="${k>o.i0?.6:.95}"/>`);continue}
+    const seg=(f)=>pts.filter(f).map((p,j)=>(j?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1)).join('');
+    const past=seg(p=>p[0]<=o.i0),fut=seg(p=>p[0]>=o.i0);
+    if(s.fill){const all=seg(()=>true);g+=`<path d="${all}L${x(pts[pts.length-1][0])} ${B}L${x(pts[0][0])} ${B}Z" fill="${s.col}" opacity=".13"/>`}
+    g+=`<path d="${past}" fill="none" stroke="${s.col}" stroke-width="${s.w||2}" stroke-linejoin="round"/><path d="${fut}" fill="none" stroke="${s.col}" stroke-width="${s.w||2}" stroke-dasharray="5 3" stroke-linejoin="round"/>`}
+  if(o.arrows){for(let k=o.a;k<=o.b;k+=3){const d=o.arrows[k];if(d==null)continue;g+=`<g transform="translate(${x(k)} ${T+4}) rotate(${d+180})"><path d="M0 -5L3.5 4L0 2L-3.5 4Z" fill="#e5edf7"/></g>`}}
+  const nv=o.ser[0].v[o.i0];g+=`<line x1="${x(o.i0)}" x2="${x(o.i0)}" y1="${T-6}" y2="${B}" stroke="#fff" stroke-width="1.4"/><text x="${x(o.i0)}" y="${T-1}" font-size="9" font-weight="700" fill="#fff" text-anchor="middle" dy="-1">now</text>`;
+  if(nv!=null)g+=`<circle cx="${x(o.i0)}" cy="${y(nv)}" r="3.6" fill="#fff"/>`;
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="max-width:${W}px;display:block;margin:6px auto 2px">${g}</svg><div class="pdu" style="text-align:center">◀ past 24h (solid) · now · next 24h (dashed) ▶</div>`}
+function mdStats(v,a,i0,b,fmt,trendTh){const past=v.slice(a,i0+1).filter(x=>x!=null),fut=v.slice(i0+1,b+1).filter(x=>x!=null),cur=v[i0];
+  const hi=Math.max(...past),lo=Math.min(...past),fh=fut.length?Math.max(...fut):null,fl=fut.length?Math.min(...fut):null,end=fut.length?fut[fut.length-1]:null;
+  const dlt=end!=null&&cur!=null?end-cur:null,tr=dlt==null?'–':Math.abs(dlt)<trendTh?'Steady':dlt>0?'Rising':'Falling';
+  return {cur,hi,lo,fh,fl,end,tr,dlt,ln:(lbl,val)=>`<div class="mdl"><span>${lbl}</span><b>${val}</b></div>`}}
+async function mdShow(k){let el=$('mdet');if(!el)return;document.body.style.overflow='hidden';el.hidden=false;
+  const head=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="mdClose()">←</button><div><div class="pdtt">${MD.keys[k]}</div><div class="pdu">${LOC.name} · past 24h + next 24h</div></div></div>`;
+  el.innerHTML=head+'<div class="mut" style="padding:12px">Loading…</div>';
+  let d;try{d=await mdData(k==='air')}catch(e){el.innerHTML=head+'<div class="err" style="padding:12px">⚠ Data unavailable, try again later</div>';return}
+  if(location.hash!=='#'+k)return;
+  const h=d.hourly,{a,b,i0,ts}=mdSlice(h);let body='',lines='';
+  const mm=(arr,pad,fl0)=>{const v=arr.slice(a,b+1).filter(x=>x!=null);let mn=Math.min(...v),mx=Math.max(...v);mn-=pad;mx+=pad;if(fl0!=null)mn=Math.max(fl0,mn);return [mn,mx]};
+  if(k==='wind'){const s=mdStats(h.wind_speed_10m,a,i0,b,0,3),g=mdStats(h.wind_gusts_10m,a,i0,b,0,3),[,mx]=mm(h.wind_gusts_10m,2,0);
+    body=mdChart({ts,a,b,i0,min:0,max:Math.ceil(mx/5)*5,fmt:v=>Math.round(v),arrows:h.wind_direction_10m,ser:[{v:h.wind_speed_10m,col:'#7dd3fc'},{v:h.wind_gusts_10m,col:'#94a3b8',w:1.3}]})+'<div class="pdu" style="text-align:center">mph · <span style="color:#7dd3fc">━ wind</span> · <span style="color:#94a3b8">━ gusts</span> · arrows = direction blowing toward</div>';
+    lines=s.ln('Now',`${r(s.cur)} mph from ${dir16(h.wind_direction_10m[i0])} · gusts ${r(g.cur)}`)+s.ln('24h high',`${r(s.hi)} mph · gust ${r(g.hi)}`)+s.ln('24h low',`${r(s.lo)} mph`)+s.ln('Next 24h',`${r(s.fl)}–${r(s.fh)} mph · gusts to ${r(g.fh)}`)+s.ln('Trend',`${s.tr}${s.dlt!=null?` (${s.dlt>=0?'+':''}${r(s.dlt)} mph, ends from ${dir16(h.wind_direction_10m[b])})`:''}`)}
+  if(k==='humidity'){const s=mdStats(h.relative_humidity_2m,a,i0,b,0,5),dp=mdStats(h.dew_point_2m,a,i0,b,0,2),[mn]=mm(h.relative_humidity_2m,5,0);
+    body=mdChart({ts,a,b,i0,min:Math.floor(mn/10)*10,max:100,fmt:v=>Math.round(v)+'%',ser:[{v:h.relative_humidity_2m,col:'#38bdf8',fill:1}]});
+    lines=s.ln('Now',`${r(s.cur)}% · dew point ${r(dp.cur)}°`)+s.ln('24h high',`${r(s.hi)}% · dew pt ${r(dp.hi)}°`)+s.ln('24h low',`${r(s.lo)}% · dew pt ${r(dp.lo)}°`)+s.ln('Next 24h',`${r(s.fl)}–${r(s.fh)}% · dew pt ${r(dp.fl)}–${r(dp.fh)}°`)+s.ln('Trend',`${s.tr} · dew pt ${dp.tr.toLowerCase()}`)}
+  if(k==='uv'){const s=mdStats(h.uv_index,a,i0,b,0,1),[,mx]=mm(h.uv_index,0.5,0);
+    body=mdChart({ts,a,b,i0,min:0,max:Math.max(6,Math.ceil(mx)),fmt:v=>Math.round(v),ser:[{v:h.uv_index,bars:1,colf:v=>uvInfo(v)[1]}]});
+    const pk=h.uv_index.slice(i0+1,b+1),pi=pk.indexOf(Math.max(...pk)),pt=new Date(ts[i0+1+pi]).toLocaleTimeString('en-US',{hour:'numeric',timeZone:TZ});
+    lines=s.ln('Now',`${(s.cur??0).toFixed(1)} · ${uvInfo(s.cur)[0]}`)+s.ln('24h high',`${s.hi.toFixed(1)} · ${uvInfo(s.hi)[0]}`)+s.ln('24h low',s.lo.toFixed(1))+s.ln('Next 24h peak',`${s.fh.toFixed(1)} · ${uvInfo(s.fh)[0]} around ${pt}`)+s.ln('Trend',s.tr)}
+  if(k==='pressure'){const toIn=x=>x==null?null:x*0.02953,v=h.pressure_msl.map(toIn),s=mdStats(v,a,i0,b,0,0.03),[mn,mx]=mm(v,0.02);
+    const ch=v[i0]-v[a],col=ch>0.03?'#7dd3fc':ch<-0.03?'#fca5a5':'#cdd7e5';
+    body=mdChart({ts,a,b,i0,min:mn,max:mx,fmt:x=>x.toFixed(2),ser:[{v,col,fill:1}]})+'<div class="pdu" style="text-align:center">inHg (sea level)</div>';
+    const f=x=>x==null?'–':x.toFixed(2)+' inHg',hp=x=>Math.round(x/0.02953);
+    lines=s.ln('Now',`${f(s.cur)} · ${hp(s.cur)} hPa`)+s.ln('24h high',f(s.hi))+s.ln('24h low',f(s.lo))+s.ln('Past 24h change',`${ch>=0?'+':''}${ch.toFixed(2)} inHg`)+s.ln('Next 24h',`${f(s.fl)} – ${f(s.fh)}`)+s.ln('Trend',`${s.tr}${s.dlt!=null?` (${s.dlt>=0?'+':''}${s.dlt.toFixed(2)})`:''}`)}
+  if(k==='air'){const s=mdStats(h.us_aqi,a,i0,b,0,10),p=mdStats(h.pm2_5,a,i0,b,0,3),[,mx]=mm(h.us_aqi,5,0);
+    body=mdChart({ts,a,b,i0,min:0,max:Math.max(60,Math.ceil(mx/10)*10),fmt:v=>Math.round(v),ser:[{v:h.us_aqi,bars:1,colf:v=>aqiInfo(v)[1]}]})+'<div class="pdu" style="text-align:center">US AQI</div>'+
+      mdChart({ts,a,b,i0,min:0,max:Math.max(15,Math.ceil(mm(h.pm2_5,2,0)[1]/5)*5),fmt:v=>Math.round(v),ser:[{v:h.pm2_5,col:'#c4b5fd',fill:1}]})+'<div class="pdu" style="text-align:center">PM2.5 µg/m³</div>';
+    lines=s.ln('Now',`AQI ${r(s.cur)} · ${aqiInfo(s.cur)[0]} · PM2.5 ${p.cur==null?'–':p.cur.toFixed(1)}`)+s.ln('24h high',`AQI ${r(s.hi)} · PM2.5 ${p.hi.toFixed(1)}`)+s.ln('24h low',`AQI ${r(s.lo)} · PM2.5 ${p.lo.toFixed(1)}`)+s.ln('Next 24h',`AQI ${r(s.fl)}–${r(s.fh)} · ${aqiInfo(s.fh)[0]} peak`)+s.ln('Trend',s.tr)}
+  const gap=(b-i0<24||i0-a<24)?`<div class="pdu">Note: only ${i0-a}h history / ${b-i0}h forecast available</div>`:'';
+  el.innerHTML=head+body+`<div class="mdls">${lines}</div>${gap}<div class="pdu" style="margin-top:6px">Source: Open-Meteo${k==='air'?' Air Quality (CAMS)':''} · modeled, not station-observed</div>`}
+window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);MD.keys[k]?mdShow(k):mdHide()});
+if(MD.keys[location.hash.slice(1)])setTimeout(()=>mdShow(location.hash.slice(1)),0);
 // Beach/marine-only NWS alert types Raymond never needs (exact event names). Land/home alerts (incl. coastal flood, storm surge, tropical) still show.
 const SKIP_ALERTS=new Set(['High Surf Advisory','High Surf Warning','Rip Current Statement','Beach Hazards Statement','Small Craft Advisory','Small Craft Advisory for Hazardous Seas','Small Craft Advisory for Rough Bar','Small Craft Advisory for Winds','Marine Weather Statement','Gale Warning','Gale Watch','Storm Warning','Storm Watch','Hurricane Force Wind Warning','Hurricane Force Wind Watch','Hazardous Seas Warning','Hazardous Seas Watch','Brisk Wind Advisory','Special Marine Warning','Low Water Advisory'].map(x=>x.toLowerCase()));
 async function loadAlerts(){
