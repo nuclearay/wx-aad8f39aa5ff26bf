@@ -34,7 +34,7 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .alert b{font-weight:700}.alert .ex{color:#e5d3a8;font-size:12px}
 .alert .desc{display:none;white-space:pre-wrap;font-size:12px;margin-top:4px;color:#f1e7cf;max-height:40vh;overflow:auto}
 .alert.open .desc{display:block}
-.now{display:grid;grid-template-columns:auto auto 1fr auto;gap:2px 8px;align-items:center;margin-bottom:6px}
+.now{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;margin-bottom:6px}
 .now .big{font-size:48px;font-weight:800;line-height:1;letter-spacing:-2px}
 .now .ico{font-size:30px}
 .now .lines div{font-size:14px}
@@ -46,6 +46,7 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .now .obs b{color:#fff}
 .mode{flex:none;background:#1c2a44;border:1px solid #33507a;color:#cfe3ff;border-radius:999px;font-size:12px;font-weight:600;padding:2px 9px;height:24px;cursor:pointer}
 .mode.here{background:#123a2c;border-color:#2f8f6a;color:#c7f5df}
+.now .mid{display:flex;align-items:center;justify-content:center;gap:10px}
 .now .cond{font-size:18px;font-weight:700;text-align:center;line-height:1.1;max-width:100px}
 .now .cond .ci{display:block;font-size:34px;line-height:1.1}
 .now .lines div.fl{font-size:17px}
@@ -234,9 +235,9 @@ async function loadForecast(){
     RADAR.wx=(c.precipitation>0)||(k0>=0&&((H.precipitation[k1]||0)>0||wet(H.weather_code[k1])||(H.precipitation_probability[k1]||0)>=40))||wet(c.weather_code); }
   const w=wx(c.weather_code,c.is_day);
   // Now card
-  $('now').innerHTML=`${gTemp(c.temperature_2m,c.apparent_temperature)}<div><div class="big">${r(c.temperature_2m)}°</div></div>
+  $('now').innerHTML=`${gTemp(c.temperature_2m,c.apparent_temperature)}<div class="mid"><div><div class="big">${r(c.temperature_2m)}°</div></div>
    <div class="lines"><div class="fl">Feels <b>${r(c.apparent_temperature)}°</b></div>
-   <div class="hl">H <b>${r(D.temperature_2m_max[0])}°</b> · L <b>${r(D.temperature_2m_min[0])}°</b></div></div>
+   <div class="hl">H <b>${r(D.temperature_2m_max[0])}°</b> · L <b>${r(D.temperature_2m_min[0])}°</b></div></div></div>
    <div class="cond"><span class="ci">${w.i}</span>${w.t}</div><div class="obs${OBS.stale?' stale':''}" id="obs">${OBS.html}</div><div class="note" id="wbl" hidden></div><div class="note" id="chg" hidden></div>`;
   // index of current hour
   const key=nowLocal();let i0=H.time.findIndex(t=>t.slice(0,13)===key);if(i0<0)i0=0;
