@@ -23,8 +23,8 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .hdr .upd{font-size:12px;color:var(--mut)}
 .btn{background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:8px;font-size:16px;width:34px;height:30px;cursor:pointer}
 .btn.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 9px}
-.alerts{display:flex;flex-direction:column;gap:4px;margin-bottom:6px}
+.card{background:var(--card);border:.5px solid var(--line);border-radius:10px;padding:7px 9px}
+.alerts{display:flex;flex-direction:column;gap:3px;margin-bottom:3px}
 .alerts:empty{display:none}
 .alert{border-radius:8px;padding:5px 8px;font-size:13px;cursor:pointer;border-left:4px solid}
 .alert.Minor{background:#3a2e0b;border-color:#f59e0b}
@@ -34,7 +34,7 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .alert b{font-weight:700}.alert .ex{color:#e5d3a8;font-size:12px}
 .alert .desc{display:none;white-space:pre-wrap;font-size:12px;margin-top:4px;color:#f1e7cf;max-height:40vh;overflow:auto}
 .alert.open .desc{display:block}
-.now{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;margin-bottom:6px}
+.now{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;margin-bottom:3px}
 .now .big{font-size:48px;font-weight:800;line-height:1;letter-spacing:-2px}
 .now .ico{font-size:30px}
 .now .lines div{font-size:14px}
@@ -46,22 +46,22 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .now .obs b{color:#fff}
 .mode{flex:none;background:#1c2a44;border:1px solid #33507a;color:#cfe3ff;border-radius:999px;font-size:12px;font-weight:600;padding:2px 9px;height:24px;cursor:pointer}
 .mode.here{background:#123a2c;border-color:#2f8f6a;color:#c7f5df}
-.now .mid{display:flex;align-items:center;justify-content:center;gap:10px}
-.now .cond{font-size:18px;font-weight:700;text-align:center;line-height:1.1;max-width:100px}
-.now .cond .ci{display:block;font-size:34px;line-height:1.1}
+.now .mid{display:flex;align-items:center;justify-content:flex-start;gap:10px}
+.now .cond{font-size:18px;font-weight:700;line-height:1.1;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.now .cond .ci{display:block;font-size:34px;line-height:1.1;order:2}
 .now .lines div.fl{font-size:17px}
 .now .lines div.hl{font-size:16px}
 .mut{color:var(--mut)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:6px}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 7px;min-height:66px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-bottom:3px}
+.tile{background:var(--card);border:.5px solid var(--line);border-radius:9px;padding:5px 7px;min-height:66px}
 .tile h3{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:600;margin-bottom:2px}
 .tile .v{font-size:17px;font-weight:700;line-height:1.15}
 .tile .l{font-size:12px;color:#cdd7e5;line-height:1.3}
 .tile.wide{grid-column:span 2}
 .pill{display:inline-block;padding:0 6px;border-radius:6px;font-weight:700;color:#0b1220}
 .err{color:#fca5a5;font-size:12px}
-.sec{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:2px 2px 3px;font-weight:600}
-.hr{flex:0 0 52px;background:var(--card);border:1px solid var(--line);border-radius:8px;text-align:center;padding:4px 0;font-size:12px}
+.sec{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:1px 2px 2px;font-weight:600}
+.hr{flex:0 0 52px;background:var(--card);border:.5px solid var(--line);border-radius:8px;text-align:center;padding:4px 0;font-size:12px}
 .hr .t{color:var(--mut)}.hr .i{font-size:18px;line-height:1.3}.hr .tp{font-weight:700;font-size:14px}.hr .p{color:var(--acc)}
 .days .d{display:grid;grid-template-columns:44px 26px 1fr 50px 74px;align-items:center;padding:0 2px;line-height:21px;border-bottom:1px solid var(--line);font-size:14px}
 .days .d:last-child{border-bottom:0}
@@ -69,7 +69,7 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .days .hl span{color:var(--mut);font-weight:400}
 .days .c{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
 a{color:var(--acc)}
-.sky24{padding:4px 6px 5px;margin-bottom:6px}
+.sky24{padding:4px 6px 5px;margin-bottom:3px}
 .sky24{position:relative}
 .sky24 svg{display:block;width:100%;height:auto;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:crosshair}
 .xtip{position:absolute;pointer-events:none;background:rgba(8,13,24,.94);border:1px solid #3b4d6b;border-radius:7px;padding:4px 7px;font-size:12px;line-height:1.35;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:5}
@@ -159,9 +159,8 @@ a{color:var(--acc)}
   <div class="tile mt" id="t-pv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('pressure')" onkeydown="if(event.key==='Enter')mdOpen('pressure')"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-aqi" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('air')" onkeydown="if(event.key==='Enter')mdOpen('air')"><h3>🫁 Air</h3><div class="l mut">…</div></div>
 </div>
-<div class="sec">5 days</div>
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
-<div class="sec" style="margin-top:6px">Radar</div>
+<div class="sec" style="margin-top:3px">Radar</div>
 <div class="card radar" id="radar"><div class="mut" style="padding:6px 8px">Loading radar…</div></div>
 <div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)<span id="rcred"> · Radar: NWS NEXRAD via <a href="https://mesonet.agron.iastate.edu/" target="_blank" rel="noopener">IEM</a> · map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</span></div>
 
@@ -315,7 +314,7 @@ async function loadForecast(){
   WXSNAP.fc={hi:r(D.temperature_2m_max[0]),lo:r(D.temperature_2m_min[0]),r0:D.precipitation_probability_max[0]??0,r1:D.precipitation_probability_max[1]??0,g:r(Math.max(D.wind_gusts_10m_max[0]??0,D.wind_gusts_10m_max[1]??0))};
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
-  $('days').innerHTML=D.time.slice(0,5).map((t,k)=>{const ww=wx(D.weather_code[k]);
+  $('days').innerHTML=D.time.slice(1,7).map((t,j)=>{const k=j+1;const ww=wx(D.weather_code[k]);
     return `<div class="d"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
@@ -476,7 +475,7 @@ async function obsStations(){
   if(LOC.mode==='home')return OBS.stations=[HOME.obsStation];
   const pt=LOC.points||await getJSON('https://api.weather.gov/points/'+LAT.toFixed(4)+','+LON.toFixed(4),NWSH);
   const st=await getJSON(pt.properties.observationStations+'?limit=8',NWSH);
-  return OBS.stations=(st.features||[]).map(f=>({id:f.properties.stationIdentifier,d:miles(LAT,LON,f.geometry.coordinates[1],f.geometry.coordinates[0])})).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>x.id);
+  return OBS.stations=(st.features||[]).map(f=>({id:f.properties.stationIdentifier,d:miles(LAT,LON,f.geometry.coordinates[1],f.geometry.coordinates[0])})).sort((a,b)=>a.d-b.d).filter(x=>x.id!=='KPIE').slice(0,3).map(x=>x.id);
 }
 async function loadObs(){
   try{
