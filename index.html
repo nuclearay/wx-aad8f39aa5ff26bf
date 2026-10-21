@@ -603,6 +603,9 @@ window.addEventListener('hashchange',()=>{location.hash==='#pollen'?polShow():po
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('poldet').hidden)polClose()});
 async function loadPollen(){
   let d;try{d=await getJSON('pollen.json?_='+Date.now())}catch(e){d=null}
+  // Recolor by level (0-5): None gray, Very Low/Low green, Moderate orange, High red, Very High magenta
+  const PC=[{red:.39,green:.45,blue:.55},{red:.10,green:.60,blue:.31},{red:.52,green:.81,blue:.20},{red:1,green:.55,blue:.10},{red:.84,green:.10,blue:.11},{red:.70,green:.05,blue:.47}];
+  if(d&&Array.isArray(d.days))d.days.forEach(x=>{[...Object.values(x.types||{}),...(x.plants||[])].forEach(v=>{if(v&&v.upi!=null)v.color=PC[Math.max(0,Math.min(5,v.upi))]})});
   if(!d||!Array.isArray(d.days)||!d.days.length){
     setTile('t-pol',`<div class="l">Tree · Grass · Weed: <b>n/a</b></div><div class="l mut">No pollen data file yet</div><div class="l">${POLLEN_LINK}</div>`);return}
   const ageH=(Date.now()-Date.parse(d.fetchedAt))/36e5,stale=!(ageH<=36);
@@ -618,7 +621,7 @@ async function loadPollen(){
    const pt=a=>{const r_=a*Math.PI/180;return [(cx+R*Math.cos(r_)).toFixed(1),(cy+R*Math.sin(r_)).toFixed(1)]};
    const arc=(f,c)=>{if(f<=0)return '';const e=a0+sw*Math.min(f,1),[x1,y1]=pt(a0),[x2,y2]=pt(e);return `<path d="M${x1} ${y1} A${R} ${R} 0 ${sw*f>180?1:0} 1 ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`};
    const cat=u==null?'':(x.category||CAT[u]);
-   return `<div class="pring" role="img" aria-label="${lbl} pollen: ${u==null?'no data':cat+', '+u+' of 5'}"><svg width="68" height="58" viewBox="0 0 68 58">${arc(1,'#3a4558')}${u?arc(u/5,col(x.color)):''}<g transform="translate(34 23)" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</g><text x="34" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${lbl}</text></svg><div class="pv">${u==null?'–':u+'/5'}</div><div class="pw">${u==null?'&nbsp;':cat}</div></div>`};
+   return `<div class="pring" role="img" aria-label="${lbl} pollen: ${u==null?'no data':cat+', '+u+' of 5'}"><svg width="68" height="58" viewBox="0 0 68 58">${arc(1,'#3a4558')}${u?arc(u/5,col(x.color)):''}<g transform="translate(34 23)" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</g><text x="34" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${lbl}</text></svg><div class="pv">${u==null?'–':u+'/5'}</div></div>`};
   POL={d,i,col,CAT,ICO};
   setTile('t-pol',`<div class="prings">${ring('GRASS','Grass')}${ring('TREE','Tree')}${ring('WEED','Weed')}</div>${stale?`<div class="l" style="white-space:nowrap;overflow:hidden"><span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}</div>`:''}`);
   if(location.hash==='#pollen')polShow();
