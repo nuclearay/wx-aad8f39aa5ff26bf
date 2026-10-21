@@ -77,7 +77,7 @@ a{color:var(--acc)}
 .xtip .xt{font-weight:700;color:#fff;margin-bottom:1px}
 .xtip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
 .xtip b{font-weight:700}
-.sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
+.sky24 .sunov .sl{justify-content:space-evenly!important;align-items:center}.sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
 .skyw{position:relative}.sky24 svg.sic{display:inline-block;width:16px;height:16px;vertical-align:-3px;cursor:default}.sunov{position:absolute;left:0;right:0;pointer-events:none}.sunov .sl,.sunov .ml{padding-top:0!important}
 .sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
 .ltg{display:grid;grid-template-columns:84px 1fr 104px;gap:8px;align-items:center;margin-bottom:6px;border-color:#a16207;background:#1f1a0e}
@@ -192,6 +192,8 @@ const hmD=d=>{if(!d)return '–';const p=d.toLocaleTimeString('en-US',{hour:'num
 let SUNTW=[null,null];
 const sunIc=(bg,fg,up,lbl)=>`<svg class="sic" width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="${lbl}"><title>${lbl}</title><circle cx="8" cy="8" r="8" fill="${bg}"/><g fill="none" stroke="${fg}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${up?'<path d="M4.8 11.2 L11 5 M6.2 5 H11 V9.8"/>':'<path d="M4.8 4.8 L11 11 M11 6.2 V11 H6.2"/>'}</g></svg>`;
 const hm=s=>{const [h,m]=s.slice(11,16).split(':').map(Number);return (h%12||12)+(m?':'+String(m).padStart(2,'0'):'')+(h<12?'a':'p')};
+const tC=t=>{if(t==null||isNaN(t))return '#e5e7eb';const S=[[32,[59,110,255]],[45,[34,211,238]],[60,[52,211,153]],[72,[250,204,21]],[82,[251,146,60]],[90,[255,59,48]]];if(t<=32)return 'rgb(59,110,255)';if(t>=90)return 'rgb(255,59,48)';for(let i=1;i<S.length;i++)if(t<=S[i][0]){const [a,ca]=S[i-1],[b,cb]=S[i],f=(t-a)/(b-a);return 'rgb('+ca.map((v,j)=>Math.round(v+(cb[j]-v)*f)).join(',')+')'}};
+const tS=t=>` style="color:${tC(t)}"`;
 const hh=s=>{const h=+s.slice(11,13);return (h%12||12)+(h<12?'a':'p')};
 const dayName=(s,i)=>i===0?'Today':new Date(s+'T12:00').toLocaleDateString('en-US',{weekday:'short'});
 const nowLocal=()=>new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T').slice(0,13); // YYYY-MM-DDTHH
@@ -272,9 +274,9 @@ async function loadForecast(){
     RADAR.wx=(c.precipitation>0)||(k0>=0&&((H.precipitation[k1]||0)>0||wet(H.weather_code[k1])||(H.precipitation_probability[k1]||0)>=40))||wet(c.weather_code); }
   const w=wx(c.weather_code,c.is_day);
   // Now card
-  $('now').innerHTML=`${gTemp(c.temperature_2m,c.apparent_temperature)}<div class="mid"><div><div class="big">${r(c.temperature_2m)}°</div></div>
-   <div class="lines"><div class="fl">Feels <b>${r(c.apparent_temperature)}°</b></div>
-   <div class="hl">H <b>${r(D.temperature_2m_max[0])}°</b> · L <b>${r(D.temperature_2m_min[0])}°</b></div></div></div>
+  $('now').innerHTML=`${gTemp(c.temperature_2m,c.apparent_temperature)}<div class="mid"><div><div class="big"${tS(c.temperature_2m)}>${r(c.temperature_2m)}°</div></div>
+   <div class="lines"><div class="fl">Feels <b${tS(c.apparent_temperature)}>${r(c.apparent_temperature)}°</b></div>
+   <div class="hl">H <b${tS(D.temperature_2m_max[0])}>${r(D.temperature_2m_max[0])}°</b> · L <b${tS(D.temperature_2m_min[0])}>${r(D.temperature_2m_min[0])}°</b></div></div></div>
    <div class="cond"><span class="ci">${w.i}</span>${w.t}</div><div class="obs${OBS.stale?' stale':''}" id="obs">${OBS.html}</div><div class="note" id="wbl" hidden></div><div class="note" id="chg" hidden></div>`;
   // index of current hour
   const key=nowLocal();let i0=H.time.findIndex(t=>t.slice(0,13)===key);if(i0<0)i0=0;
@@ -314,7 +316,7 @@ async function loadForecast(){
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
   $('days').innerHTML=D.time.slice(0,5).map((t,k)=>{const ww=wx(D.weather_code[k]);
-    return `<div class="d"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl">${r(D.temperature_2m_max[k])}° <span>/ ${r(D.temperature_2m_min[k])}°</span></span></div>`}).join('');
+    return `<div class="d"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
 function moonInfo(date=new Date()){
@@ -397,8 +399,8 @@ function drawSky24(H,D,i0){
     if(k%3)return;const lx=Math.min(X1-8,Math.max(X0+8,xx)),f=fl[k],fHi=f>=v;
     g+=`<circle cx="${xx.toFixed(1)}" cy="${ty(f).toFixed(1)}" r="1.8" fill="#fb923c"/>`;
     // higher value labelled above its line, lower value below its line -> never collide
-    g+=lab(lx,fHi?ty(v)+13:ty(v)-5,r(v)+'°','#fecdd3',12.5);
-    if(Math.round(f)!==Math.round(v))g+=lab(lx,fHi?ty(f)-5:ty(f)+13,r(f)+'°','#fdba74',11);});
+    g+=lab(lx,fHi?ty(v)+13:ty(v)-5,r(v)+'°',tC(v),12.5);
+    if(Math.round(f)!==Math.round(v))g+=lab(lx,fHi?ty(f)-5:ty(f)+13,r(f)+'°',tC(f),11);});
   // dim elapsed part of the day (data stays visible) + now marker
   if(nowWall>t0)g+=`<rect x="${X0-6}" y="0" width="${(x(Math.min(nowWall,t0+N))-X0+6).toFixed(1)}" height="274" fill="#141d2f" opacity=".38"/>`;
   if(nowWall>=t0&&nowWall<=t0+N){const nx=x(nowWall);
@@ -429,7 +431,7 @@ function drawSky24(H,D,i0){
   const svg=`<svg viewBox="0 0 ${W} 274" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[0]/3600, m=moonInfo();
-  el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span><span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span> · <span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")}</span> <b>${hm(D.sunrise[0])}</b></span><span>☀️ <b>${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")}</span> <b>${hm(D.sunset[0])}</b> · <span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></span></div>
+  el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span><span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[0])}</b></span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[0])}</b></span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
    <div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${m.illum}% lit · <span class="mut">${m.next}</span></span></div></div></div><div class="xtip" id="xtip" hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
@@ -447,7 +449,7 @@ function xhShow(el,clientX){
   svg.querySelector('#xh').setAttribute('visibility','visible');
   const h=(Math.floor(D.t0)+k)%24,lbl=(k===D.kNow?'Now · ':'')+(h%12||12)+' '+(h<12?'AM':'PM');
   const tip=$('xtip');
-  tip.innerHTML=`<div class="xt">${lbl}</div><div><i style="background:#fb7185"></i>Temp <b>${r(D.tp[k])}°</b></div><div><i style="background:#fb923c"></i>Feels <b>${r(D.fl[k])}°</b></div>`+
+  tip.innerHTML=`<div class="xt">${lbl}</div><div><i style="background:#fb7185"></i>Temp <b${tS(D.tp[k])}>${r(D.tp[k])}°</b></div><div><i style="background:#fb923c"></i>Feels <b${tS(D.fl[k])}>${r(D.fl[k])}°</b></div>`+
    `<div><i style="background:#6bbf59"></i>Dew <b>${r(D.dw[k])}°</b>${D.wb[k]!=null?` · WB <b>${r(D.wb[k])}°</b>`:''}</div><div><i style="background:#38bdf8"></i>Rain <b>${D.pr[k]??0}%</b></div>`+
    (D.sw[k]>0||D.uvh[k]>0?`<div><i style="background:#fbbf24"></i>Sun <b>${Math.round(D.sw[k])}</b> W/m²</div><div><i style="background:${uvInfo(D.uvh[k])[1]}"></i>UV <b>${(+D.uvh[k]).toFixed(1)}</b></div>`:`<div><i style="background:#64748b"></i>Sun <b>0</b> · UV <b>0</b></div>`)+
    `<div><i style="background:#2dd4bf"></i>Wind <b>${r(D.ws[k])}</b> g${r(D.wg[k])} ${card(D.wd[k])}</div>`;
@@ -487,7 +489,7 @@ async function loadObs(){
     const ws=M(v('windSpeed')),wg=M(v('windGust')),wd=v('windDirection'),rh=v('relativeHumidity');
     const ageM=(Date.now()-Date.parse(p.timestamp))/60e3,age=ageM<60?Math.round(ageM)+'m ago':(ageM/60).toFixed(ageM<600?1:0).replace('.0','')+'h ago';
     const wind=ws==null?null:ws<0.5?'Calm':`${wd!=null?card(wd)+' ':''}${r(ws)}${wg!=null?' g'+r(wg):''}`;
-    const parts=[`<b>${id}</b>${d!=null?' '+d.toFixed(1)+' mi':''}`,`<b>${r(F(v('temperature')))}°</b>`];
+    const parts=[`<b>${id}</b>${d!=null?' '+d.toFixed(1)+' mi':''}`,`<b${tS(F(v('temperature')))}>${r(F(v('temperature')))}°</b>`];
     if(rh!=null)parts.push(r(rh)+'%');if(wind)parts.push(wind);parts.push(`<span class="mut">${age}</span>`);
     setObs('📡 '+parts.join(' · '),ageM>120);
   }catch(e){setObs('<span class="mut">Local obs unavailable</span>')}
