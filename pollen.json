@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-10-21T11:41:37+00:00",
+ "fetchedAt": "2026-10-21T12:50:30+00:00",
  "source": "Google Pollen API",
  "location": {
   "lat": 27.96,
@@ -47,7 +47,7 @@
     {
      "code": "RAGWEED",
      "name": "Ragweed",
-     "type": null,
+     "type": "WEED",
      "inSeason": true,
      "upi": 4,
      "category": "High",
@@ -59,7 +59,7 @@
     {
      "code": "ELM",
      "name": "Elm",
-     "type": null,
+     "type": "TREE",
      "inSeason": true,
      "upi": 2,
      "category": "Low",
@@ -72,7 +72,7 @@
     {
      "code": "GRAMINALES",
      "name": "Grasses",
-     "type": null,
+     "type": "GRASS",
      "inSeason": false,
      "upi": 2,
      "category": "Low",
@@ -85,7 +85,7 @@
     {
      "code": "MAPLE",
      "name": "Maple",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -94,7 +94,7 @@
     {
      "code": "COTTONWOOD",
      "name": "Cottonwood",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -103,7 +103,7 @@
     {
      "code": "ALDER",
      "name": "Alder",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -112,7 +112,7 @@
     {
      "code": "BIRCH",
      "name": "Birch",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -121,7 +121,7 @@
     {
      "code": "ASH",
      "name": "Ash",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -130,7 +130,7 @@
     {
      "code": "PINE",
      "name": "Pine",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -139,7 +139,7 @@
     {
      "code": "OAK",
      "name": "Oak",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -148,7 +148,7 @@
     {
      "code": "JUNIPER",
      "name": "Juniper",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -196,7 +196,7 @@
     {
      "code": "RAGWEED",
      "name": "Ragweed",
-     "type": null,
+     "type": "WEED",
      "inSeason": true,
      "upi": 4,
      "category": "High",
@@ -208,7 +208,7 @@
     {
      "code": "ELM",
      "name": "Elm",
-     "type": null,
+     "type": "TREE",
      "inSeason": true,
      "upi": 2,
      "category": "Low",
@@ -221,7 +221,7 @@
     {
      "code": "GRAMINALES",
      "name": "Grasses",
-     "type": null,
+     "type": "GRASS",
      "inSeason": false,
      "upi": 2,
      "category": "Low",
@@ -234,7 +234,7 @@
     {
      "code": "MAPLE",
      "name": "Maple",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -243,7 +243,7 @@
     {
      "code": "COTTONWOOD",
      "name": "Cottonwood",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -252,7 +252,7 @@
     {
      "code": "ALDER",
      "name": "Alder",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -261,7 +261,7 @@
     {
      "code": "BIRCH",
      "name": "Birch",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -270,7 +270,7 @@
     {
      "code": "ASH",
      "name": "Ash",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -279,7 +279,7 @@
     {
      "code": "PINE",
      "name": "Pine",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -288,7 +288,7 @@
     {
      "code": "OAK",
      "name": "Oak",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -297,7 +297,7 @@
     {
      "code": "JUNIPER",
      "name": "Juniper",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -345,7 +345,7 @@
     {
      "code": "RAGWEED",
      "name": "Ragweed",
-     "type": null,
+     "type": "WEED",
      "inSeason": true,
      "upi": 4,
      "category": "High",
@@ -357,7 +357,7 @@
     {
      "code": "ELM",
      "name": "Elm",
-     "type": null,
+     "type": "TREE",
      "inSeason": true,
      "upi": 2,
      "category": "Low",
@@ -370,7 +370,7 @@
     {
      "code": "GRAMINALES",
      "name": "Grasses",
-     "type": null,
+     "type": "GRASS",
      "inSeason": false,
      "upi": 2,
      "category": "Low",
@@ -383,7 +383,7 @@
     {
      "code": "MAPLE",
      "name": "Maple",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -392,7 +392,7 @@
     {
      "code": "COTTONWOOD",
      "name": "Cottonwood",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -401,7 +401,7 @@
     {
      "code": "ALDER",
      "name": "Alder",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -410,7 +410,7 @@
     {
      "code": "BIRCH",
      "name": "Birch",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -419,7 +419,7 @@
     {
      "code": "ASH",
      "name": "Ash",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -428,7 +428,7 @@
     {
      "code": "PINE",
      "name": "Pine",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -437,7 +437,7 @@
     {
      "code": "OAK",
      "name": "Oak",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -446,7 +446,7 @@
     {
      "code": "JUNIPER",
      "name": "Juniper",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -494,7 +494,7 @@
     {
      "code": "RAGWEED",
      "name": "Ragweed",
-     "type": null,
+     "type": "WEED",
      "inSeason": true,
      "upi": 4,
      "category": "High",
@@ -506,7 +506,7 @@
     {
      "code": "ELM",
      "name": "Elm",
-     "type": null,
+     "type": "TREE",
      "inSeason": true,
      "upi": 2,
      "category": "Low",
@@ -519,7 +519,7 @@
     {
      "code": "GRAMINALES",
      "name": "Grasses",
-     "type": null,
+     "type": "GRASS",
      "inSeason": false,
      "upi": 2,
      "category": "Low",
@@ -532,7 +532,7 @@
     {
      "code": "MAPLE",
      "name": "Maple",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -541,7 +541,7 @@
     {
      "code": "COTTONWOOD",
      "name": "Cottonwood",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -550,7 +550,7 @@
     {
      "code": "ALDER",
      "name": "Alder",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -559,7 +559,7 @@
     {
      "code": "BIRCH",
      "name": "Birch",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -568,7 +568,7 @@
     {
      "code": "ASH",
      "name": "Ash",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -577,7 +577,7 @@
     {
      "code": "PINE",
      "name": "Pine",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -586,7 +586,7 @@
     {
      "code": "OAK",
      "name": "Oak",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -595,7 +595,7 @@
     {
      "code": "JUNIPER",
      "name": "Juniper",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -643,7 +643,7 @@
     {
      "code": "RAGWEED",
      "name": "Ragweed",
-     "type": null,
+     "type": "WEED",
      "inSeason": true,
      "upi": 4,
      "category": "High",
@@ -655,7 +655,7 @@
     {
      "code": "ELM",
      "name": "Elm",
-     "type": null,
+     "type": "TREE",
      "inSeason": true,
      "upi": 2,
      "category": "Low",
@@ -668,7 +668,7 @@
     {
      "code": "GRAMINALES",
      "name": "Grasses",
-     "type": null,
+     "type": "GRASS",
      "inSeason": false,
      "upi": 2,
      "category": "Low",
@@ -681,7 +681,7 @@
     {
      "code": "MAPLE",
      "name": "Maple",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -690,7 +690,7 @@
     {
      "code": "COTTONWOOD",
      "name": "Cottonwood",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -699,7 +699,7 @@
     {
      "code": "ALDER",
      "name": "Alder",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -708,7 +708,7 @@
     {
      "code": "BIRCH",
      "name": "Birch",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -717,7 +717,7 @@
     {
      "code": "ASH",
      "name": "Ash",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -726,7 +726,7 @@
     {
      "code": "PINE",
      "name": "Pine",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -735,7 +735,7 @@
     {
      "code": "OAK",
      "name": "Oak",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
@@ -744,7 +744,7 @@
     {
      "code": "JUNIPER",
      "name": "Juniper",
-     "type": null,
+     "type": "TREE",
      "inSeason": null,
      "upi": null,
      "category": null,
