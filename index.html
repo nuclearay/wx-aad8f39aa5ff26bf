@@ -99,6 +99,14 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
+#poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
+.pdt{display:flex;align-items:center;gap:10px;margin-bottom:4px}.pdx{background:none;border:0;color:#fff;font-size:26px;line-height:1;padding:2px 6px;cursor:pointer}
+.pdtt{font-size:20px;font-weight:700}.pdu{font-size:12px;color:#cdd7e5}
+.pds{margin-top:6px}.pdh{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;margin-bottom:4px}
+.pdr{display:flex;gap:6px}.pdc{flex:1;background:var(--card);border:1.5px solid transparent;border-radius:22px;text-align:center;padding:6px 0 4px}.pdc.td{border-color:#e5edf7}
+.pdv{font-size:13px;font-weight:700}.pdw{font-size:11px;color:#cdd7e5;white-space:nowrap}
+.pdb{width:24px;height:84px;margin:4px auto;background:#e5edf7;border-radius:12px;position:relative;overflow:hidden}.pdb i{position:absolute;left:0;right:0;bottom:0;border-radius:12px}
+.pdn{font-size:12px}.pdp{font-size:13px;margin-top:4px;color:#e5edf7}
 .prings{display:flex;justify-content:space-between;margin:1px 0 2px}.pring{flex:1;text-align:center;line-height:1.1}.pring svg{display:block;margin:0 auto}.pring .pv{font-size:12px;font-weight:700;color:#fff;margin-top:-4px}.pring .pw{font-size:11px;color:#cdd7e5}
 #t-aqi{position:relative}#t-aqi .aqg{position:absolute;top:7px;right:6px}
 .tg svg,.now svg{flex:none;display:block}
@@ -126,13 +134,14 @@ a{color:var(--acc)}
 <div class="alerts" id="alerts"></div>
 <div class="card ltg" id="ltg" hidden></div>
 <div class="card now" id="now"><div class="mut">Loading current conditions…</div></div>
+<div id="poldet" hidden></div>
 <div class="grid" id="grid">
   <div class="tile wide" id="t-rain"><h3>🌧 Rain <span class="rlink">📡 radar ›</span></h3><div class="l mut">…</div></div>
   <div class="tile" id="t-wind"><h3>💨 Wind</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-hum"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-uv"><h3>☀️ UV</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-pv"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
-  <div class="tile wide" id="t-pol"><h3>🌾 Pollen</h3><div class="l mut">…</div></div>
+  <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()"><h3>🌾 Pollen</h3><div class="l mut">…</div></div>
   <div class="tile" id="t-aqi"><h3>🫁 Air</h3><div class="l mut">…</div></div>
 </div>
 <div class="sec">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · wind <span style="text-transform:none;font-weight:400">(┄ gusts)</span></div>
@@ -563,6 +572,21 @@ $('t-rain').addEventListener('click',()=>{if($('radar').hidden){RADAR.manual=tru
 setInterval(()=>{if(!$('radar').hidden)radarUpdate()},5*60e3);
 // Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (Google Pollen API, fallback pollen.com; key never reaches the browser)
 const POLLEN_LINK='<a href="https://www.pollen.com/forecast/current/pollen/33764" target="_blank" rel="noopener">pollen.com ›</a>';
+let POL=null,POLPUSH=false;
+function polRender(){const {d,i,col,CAT,ICO}=POL,days=d.days.slice(i,i+5);
+  const ft=new Date(d.fetchedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:TZ});
+  const sec=(code,lbl)=>{const cols=days.map((x,k)=>{const t=(x.types||{})[code]||((x.types||{}).OVERALL),u=t&&t.upi!=null?t.upi:null,cat=u==null?'':(t.category||CAT[u]);
+     const dn=k===0?'Today':new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'});
+     return `<div class="pdc${k===0?' td':''}"><div class="pdv">${u==null?'–':u+'/5'}</div><div class="pdw">${u==null?'&nbsp;':cat}</div><div class="pdb"><i style="height:${u?Math.max(u/5*100,18):0}%;background:${u?col(t.color):'transparent'}"></i></div><div class="pdn">${dn}</div></div>`}).join('');
+    const pl=(days[0].plants||[]).filter(p=>p.type===code&&(p.upi||0)>0).map(p=>p.name);
+    return `<div class="pds"><div class="pdh"><svg width="18" height="18" viewBox="-9 -9 18 18" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</svg>${lbl}</div><div class="pdr">${cols}</div><div class="pdp">Prevalent: ${pl.length?pl.join(', '):'—'}</div></div>`};
+  $('poldet').innerHTML=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="polClose()">←</button><div><div class="pdtt">Pollen</div><div class="pdu">Updated ${ft}</div></div></div>${sec('GRASS','Grass')}${sec('TREE','Tree')}${sec('WEED','Weed')}<div class="pdu" style="margin-top:4px">Source: ${d.source}</div>`}
+function polShow(){if(!POL)return;polRender();$('poldet').hidden=false;document.body.style.overflow='hidden'}
+function polHide(){$('poldet').hidden=true;document.body.style.overflow=''}
+function polOpen(){if(location.hash!=='#pollen'){POLPUSH=true;location.hash='pollen'}else polShow()}
+function polClose(){if(location.hash==='#pollen'){if(POLPUSH){POLPUSH=false;history.back()}else{history.replaceState(null,'',location.pathname+location.search);polHide()}}else polHide()}
+window.addEventListener('hashchange',()=>{location.hash==='#pollen'?polShow():polHide()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('poldet').hidden)polClose()});
 async function loadPollen(){
   let d;try{d=await getJSON('pollen.json?_='+Date.now())}catch(e){d=null}
   if(!d||!Array.isArray(d.days)||!d.days.length){
@@ -575,18 +599,15 @@ async function loadPollen(){
   const CAT=['None','Very Low','Low','Moderate','High','Very High'];
   const badge=(upi,color,cat,what)=>{const c=cat||CAT[upi]||'';return `<span class="pill" role="img" style="background:${col(color)};padding:0 4px" title="${what}: ${c} (${upi} of 5)" aria-label="${what}: ${c}, ${upi} of 5">${upi}</span>`};
   const t=(code,lbl)=>{const x=(day.types||{})[code];if(!x||x.upi==null)return `${lbl} <b class="mut">–</b>`;return `${lbl} ${badge(x.upi,x.color,x.category,lbl+' pollen')}`};
-  const top=(day.plants||[]).filter(p=>p.inSeason&&p.upi>0).slice(0,3).map(p=>`${p.name} ${badge(p.upi,p.color,p.category,p.name)}`).join(' · ');
-  const mxT=x=>Object.values(x.types||{}).reduce((m,v)=>(v.upi||0)>(m?.upi??-1)?v:m,null);
-  const trend=d.days.slice(i+1,i+5).map(x=>{const m=mxT(x),dn=new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'});return m?`${dn} ${badge(m.upi||0,m.color,m.category,dn+' pollen')}`:`${dn} –`}).join(' · ');
   const ICO={GRASS:'<path d="M-6 5 L-3 -3 M0 5 L0 -6 M6 5 L3 -3 M-8 5 H8" />',TREE:'<circle cx="0" cy="-2" r="5"/><path d="M0 3 V7 M-3 7 H3"/>',WEED:'<path d="M0 7 V-1 M0 0 C-1 -5 -5 -6 -7 -5 C-6 -2 -3 0 0 0 M0 -1 C1 -6 5 -7 7 -6 C6 -3 3 -1 0 -1"/>'};
   const ring=(code,lbl)=>{const x=(day.types||{})[code],u=x&&x.upi!=null?x.upi:null,R=27,cx=34,cy=32,a0=135,sw=270;
    const pt=a=>{const r_=a*Math.PI/180;return [(cx+R*Math.cos(r_)).toFixed(1),(cy+R*Math.sin(r_)).toFixed(1)]};
    const arc=(f,c)=>{if(f<=0)return '';const e=a0+sw*Math.min(f,1),[x1,y1]=pt(a0),[x2,y2]=pt(e);return `<path d="M${x1} ${y1} A${R} ${R} 0 ${sw*f>180?1:0} 1 ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`};
    const cat=u==null?'':(x.category||CAT[u]);
    return `<div class="pring" role="img" aria-label="${lbl} pollen: ${u==null?'no data':cat+', '+u+' of 5'}"><svg width="68" height="58" viewBox="0 0 68 58">${arc(1,'#3a4558')}${u?arc(u/5,col(x.color)):''}<g transform="translate(34 23)" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</g><text x="34" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${lbl}</text></svg><div class="pv">${u==null?'–':u+'/5'}</div><div class="pw">${u==null?'&nbsp;':cat}</div></div>`};
-  setTile('t-pol',`<div class="prings">${ring('GRASS','Grass')}${ring('TREE','Tree')}${ring('WEED','Weed')}</div>
-   <div class="l" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${top?'Top: '+top:'No major plants in season'}</div>
-   <div class="l" style="white-space:nowrap;overflow:hidden">${stale?`<span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}`:(trend||'')}</div>`);
+  POL={d,i,col,CAT,ICO};
+  setTile('t-pol',`<div class="prings">${ring('GRASS','Grass')}${ring('TREE','Tree')}${ring('WEED','Weed')}</div>${stale?`<div class="l" style="white-space:nowrap;overflow:hidden"><span style="color:#fca5a5">stale (${Math.round(ageH)}h)</span> · ${POLLEN_LINK}</div>`:''}`);
+  if(location.hash==='#pollen')polShow();
 }
 async function loadAir(){
   const u='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+LAT+'&longitude='+LON+
