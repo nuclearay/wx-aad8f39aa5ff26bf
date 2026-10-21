@@ -165,12 +165,13 @@ a{color:var(--acc)}
   <div class="tile mt" id="t-pv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('pressure')" onkeydown="if(event.key==='Enter')mdOpen('pressure')"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-aqi" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('air')" onkeydown="if(event.key==='Enter')mdOpen('air')"><h3>🫁 Air</h3><div class="l mut">…</div></div>
 </div>
+<div id="dstart" style="height:0;margin:0;padding:0"></div>
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
 <div class="card radar" id="radar"><div class="mut" style="padding:6px 8px">Loading radar…</div></div>
 <div id="pgend" style="height:0;margin:0;padding:0"></div>
 
 <style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/var(--ch,245)}
-html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain .tg>div>*{white-space:nowrap;width:max-content}html.size-big #grid .tile{overflow:hidden;min-height:0}html.size-big #grid{grid-template-rows:minmax(0,1fr) minmax(0,1.1fr)}html.size-big #t-rain{grid-template-columns:auto 1fr;grid-template-rows:auto;align-content:space-evenly;column-gap:6px}html.size-big #t-rain>h3{grid-column:1/-1;grid-row:1}html.size-big #t-rain .tg>div{display:contents}html.size-big #t-rain .v{grid-column:1/-1;grid-row:2}html.size-big #t-rain .l:nth-of-type(2){grid-column:2;grid-row:3}html.size-big #t-rain .l:nth-of-type(3){grid-column:2;grid-row:4}html.size-big #t-rain .l:nth-of-type(4){grid-column:2;grid-row:5}html.size-big #t-rain .tg svg{grid-column:1;grid-row:3/6;height:50px;align-self:center}html.size-big .mt .l{overflow:visible;text-overflow:clip;max-width:none}html.size-big .tile.mt{justify-content:space-evenly}
+html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain .tg>div>*{white-space:nowrap;width:max-content}html.size-big .now .cond{white-space:normal;max-width:118px;text-align:right;font-size:16px}html.size-big #grid .tile{overflow:hidden;min-height:0}html.size-big #grid{grid-template-rows:minmax(0,1fr) minmax(0,1.1fr)}html.size-big #t-rain{grid-template-columns:auto 1fr;grid-template-rows:auto;align-content:space-evenly;column-gap:6px}html.size-big #t-rain>h3{grid-column:1/-1;grid-row:1}html.size-big #t-rain .tg>div{display:contents}html.size-big #t-rain .v{grid-column:1/-1;grid-row:2}html.size-big #t-rain .l:nth-of-type(2){grid-column:2;grid-row:3}html.size-big #t-rain .l:nth-of-type(3){grid-column:2;grid-row:4}html.size-big #t-rain .l:nth-of-type(4){grid-column:2;grid-row:5}html.size-big #t-rain .tg svg{grid-column:1;grid-row:3/6;height:50px;align-self:center}html.size-big .mt .l{overflow:visible;text-overflow:clip;max-width:none}html.size-big .tile.mt{justify-content:space-evenly}
 html.size-big #t-pol .pring svg{max-width:none;width:62px;height:auto}html.size-big .days .d{grid-template-columns:54px 30px 1fr 52px 92px;font-size:16px;padding:0 4px}html.size-big .days .d b{font-size:18px}html.size-big .days .i{font-size:22px}html.size-big .days .c{font-size:13px}html.size-big .days .p{font-size:14px}html.size-big .days .hl{font-size:17px}
 #szb{flex:none;background:#D6191C;border:0;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:0 10px;height:24px;cursor:pointer}.hdr h1{flex:0 1 auto!important;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdr .upd,.hdr .btn{flex:none}#szb{margin-left:auto;min-width:52px}.hdr .upd,.hdr .mode{white-space:nowrap}</style>
 <script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','big'];let v=q==='fit'?'current':ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
@@ -770,9 +771,14 @@ function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.0
     if(S>0){const rp=Math.min(S*0.3,rows.length*5);if(rows.length)rows.forEach(r=>r.style.lineHeight=(18+rp/rows.length/z)+'px');
       if(sv){const cw=sv.getBoundingClientRect().width,cp=Math.min(S*0.3,(274-245)*cw/380);hs.setProperty('--ch',245+cp*380/cw)}}
     radFit(innerHeight,120,178+260)}
-  if(WXSIZE==='big'){document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');const gt=g.getBoundingClientRect().top+scrollY,nat=g.offsetHeight,tg=(innerHeight-4-gt)/z;if(tg>nat)g.style.height=Math.min(tg,nat+260)+'px';
-    const top=d.getBoundingClientRect().top+scrollY,gap=(innerHeight-top)/z;if(gap>0)d.style.marginTop=gap+'px';
-    const rows=d.querySelectorAll('.d');if(rows.length){const lh=Math.max(32,innerHeight*0.315/z/rows.length-1);rows.forEach(r=>r.style.lineHeight=lh+'px')}
+  $('dstart').style.height='0px';document.documentElement.classList.toggle('snapy',WXSIZE==='big');
+  if(WXSIZE==='big'){document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');const Y=e=>e.getBoundingClientRect().top+scrollY,ds=$('dstart'),VH=innerHeight;
+    const solve=(set,m,T,v0,mn,mx)=>{const cl=v=>Math.max(mn,Math.min(mx,v));let a=cl(v0);set(a);let fa=m();let b=cl(a+40);set(b);let fb=m();for(let k=0;k<5;k++){const sl=(fb-fa)/((b-a)||1)||1,c=cl(b+(T-fb)/sl);if(Math.abs(c-b)<.3)break;a=b;fa=fb;b=c;set(b);fb=m()}return b};
+    const gm=parseFloat(getComputedStyle(g).marginBottom)||0;
+    solve(v=>g.style.height=v+'px',()=>Y(ds),VH-1,g.offsetHeight,120,1200);
+    ds.style.height=Math.max(0,VH-Y(ds))+'px';
+    const rows=d.querySelectorAll('.d'),rd=$('radar');
+    if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);
     radFit(2*innerHeight,200,2000);
     tileFit()}
   else document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');
@@ -782,7 +788,7 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
 function tileFit(){document.querySelectorAll('#grid .tile').forEach(t=>{t.style.zoom='';
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
-  if(!ok()){lo=.6;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo})}
+  if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo})}
 $('szb').onclick=sizeCycle;sizeLabel();const sizeKick=()=>{clearTimeout(sizeKick.t);sizeKick.t=setTimeout(()=>{try{sizeLayout()}catch(e){}},30)};addEventListener('resize',sizeKick);addEventListener('load',sizeKick);addEventListener('pageshow',sizeKick);addEventListener('orientationchange',()=>setTimeout(sizeKick,300));if(window.visualViewport)visualViewport.addEventListener('resize',sizeKick);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sizeKick);[150,600,1500,3000].forEach(t=>setTimeout(sizeKick,t));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(sizeKick,100)});const RO_SZ=new ResizeObserver(sizeKick);let SZSIG='';setInterval(()=>{if(document.hidden)return;const rb=Math.round($('radar').getBoundingClientRect().bottom+scrollY),sg=innerHeight+':'+rb+':'+WXSIZE;if(sg!==SZSIG){SZSIG=sg;sizeKick()}},1000);[$('grid'),$('sky24'),$('now'),$('days'),$('hdr')||document.querySelector('.hdr')].forEach(e=>e&&RO_SZ.observe(e));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-last>5*60e3)refresh()});
 setInterval(refresh,15*60e3);
