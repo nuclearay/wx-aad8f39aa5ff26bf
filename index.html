@@ -124,7 +124,7 @@ a{color:var(--acc)}
 .rcap .x{background:none;border:0;color:var(--mut);font-size:15px;padding:0 4px;cursor:pointer}
 .rlink{float:right;text-transform:none;letter-spacing:0;color:var(--acc);font-weight:600}
 #t-rain{cursor:pointer}
-#grid{grid-template-columns:repeat(5,1fr)}#grid #t-rain{grid-column:span 2}#grid #t-pol{grid-column:span 3}
+#grid{grid-template-columns:repeat(5,1fr)}#grid #t-rain{grid-column:span 2}#grid #t-pol{grid-column:span 3;display:flex;flex-direction:column;justify-content:center}#t-pol .pring{min-width:0}#t-pol .pring svg{width:100%;max-width:74px;height:auto}#t-pol .prings{gap:2px}
 #t-rain .v{font-size:14px}#t-rain .l{font-size:11px}#t-rain .tg svg{width:26px;height:auto}
 .tile.mt{display:flex;flex-direction:column;align-items:center;text-align:center;padding:5px 3px;min-width:0}
 .mt .tg,.mt .tg>div{display:contents}
@@ -152,7 +152,7 @@ a{color:var(--acc)}
 <div id="mdet" hidden></div>
 <div class="grid" id="grid">
   <div class="tile wide" id="t-rain" role="button" tabindex="0" onclick="mdOpen('rain')" onkeydown="if(event.key==='Enter')mdOpen('rain')"><h3>🌧 Rain</h3><div class="l mut">…</div></div>
-  <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()"><h3>🌾 Pollen</h3><div class="l mut">…</div></div>
+  <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()" aria-label="Pollen"><div class="l mut">…</div></div>
   <div class="tile mt" id="t-wind" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('wind')" onkeydown="if(event.key==='Enter')mdOpen('wind')"><h3>💨 Wind</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-hum" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('humidity')" onkeydown="if(event.key==='Enter')mdOpen('humidity')"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-uv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('uv')" onkeydown="if(event.key==='Enter')mdOpen('uv')"><h3>☀️ UV</h3><div class="l mut">…</div></div>
@@ -199,7 +199,7 @@ const nowLocal=()=>new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ',
 const pill=(txt,bg,fg='#0b1220')=>`<span class="pill" style="background:${bg};color:${fg}">${txt}</span>`;
 function uvInfo(u){if(u==null)return['–','#475569'];if(u<3)return['Low','#22c55e'];if(u<6)return['Moderate','#eab308'];if(u<8)return['High','#f97316'];if(u<11)return['Very high','#ef4444'];return['Extreme','#a855f7']}
 function aqiInfo(a){if(a==null)return['–','#475569'];if(a<=50)return['Good','#22c55e'];if(a<=100)return['Moderate','#eab308'];if(a<=150)return['Unhealthy (sens.)','#f97316'];if(a<=200)return['Unhealthy','#ef4444'];if(a<=300)return['Very unhealthy','#a855f7'];return['Hazardous','#7f1d1d']}
-const setTile=(id,html)=>{const t=$(id);t.innerHTML=t.querySelector('h3').outerHTML+html};
+const setTile=(id,html)=>{const t=$(id);const h=t.querySelector('h3');t.innerHTML=(h?h.outerHTML:'')+html};
 const setTileG=(id,html,svg)=>setTile(id,`<div class="tg"><div>${html}</div>${svg}</div>`);
 // ===== mini gauges (Weather Underground style, inline SVG) =====
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
