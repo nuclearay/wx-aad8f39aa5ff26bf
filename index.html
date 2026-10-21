@@ -17,7 +17,7 @@
 :root{--bg:#0b1220;--card:#141d2f;--line:#22304a;--tx:#eef2f7;--mut:#9fb0c8;--acc:#7dd3fc}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--tx);font:14px/1.3 system-ui,-apple-system,Roboto,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
-body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-bottom) + 6px)}
+body{padding:calc(env(safe-area-inset-top) + 4px) 7px calc(env(safe-area-inset-bottom) + 6px)}
 .hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .hdr h1{font-size:16px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hdr .upd{font-size:12px;color:var(--mut)}
@@ -63,7 +63,7 @@ body{padding:calc(env(safe-area-inset-top) + 6px) 8px calc(env(safe-area-inset-b
 .sec{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:1px 2px 2px;font-weight:600}
 .hr{flex:0 0 52px;background:var(--card);border:.5px solid var(--line);border-radius:8px;text-align:center;padding:4px 0;font-size:12px}
 .hr .t{color:var(--mut)}.hr .i{font-size:18px;line-height:1.3}.hr .tp{font-weight:700;font-size:14px}.hr .p{color:var(--acc)}
-.days .d{display:grid;grid-template-columns:44px 26px 1fr 50px 74px;align-items:center;padding:0 2px;line-height:21px;border-bottom:1px solid var(--line);font-size:14px}
+.days .d{display:grid;grid-template-columns:44px 26px 1fr 50px 74px;align-items:center;padding:0 2px;line-height:18px;border-bottom:1px solid var(--line);font-size:14px}
 .days .d:last-child{border-bottom:0}
 .days .i{font-size:15px}.days .p{color:var(--acc);text-align:right}.days .hl{text-align:right;font-weight:600}
 .days .hl span{color:var(--mut);font-weight:400}
@@ -169,6 +169,7 @@ a{color:var(--acc)}
 <div class="card radar" id="radar"><div class="mut" style="padding:6px 8px">Loading radar…</div></div>
 <div class="foot">Open-Meteo · NWS · ⚡ GOES GLM via <a href="https://wxalerts.org" target="_blank" rel="noopener">WxAlerts</a> (<span id="ltgst">…</span>)<span id="rcred"> · Radar: NWS NEXRAD via <a href="https://mesonet.agron.iastate.edu/" target="_blank" rel="noopener">IEM</a> · map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</span></div>
 
+<style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/245}</style>
 <script>
 const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
 let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
@@ -267,7 +268,7 @@ async function loadForecast(){
   '&current=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,uv_index'+
   '&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day,uv_index,visibility,pressure_msl,apparent_temperature,dew_point_2m,wet_bulb_temperature_2m,shortwave_radiation_instant,wind_speed_10m,wind_gusts_10m,wind_direction_10m'+
   '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset,uv_index_max,wind_speed_10m_max,wind_gusts_10m_max,daylight_duration'+
-  '&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(TZ)+'&forecast_days=7';
+  '&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(TZ)+'&forecast_days=8';
   let d;
   try{d=await getJSON(u)}catch(e){
     $('now').innerHTML=`<div class="err">⚠ Forecast unavailable (${e.message})</div>`;
@@ -319,7 +320,7 @@ async function loadForecast(){
   WXSNAP.fc={hi:r(D.temperature_2m_max[0]),lo:r(D.temperature_2m_min[0]),r0:D.precipitation_probability_max[0]??0,r1:D.precipitation_probability_max[1]??0,g:r(Math.max(D.wind_gusts_10m_max[0]??0,D.wind_gusts_10m_max[1]??0))};
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
-  $('days').innerHTML=D.time.slice(1,7).map((t,j)=>{const k=j+1;const ww=wx(D.weather_code[k]);
+  $('days').innerHTML=D.time.slice(1,8).map((t,j)=>{const k=j+1;const ww=wx(D.weather_code[k]);
     return `<div class="d"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
@@ -432,7 +433,7 @@ function drawSky24(H,D,i0){
     const lb=(h%12||12)+(h<12?'a':'p');
     g+=`<text x="${Math.min(X1-8,Math.max(X0+8,xx)).toFixed(1)}" y="172" fill="#9fb0c8" font-size="12" text-anchor="middle">${lb}</text>`}
   g+=`<g id="xh" visibility="hidden"><line id="xhl" y1="2" y2="272" stroke="#e2e8f0" stroke-width="1.2" opacity=".9"/><circle id="xht" r="3.8" fill="#fb7185" stroke="#fff" stroke-width="1.3"/><circle id="xhf" r="3.3" fill="#fb923c" stroke="#fff" stroke-width="1.2"/><circle id="xhd" r="3.3" fill="#6bbf59" stroke="#fff" stroke-width="1.2"/></g>`;
-  const svg=`<svg viewBox="0 0 ${W} 274" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
+  const svg=`<svg viewBox="0 0 ${W} 274" preserveAspectRatio="none" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[0]/3600, m=moonInfo();
   el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span><span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[0])}</b></span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[0])}</b></span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
@@ -458,9 +459,9 @@ function xhShow(el,clientX){
    (D.sw[k]>0||D.uvh[k]>0?`<div><i style="background:#fbbf24"></i>Sun <b>${Math.round(D.sw[k])}</b> W/m²</div><div><i style="background:${uvInfo(D.uvh[k])[1]}"></i>UV <b>${(+D.uvh[k]).toFixed(1)}</b></div>`:`<div><i style="background:#64748b"></i>Sun <b>0</b> · UV <b>0</b></div>`)+
    `<div><i style="background:#2dd4bf"></i>Wind <b>${r(D.ws[k])}</b> g${r(D.wg[k])} ${card(D.wd[k])}</div>`;
   tip.hidden=false;
-  const er=el.getBoundingClientRect(),px=rc.left-er.left+xx*sc,tw=tip.offsetWidth,gap=12;
+  const er=el.getBoundingClientRect(),ef=er.width/el.offsetWidth||1,px=(rc.left-er.left+xx*sc)/ef,tw=tip.offsetWidth,gap=12;
   let left=px+gap;if(left+tw>el.clientWidth-2)left=px-gap-tw;if(left<2)left=2;
-  tip.style.left=left+'px';tip.style.top=(rc.top-er.top+4)+'px';
+  tip.style.left=left+'px';tip.style.top=((rc.top-er.top)/ef+4)+'px';
   clearTimeout(xhTimer);xhTimer=setTimeout(xhHide,4000);
 }
 function xhInit(el){
