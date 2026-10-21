@@ -106,7 +106,7 @@ a{color:var(--acc)}
 .pdr{display:flex;gap:6px}.pdc{flex:1;background:var(--card);border:1.5px solid transparent;border-radius:22px;text-align:center;padding:6px 0 4px}.pdc.td{border-color:#e5edf7}
 .pdv{font-size:13px;font-weight:700}.pdw{font-size:11px;color:#cdd7e5;white-space:nowrap}
 .pdb{width:24px;height:84px;margin:4px auto;background:#e5edf7;border-radius:12px;position:relative;overflow:hidden}.pdb i{position:absolute;left:0;right:0;bottom:0;border-radius:12px}
-.pdn{font-size:12px}.pdp{font-size:13px;margin-top:4px;color:#e5edf7}
+.pdn{font-size:12px}.pdh svg{flex:none}.pdp{flex:1;min-width:0;margin-left:8px;font-size:12px;font-weight:400;color:#9fb0c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prings{display:flex;justify-content:space-between;margin:1px 0 2px}.pring{flex:1;text-align:center;line-height:1.1}.pring svg{display:block;margin:0 auto}.pring .pv{font-size:12px;font-weight:700;color:#fff;margin-top:-4px}.pring .pw{font-size:11px;color:#cdd7e5}
 #t-aqi{position:relative}#t-aqi .aqg{position:absolute;top:7px;right:6px}
 .tg svg,.now svg{flex:none;display:block}
@@ -579,7 +579,7 @@ function polRender(){const {d,i,col,CAT,ICO}=POL,days=d.days.slice(i,i+5);
      const dn=k===0?'Today':new Date(x.date+'T12:00').toLocaleDateString('en-US',{weekday:'short'});
      return `<div class="pdc${k===0?' td':''}"><div class="pdv">${u==null?'–':u+'/5'}</div><div class="pdw">${u==null?'&nbsp;':cat}</div><div class="pdb"><i style="height:${u?Math.max(u/5*100,18):0}%;background:${u?col(t.color):'transparent'}"></i></div><div class="pdn">${dn}</div></div>`}).join('');
     const pl=(days[0].plants||[]).filter(p=>p.type===code&&(p.upi||0)>0).map(p=>p.name);
-    return `<div class="pds"><div class="pdh"><svg width="18" height="18" viewBox="-9 -9 18 18" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</svg>${lbl}</div><div class="pdr">${cols}</div><div class="pdp">Prevalent: ${pl.length?pl.join(', '):'—'}</div></div>`};
+    return `<div class="pds"><div class="pdh"><svg width="18" height="18" viewBox="-9 -9 18 18" fill="none" stroke="#e5edf7" stroke-width="1.5" stroke-linecap="round">${ICO[code]}</svg>${lbl}<span class="pdp">Prevalent: ${pl.length?pl.join(', '):'—'}</span></div><div class="pdr">${cols}</div></div>`};
   $('poldet').innerHTML=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="polClose()">←</button><div><div class="pdtt">Pollen</div><div class="pdu">Updated ${ft}</div></div></div>${sec('GRASS','Grass')}${sec('TREE','Tree')}${sec('WEED','Weed')}<div class="pdu" style="margin-top:4px">Source: ${d.source}</div>`}
 function polShow(){if(!POL)return;polRender();$('poldet').hidden=false;document.body.style.overflow='hidden'}
 function polHide(){$('poldet').hidden=true;document.body.style.overflow=''}
