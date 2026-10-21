@@ -151,7 +151,7 @@ a{color:var(--acc)}
 <div id="poldet" hidden></div>
 <div id="mdet" hidden></div>
 <div class="grid" id="grid">
-  <div class="tile wide" id="t-rain"><h3>🌧 Rain <span class="rlink">📡 radar ›</span></h3><div class="l mut">…</div></div>
+  <div class="tile wide" id="t-rain" role="button" tabindex="0" onclick="mdOpen('rain')" onkeydown="if(event.key==='Enter')mdOpen('rain')"><h3>🌧 Rain</h3><div class="l mut">…</div></div>
   <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()"><h3>🌾 Pollen</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-wind" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('wind')" onkeydown="if(event.key==='Enter')mdOpen('wind')"><h3>💨 Wind</h3><div class="l mut">…</div></div>
   <div class="tile mt" id="t-hum" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('humidity')" onkeydown="if(event.key==='Enter')mdOpen('humidity')"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
@@ -511,7 +511,7 @@ async function resolveLoc(){
   pl.textContent=(LOC.mode==='here'?'📡 ':'📍 ')+LOC.name;
   mb.textContent=LOC.mode==='here'?'📡 Here':'🏠 Home';mb.classList.toggle('here',LOC.mode==='here');
   mb.title=LOC.note?('Using Home: '+LOC.note):(LOC.mode==='here'?'Showing your current location. Tap for Home.':'Showing Home. Tap to use your current location.');
-  if(LOC.mode==='here')document.querySelector('#t-pol h3').textContent='🌾 Pollen · Home';
+  
 }
 $('mode').onclick=()=>{let cur=LOC.mode;try{localStorage.setItem('wxMode',cur==='here'?'home':'here')}catch(e){}location.reload()};
 // ===== Pressure: last-24h sparkline (separate small Open-Meteo call with past_hours) =====
@@ -596,7 +596,7 @@ function radarLinks(label){
   return {nws:'https://radar.weather.gov/station/'+site.toLowerCase()+'/standard',
     app:`intent://viewInMap?lat=${lat}&long=${lon}#Intent;scheme=radarscope;package=com.basevelocity.radarscope;S.browser_fallback_url=${encodeURIComponent(play)};end`};
 }
-$('t-rain').addEventListener('click',()=>{if($('radar').hidden){RADAR.manual=true;radarUpdate()}$('radar').scrollIntoView({block:'end',behavior:'smooth'})});
+
 setInterval(()=>{if(!$('radar').hidden)radarUpdate()},5*60e3);
 // Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (Google Pollen API, fallback pollen.com; key never reaches the browser)
 const POLLEN_LINK='<a href="https://www.pollen.com/forecast/current/pollen/33764" target="_blank" rel="noopener">pollen.com ›</a>';
@@ -650,13 +650,13 @@ async function loadAir(){
   setTile('t-aqi',`<div class="v">${pill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l">${a[0]}</div><div class="l">${main?'Main: '+main[0]:''}</div>`);
 }
 // ===== Row B detail screens: 24h history + 24h forecast (Open-Meteo past_days=1 / air-quality past_days=1) =====
-const MD={cache:{},push:false,keys:{wind:'Wind',humidity:'Humidity',uv:'UV index',pressure:'Pressure',air:'Air quality'}};
+const MD={cache:{},push:false,keys:{rain:'Rain',wind:'Wind',humidity:'Humidity',uv:'UV index',pressure:'Pressure',air:'Air quality'}};
 function mdOpen(k){if(location.hash!=='#'+k){MD.push=true;location.hash=k}else mdShow(k)}
 function mdClose(){if(MD.keys[location.hash.slice(1)]){if(MD.push){MD.push=false;history.back()}else{history.replaceState(null,'',location.pathname+location.search);mdHide()}}else mdHide()}
 function mdHide(){const e=$('mdet');if(e){e.hidden=true;document.body.style.overflow=''}}
 async function mdData(air){const key=(air?'a':'f')+LAT+','+LON,c=MD.cache[key];if(c&&Date.now()-c.t<10*60e3)return c.d;
   const u=air?'https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+LAT+'&longitude='+LON+'&hourly=us_aqi,pm2_5&past_days=1&forecast_days=2&timezone='+encodeURIComponent(TZ)
-   :'https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,dew_point_2m,uv_index,pressure_msl&past_days=1&forecast_days=2&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone='+encodeURIComponent(TZ);
+   :'https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+'&hourly=precipitation,precipitation_probability,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,dew_point_2m,uv_index,pressure_msl&past_days=1&forecast_days=2&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(TZ);
   const d=await getJSON(u);MD.cache[key]={t:Date.now(),d};return d}
 function mdSlice(h){ // returns index window: 24 past .. now .. 24 ahead
   const now=Date.now(),ts=h.time.map(t=>new Date(t+':00').getTime());let i0=0;ts.forEach((t,k)=>{if(t<=now)i0=k});
@@ -691,6 +691,14 @@ async function mdShow(k){let el=$('mdet');if(!el)return;document.body.style.over
   if(location.hash!=='#'+k)return;
   const h=d.hourly,{a,b,i0,ts}=mdSlice(h);let body='',lines='';
   const mm=(arr,pad,fl0)=>{const v=arr.slice(a,b+1).filter(x=>x!=null);let mn=Math.min(...v),mx=Math.max(...v);mn-=pad;mx+=pad;if(fl0!=null)mn=Math.max(fl0,mn);return [mn,mx]};
+  if(k==='rain'){const pr=h.precipitation,pp=h.precipitation_probability,sum=(x,y)=>pr.slice(x,y).reduce((t,v)=>t+(v||0),0);
+    const pTot=sum(a,i0+1),fTot=sum(i0+1,b+1),mxA=Math.max(0.1,...pr.slice(a,b+1).map(v=>v||0)),top=Math.ceil(mxA*20)/20;
+    const ppS=pp.map((v,k)=>k<i0||v==null?null:v/100*top);
+    body=mdChart({ts,a,b,i0,min:0,max:top,fmt:v=>v.toFixed(2),ser:[{v:pr,bars:1,colf:()=>'#38bdf8'},{v:ppS,col:'#a5b4fc',w:1.6}]})+'<div class="pdu" style="text-align:center">bars = rain in inches/hour · <span style="color:#a5b4fc">┄ chance of rain</span> (top of chart = 100%)</div>';
+    const fut=pp.slice(i0+1,b+1),mxP=fut.length?Math.max(...fut.map(v=>v||0)):0,pi=fut.findIndex(v=>(v||0)===mxP),pt=pi<0?'–':new Date(ts[i0+1+pi]).toLocaleString('en-US',{weekday:'short',hour:'numeric',timeZone:TZ});
+    const p6=sum(i0-5,i0+1),n6=sum(i0+1,i0+7),tr=n6>p6+0.02?'Wetter ahead':n6+0.02<p6?'Drying out':(n6+p6<0.01?'Dry':'Steady');
+    const ln=(l,v)=>`<div class="mdl"><span>${l}</span><b>${v}</b></div>`;
+    lines=ln('Now',`${(pr[i0]||0).toFixed(2)}″ this hour · ${pp[i0]??0}% chance`)+ln('Past 24h total',pTot.toFixed(2)+'″')+ln('Next 24h total',fTot.toFixed(2)+'″')+ln('Peak chance',`${mxP}% · ${pt}`)+ln('Trend',tr)}
   if(k==='wind'){const s=mdStats(h.wind_speed_10m,a,i0,b,0,3),g=mdStats(h.wind_gusts_10m,a,i0,b,0,3),[,mx]=mm(h.wind_gusts_10m,2,0);
     body=mdChart({ts,a,b,i0,min:0,max:Math.ceil(mx/5)*5,fmt:v=>Math.round(v),arrows:h.wind_direction_10m,ser:[{v:h.wind_speed_10m,col:'#7dd3fc'},{v:h.wind_gusts_10m,col:'#94a3b8',w:1.3}]})+'<div class="pdu" style="text-align:center">mph · <span style="color:#7dd3fc">━ wind</span> · <span style="color:#94a3b8">━ gusts</span> · arrows = direction blowing toward</div>';
     lines=s.ln('Now',`${r(s.cur)} mph from ${dir16(h.wind_direction_10m[i0])} · gusts ${r(g.cur)}`)+s.ln('24h high',`${r(s.hi)} mph · gust ${r(g.hi)}`)+s.ln('24h low',`${r(s.lo)} mph`)+s.ln('Next 24h',`${r(s.fl)}–${r(s.fh)} mph · gusts to ${r(g.fh)}`)+s.ln('Trend',`${s.tr}${s.dlt!=null?` (${s.dlt>=0?'+':''}${r(s.dlt)} mph, ends from ${dir16(h.wind_direction_10m[b])})`:''}`)}
@@ -711,7 +719,7 @@ async function mdShow(k){let el=$('mdet');if(!el)return;document.body.style.over
       mdChart({ts,a,b,i0,min:0,max:Math.max(15,Math.ceil(mm(h.pm2_5,2,0)[1]/5)*5),fmt:v=>Math.round(v),ser:[{v:h.pm2_5,col:'#c4b5fd',fill:1}]})+'<div class="pdu" style="text-align:center">PM2.5 µg/m³</div>';
     lines=s.ln('Now',`AQI ${r(s.cur)} · ${aqiInfo(s.cur)[0]} · PM2.5 ${p.cur==null?'–':p.cur.toFixed(1)}`)+s.ln('24h high',`AQI ${r(s.hi)} · PM2.5 ${p.hi.toFixed(1)}`)+s.ln('24h low',`AQI ${r(s.lo)} · PM2.5 ${p.lo.toFixed(1)}`)+s.ln('Next 24h',`AQI ${r(s.fl)}–${r(s.fh)} · ${aqiInfo(s.fh)[0]} peak`)+s.ln('Trend',s.tr)}
   const gap=(b-i0<24||i0-a<24)?`<div class="pdu">Note: only ${i0-a}h history / ${b-i0}h forecast available</div>`:'';
-  el.innerHTML=head+body+`<div class="mdls">${lines}</div>${gap}<div class="pdu" style="margin-top:6px">Source: Open-Meteo${k==='air'?' Air Quality (CAMS)':''} · modeled, not station-observed</div>`}
+  el.innerHTML=head+body+`<div class="mdls">${lines}</div>${gap}<div class="pdu" style="margin-top:6px">Source: Open-Meteo${k==='air'?' Air Quality (CAMS)':''} · ${k==='rain'?'past hours are model estimates, not rain-gauge readings':'modeled, not station-observed'}</div>`}
 window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);MD.keys[k]?mdShow(k):mdHide()});
 if(MD.keys[location.hash.slice(1)])setTimeout(()=>mdShow(location.hash.slice(1)),0);
 // Beach/marine-only NWS alert types Raymond never needs (exact event names). Land/home alerts (incl. coastal flood, storm surge, tropical) still show.
