@@ -556,7 +556,7 @@ function radarLinks(label){
 }
 $('t-rain').addEventListener('click',()=>{if($('radar').hidden){RADAR.manual=true;radarUpdate()}$('radar').scrollIntoView({block:'end',behavior:'smooth'})});
 setInterval(()=>{if(!$('radar').hidden)radarUpdate()},5*60e3);
-// Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (free pollen.com public forecast, ZIP 33764)
+// Pollen: ./pollen.json written server-side by tools/fetch_pollen.py (Google Pollen API, fallback pollen.com; key never reaches the browser)
 const POLLEN_LINK='<a href="https://www.pollen.com/forecast/current/pollen/33764" target="_blank" rel="noopener">pollen.com ›</a>';
 async function loadPollen(){
   let d;try{d=await getJSON('pollen.json?_='+Date.now())}catch(e){d=null}
