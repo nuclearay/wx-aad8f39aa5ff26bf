@@ -417,7 +417,7 @@ function drawSky24(H,D,i0){
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[0]/3600, m=moonInfo();
   el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span><span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">🌄 ${hmD(SUNTW[0])}</span> · 🌅 <b>${hm(D.sunrise[0])}</b></span><span>☀️ <b>${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span>🌇 <b>${hm(D.sunset[0])}</b> · <span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">🌆 ${hmD(SUNTW[1])}</span></span></div>
-   <div class="ml"><span>${m.emoji} ${m.name} · ${m.illum}% lit</span><span class="mut">${m.next}</span></div></div></div><div class="xtip" id="xtip" hidden></div>`;
+   <div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${m.illum}% lit · <span class="mut">${m.next}</span></span></div></div></div><div class="xtip" id="xtip" hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
 }
