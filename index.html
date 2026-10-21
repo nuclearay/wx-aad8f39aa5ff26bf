@@ -115,7 +115,7 @@ a{color:var(--acc)}
 .tg svg,.now svg{flex:none;display:block}
 .radar{padding:0;overflow:hidden;margin-bottom:4px}
 .radar[hidden]{display:none}
-.rmap{display:block;position:relative;height:178px;overflow:hidden;background:#0e1626;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rmap{display:block;position:relative;height:var(--rh,178px);overflow:hidden;background:#0e1626;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .rmap img{position:absolute;width:256px;height:256px;max-width:none;user-select:none;-webkit-user-drag:none}
 .rmap .bm{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.95) saturate(.5)}
 .rmap .rx{opacity:.85}
@@ -575,7 +575,7 @@ async function radarUpdate(){
   // QC'd NEXRAD base-reflectivity mosaic (5-min). Single-site RIDGE tiles were tried but show heavy clear-air/sea clutter.
   const site=await radarSite(),label=(site.length===3?'K':'')+site,layer='nexrad-n0q-900913';let valid=null;
   try{const m=await getJSON('https://mesonet.agron.iastate.edu/data/gis/images/4326/USCOMP/n0q_0.json');valid=m.meta.valid}catch(e){}
-  const z=RADAR.z,n=2**z,W=el.clientWidth||396,Hh=178;
+  const z=RADAR.z,n=2**z,W=el.clientWidth||396,Hh=window.RADH||178;
   const wx=(LON+180)/360*n*256,wy=(1-Math.log(Math.tan(LAT*Math.PI/180)+1/Math.cos(LAT*Math.PI/180))/Math.PI)/2*n*256;
   const ox=wx-W/2,oy=wy-Hh/2,v=valid?Date.parse(valid):Math.floor(Date.now()/3e5);
   let base='',rx='',lab='';
@@ -763,6 +763,12 @@ function sizeCycle(){const o=['current','fit','big'];sizeSet(o[(o.indexOf(WXSIZE
 function sizeLabel(){$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
 function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:WXSIZE==='fit'?1:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
   d.style.marginTop='';g.style.height='';d.querySelectorAll('.d').forEach(r=>r.style.lineHeight='');
+  const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
+  if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
+    if(S>0){const rp=Math.min(S*0.3,rows.length*5);if(rows.length)rows.forEach(r=>r.style.lineHeight=(18+rp/rows.length/z)+'px');
+      if(sv){const cw=sv.getBoundingClientRect().width,cp=Math.min(S*0.3,(274-245)*cw/380);hs.setProperty('--ch',245+cp*380/cw)}}
+    const S2=innerHeight-tail-abs(rd);window.RADH=Math.round(Math.max(120,Math.min(178+220,178+S2/z)));hs.setProperty('--rh',window.RADH+'px')}
+  if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate();
   if(WXSIZE==='fit'){const rows=d.querySelectorAll('.d'),ex=(innerHeight-6-abs(d))/z;if(ex>0&&rows.length){const lh=Math.min(36,18+ex/rows.length);rows.forEach(r=>r.style.lineHeight=lh+'px')}}
   if(WXSIZE==='big'){const ex=(innerHeight-4-abs(g))/z;if(ex>0)g.style.height=(g.offsetHeight+Math.min(ex,260))+'px';
     const top=d.getBoundingClientRect().top+scrollY,gap=(innerHeight-top)/z;if(gap>0)d.style.marginTop=gap+'px'}}
