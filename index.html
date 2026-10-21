@@ -170,11 +170,11 @@ a{color:var(--acc)}
 <div id="pgend" style="height:0;margin:0;padding:0"></div>
 
 <style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/var(--ch,245)}
-html.size-fit{--z:1;--ch:274}html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain .tg>div>*{white-space:nowrap;width:max-content}html.size-big #grid .tile{overflow:hidden;min-height:0}html.size-big #grid{grid-template-rows:minmax(0,1fr) minmax(0,1.1fr)}html.size-big #t-rain{grid-template-columns:auto 1fr;grid-template-rows:auto;align-content:space-evenly;column-gap:6px}html.size-big #t-rain>h3{grid-column:1/-1;grid-row:1}html.size-big #t-rain .tg>div{display:contents}html.size-big #t-rain .v{grid-column:1/-1;grid-row:2}html.size-big #t-rain .l:nth-of-type(2){grid-column:2;grid-row:3}html.size-big #t-rain .l:nth-of-type(3){grid-column:2;grid-row:4}html.size-big #t-rain .l:nth-of-type(4){grid-column:2;grid-row:5}html.size-big #t-rain .tg svg{grid-column:1;grid-row:3/6;height:50px;align-self:center}html.size-big .mt .l{overflow:visible;text-overflow:clip;max-width:none}html.size-big .tile.mt{justify-content:space-evenly}
+html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain .tg>div>*{white-space:nowrap;width:max-content}html.size-big #grid .tile{overflow:hidden;min-height:0}html.size-big #grid{grid-template-rows:minmax(0,1fr) minmax(0,1.1fr)}html.size-big #t-rain{grid-template-columns:auto 1fr;grid-template-rows:auto;align-content:space-evenly;column-gap:6px}html.size-big #t-rain>h3{grid-column:1/-1;grid-row:1}html.size-big #t-rain .tg>div{display:contents}html.size-big #t-rain .v{grid-column:1/-1;grid-row:2}html.size-big #t-rain .l:nth-of-type(2){grid-column:2;grid-row:3}html.size-big #t-rain .l:nth-of-type(3){grid-column:2;grid-row:4}html.size-big #t-rain .l:nth-of-type(4){grid-column:2;grid-row:5}html.size-big #t-rain .tg svg{grid-column:1;grid-row:3/6;height:50px;align-self:center}html.size-big .mt .l{overflow:visible;text-overflow:clip;max-width:none}html.size-big .tile.mt{justify-content:space-evenly}
 html.size-big #t-pol .pring svg{max-width:none;width:62px;height:auto}html.size-big .days .d{grid-template-columns:54px 30px 1fr 52px 92px;font-size:16px;padding:0 4px}html.size-big .days .d b{font-size:18px}html.size-big .days .i{font-size:22px}html.size-big .days .c{font-size:13px}html.size-big .days .p{font-size:14px}html.size-big .days .hl{font-size:17px}
 #szb{flex:none;background:#D6191C;border:0;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:0 10px;height:24px;cursor:pointer}.hdr h1{flex:0 1 auto!important;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdr .upd,.hdr .btn{flex:none}#szb{margin-left:auto;min-width:52px}.hdr .upd,.hdr .mode{white-space:nowrap}</style>
-<script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','fit','big'];let v=ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
-if(!v)try{v=localStorage.getItem('wxSize')}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
+<script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','big'];let v=q==='fit'?'current':ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
+if(!v)try{v=localStorage.getItem('wxSize');if(v==='fit'){v='current';localStorage.setItem('wxSize',v)}}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
 <script>
 const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
 let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
@@ -758,19 +758,18 @@ async function refresh(){
 $('rf').onclick=e=>{if(RFLP){RFLP=false;return}refresh()};
 let RFLP=false,rfT;$('rf').addEventListener('pointerdown',()=>{rfT=setTimeout(()=>{RFLP=true;sizeCycle()},600)});['pointerup','pointerleave','pointercancel'].forEach(t=>$('rf').addEventListener(t,()=>clearTimeout(rfT)));
 $('rf').addEventListener('contextmenu',e=>e.preventDefault());
-const SZN={current:'Compact',fit:'Fit',big:'Big'},SZL={current:'SMALL',fit:'FIT',big:'BIG'};
-function sizeSet(v){const h=document.documentElement;h.classList.remove('size-current','size-fit','size-big');h.classList.add('size-'+v);WXSIZE=v;try{localStorage.setItem('wxSize',v)}catch(e){}
+const SZN={current:'Small',big:'Big'},SZL={current:'SMALL',big:'BIG'};
+function sizeSet(v){const h=document.documentElement;h.classList.remove('size-current','size-big');h.classList.add('size-'+v);WXSIZE=v;try{localStorage.setItem('wxSize',v)}catch(e){}
   const u=new URL(location.href);if(u.searchParams.has('size')){u.searchParams.set('size',v);history.replaceState(null,'',u)}sizeLabel();sizeLayout()}
-function sizeCycle(){const o=['current','fit','big'];sizeSet(o[(o.indexOf(WXSIZE)+1)%3])}
+function sizeCycle(){sizeSet(WXSIZE==='big'?'current':'big')}
 function sizeLabel(){$('szb').textContent=SZL[WXSIZE];$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
-function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:WXSIZE==='fit'?1:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
+function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
   d.style.marginTop='';g.style.height='';d.querySelectorAll('.d').forEach(r=>r.style.lineHeight='');
   const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
   if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
     if(S>0){const rp=Math.min(S*0.3,rows.length*5);if(rows.length)rows.forEach(r=>r.style.lineHeight=(18+rp/rows.length/z)+'px');
       if(sv){const cw=sv.getBoundingClientRect().width,cp=Math.min(S*0.3,(274-245)*cw/380);hs.setProperty('--ch',245+cp*380/cw)}}
     radFit(innerHeight,120,178+260)}
-  if(WXSIZE==='fit'){const rows=d.querySelectorAll('.d'),ex=(innerHeight-6-abs(d))/z;if(ex>0&&rows.length){const lh=Math.min(36,18+ex/rows.length);rows.forEach(r=>r.style.lineHeight=lh+'px')}}
   if(WXSIZE==='big'){document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');const gt=g.getBoundingClientRect().top+scrollY,nat=g.offsetHeight,tg=(innerHeight-4-gt)/z;if(tg>nat)g.style.height=Math.min(tg,nat+260)+'px';
     const top=d.getBoundingClientRect().top+scrollY,gap=(innerHeight-top)/z;if(gap>0)d.style.marginTop=gap+'px';
     const rows=d.querySelectorAll('.d');if(rows.length){const lh=Math.max(32,innerHeight*0.315/z/rows.length-1);rows.forEach(r=>r.style.lineHeight=lh+'px')}
