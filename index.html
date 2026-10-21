@@ -78,6 +78,7 @@ a{color:var(--acc)}
 .xtip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
 .xtip b{font-weight:700}
 .sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
+.skyw{position:relative}.sunov{position:absolute;left:0;right:0;pointer-events:none}.sunov .sl,.sunov .ml{padding-top:0!important}
 .sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
 .ltg{display:grid;grid-template-columns:84px 1fr 104px;gap:8px;align-items:center;margin-bottom:6px;border-color:#a16207;background:#1f1a0e}
 .ltg[hidden]{display:none}
@@ -386,37 +387,37 @@ function drawSky24(H,D,i0){
     g+=lab(lx,fHi?ty(v)+13:ty(v)-5,r(v)+'°','#fecdd3',12.5);
     if(Math.round(f)!==Math.round(v))g+=lab(lx,fHi?ty(f)-5:ty(f)+13,r(f)+'°','#fdba74',11);});
   // dim elapsed part of the day (data stays visible) + now marker
-  if(nowWall>t0)g+=`<rect x="${X0-6}" y="0" width="${(x(Math.min(nowWall,t0+N))-X0+6).toFixed(1)}" height="238" fill="#141d2f" opacity=".38"/>`;
+  if(nowWall>t0)g+=`<rect x="${X0-6}" y="0" width="${(x(Math.min(nowWall,t0+N))-X0+6).toFixed(1)}" height="274" fill="#141d2f" opacity=".38"/>`;
   if(nowWall>=t0&&nowWall<=t0+N){const nx=x(nowWall);
-    g+=`<line x1="${nx.toFixed(1)}" y1="2" x2="${nx.toFixed(1)}" y2="236" stroke="#e2e8f0" stroke-width="1.3" stroke-dasharray="3 2" opacity=".85"/><text x="${Math.min(X1-12,Math.max(X0+12,nx)).toFixed(1)}" y="9" font-size="9" font-weight="700" fill="#e2e8f0" text-anchor="middle" paint-order="stroke" stroke="#141d2f" stroke-width="3">NOW</text>`;
+    g+=`<line x1="${nx.toFixed(1)}" y1="2" x2="${nx.toFixed(1)}" y2="272" stroke="#e2e8f0" stroke-width="1.3" stroke-dasharray="3 2" opacity=".85"/><text x="${Math.min(X1-12,Math.max(X0+12,nx)).toFixed(1)}" y="9" font-size="9" font-weight="700" fill="#e2e8f0" text-anchor="middle" paint-order="stroke" stroke="#141d2f" stroke-width="3">NOW</text>`;
     const dayNow=ev.find(([a,b])=>nowWall>=a&&nowWall<=b);
     if(dayNow){const [a,b]=dayNow;g+=`<circle cx="${nx.toFixed(1)}" cy="${(HOR-A*Math.sin(Math.PI*(nowWall-a)/(b-a))).toFixed(1)}" r="5" fill="#fde047" stroke="#f59e0b" stroke-width="1.5"/>`}
   }
   // wind lane: sustained line + shaded band to dashed gusts, arrows every 3h
   const ws=[],wg=[],wd=[];for(let k=0;k<=N&&i0+k<H.time.length;k++){ws.push(H.wind_speed_10m[i0+k]);wg.push(H.wind_gusts_10m[i0+k]??H.wind_speed_10m[i0+k]);wd.push(H.wind_direction_10m[i0+k])}
   if(ws.length&&ws[0]!=null){
-    const WT=182,WB=202,wmax=Math.max(10,...wg),wy=v=>WB-(v/wmax)*(WB-WT);
+    const WT=218,WB=238,wmax=Math.max(10,...wg),wy=v=>WB-(v/wmax)*(WB-WT);
     const L=a=>a.map((v,k)=>(k?'L':'M')+x(t0+k).toFixed(1)+' '+wy(v).toFixed(1)).join('');
     const band=L(wg)+ws.map((v,k)=>'L'+x(t0+k).toFixed(1)+' '+wy(v).toFixed(1)).reverse().join('')+'Z';
     g+=`<line x1="${X0}" y1="${WB}" x2="${X1}" y2="${WB}" stroke="#22304a"/>`;
     g+=`<path d="${band}" fill="#2dd4bf" opacity=".18"/>`;
     g+=`<path d="${L(wg)}" fill="none" stroke="#5eead4" stroke-width="1.3" stroke-dasharray="4 3" opacity=".85"/>`;
     g+=`<path d="${L(ws)}" fill="none" stroke="#2dd4bf" stroke-width="2"/>`;
-    for(let k=0;k<ws.length;k+=3){const xx=Math.min(X1-9,Math.max(X0+9,x(t0+k))),yy=213;
+    for(let k=0;k<ws.length;k+=3){const xx=Math.min(X1-9,Math.max(X0+9,x(t0+k))),yy=249;
       g+=`<circle cx="${xx.toFixed(1)}" cy="${yy}" r="7.5" fill="#0f2a2e" stroke="#2dd4bf" stroke-width="1"/>`+
          `<path d="M0 -5 L3.6 0.5 L1.1 0.5 L1.1 5 L-1.1 5 L-1.1 0.5 L-3.6 0.5 Z" fill="#ccfbf1" transform="translate(${xx.toFixed(1)} ${yy}) rotate(${(wd[k]+180)%360})"/>`+
-         `<text x="${xx.toFixed(1)}" y="234" font-size="12" text-anchor="middle" fill="#ccfbf1" font-weight="700">${r(ws[k])}<tspan font-size="9.5" fill="#7fb8b0" font-weight="400"> g${r(wg[k])}</tspan></text>`}
+         `<text x="${xx.toFixed(1)}" y="270" font-size="12" text-anchor="middle" fill="#ccfbf1" font-weight="700">${r(ws[k])}<tspan font-size="9.5" fill="#7fb8b0" font-weight="400"> g${r(wg[k])}</tspan></text>`}
   }
   // hour ticks
   for(let k=0;k<=N;k+=3){const xx=x(t0+k);const h=(Math.floor(t0)+k)%24;
     const lb=(h%12||12)+(h<12?'a':'p');
     g+=`<text x="${Math.min(X1-8,Math.max(X0+8,xx)).toFixed(1)}" y="172" fill="#9fb0c8" font-size="12" text-anchor="middle">${lb}</text>`}
-  g+=`<g id="xh" visibility="hidden"><line id="xhl" y1="2" y2="236" stroke="#e2e8f0" stroke-width="1.2" opacity=".9"/><circle id="xht" r="3.8" fill="#fb7185" stroke="#fff" stroke-width="1.3"/><circle id="xhf" r="3.3" fill="#fb923c" stroke="#fff" stroke-width="1.2"/><circle id="xhd" r="3.3" fill="#6bbf59" stroke="#fff" stroke-width="1.2"/></g>`;
-  const svg=`<svg viewBox="0 0 ${W} 238" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
+  g+=`<g id="xh" visibility="hidden"><line id="xhl" y1="2" y2="272" stroke="#e2e8f0" stroke-width="1.2" opacity=".9"/><circle id="xht" r="3.8" fill="#fb7185" stroke="#fff" stroke-width="1.3"/><circle id="xhf" r="3.3" fill="#fb923c" stroke="#fff" stroke-width="1.2"/><circle id="xhd" r="3.3" fill="#6bbf59" stroke="#fff" stroke-width="1.2"/></g>`;
+  const svg=`<svg viewBox="0 0 ${W} 274" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[0]/3600, m=moonInfo();
-  el.innerHTML=svg+`<div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span><span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">🌄 ${hmD(SUNTW[0])}</span> · 🌅 <b>${hm(D.sunrise[0])}</b></span><span>☀️ <b>${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span>🌇 <b>${hm(D.sunset[0])}</b> · <span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">🌆 ${hmD(SUNTW[1])}</span></span></div>
-   <div class="ml"><span>${m.emoji} ${m.name} · ${m.illum}% lit</span><span class="mut">${m.next}</span></div><div class="xtip" id="xtip" hidden></div>`;
+  el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span><span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">🌄 ${hmD(SUNTW[0])}</span> · 🌅 <b>${hm(D.sunrise[0])}</b></span><span>☀️ <b>${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span>🌇 <b>${hm(D.sunset[0])}</b> · <span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">🌆 ${hmD(SUNTW[1])}</span></span></div>
+   <div class="ml"><span>${m.emoji} ${m.name} · ${m.illum}% lit</span><span class="mut">${m.next}</span></div></div></div><div class="xtip" id="xtip" hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
 }
