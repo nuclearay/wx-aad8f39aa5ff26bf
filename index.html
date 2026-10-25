@@ -100,7 +100,7 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
-#mdet .dhl{padding:2px 10px}.dh{display:grid;grid-template-columns:52px 30px 1fr 46px 58px;align-items:center;padding:6px 0;border-bottom:1px solid #22304a;font-size:15px}.dh:last-child{border-bottom:0}.dh .t{color:#9fb0c8;font-size:13px}.dh .i{font-size:19px}.dh .c{color:#cdd7e5;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dh .tp{text-align:right;font-weight:700}.dh .p{text-align:right;color:var(--acc);font-size:13px}
+#daysky{margin-top:6px}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
 #mdet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#mdet[hidden]{display:none}
 .mdls{margin-top:8px;background:var(--card);border-radius:14px;padding:4px 12px}.mdl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #22304a;font-size:14px}.mdl:last-child{border-bottom:0}.mdl span{color:#9fb0c8}.mdl b{text-align:right}
 #poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
@@ -158,13 +158,13 @@ a{color:var(--acc)}
 <div id="poldet" hidden></div>
 <div id="mdet" hidden></div>
 <div class="grid" id="grid">
+  <div class="tile mt" id="t-hum" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('humidity')" onkeydown="if(event.key==='Enter')mdOpen('humidity')"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-wind" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('wind')" onkeydown="if(event.key==='Enter')mdOpen('wind')"><h3>💨 Wind</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-pv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('pressure')" onkeydown="if(event.key==='Enter')mdOpen('pressure')"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-uv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('uv')" onkeydown="if(event.key==='Enter')mdOpen('uv')"><h3>☀️ UV</h3><div class="l mut">…</div></div>
+  <div class="tile mt" id="t-aqi" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('air')" onkeydown="if(event.key==='Enter')mdOpen('air')"><h3>🫁 Air</h3><div class="l mut">…</div></div>
   <div class="tile wide" id="t-rain" role="button" tabindex="0" onclick="mdOpen('rain')" onkeydown="if(event.key==='Enter')mdOpen('rain')"><h3>🌧 Rain</h3><div class="l mut">…</div></div>
   <div class="tile wide" id="t-pol" role="button" tabindex="0" style="cursor:pointer" onclick="polOpen()" onkeydown="if(event.key==='Enter')polOpen()" aria-label="Pollen"><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-wind" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('wind')" onkeydown="if(event.key==='Enter')mdOpen('wind')"><h3>💨 Wind</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-hum" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('humidity')" onkeydown="if(event.key==='Enter')mdOpen('humidity')"><h3>💧 Humidity</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-uv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('uv')" onkeydown="if(event.key==='Enter')mdOpen('uv')"><h3>☀️ UV</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-pv" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('pressure')" onkeydown="if(event.key==='Enter')mdOpen('pressure')"><h3>🧭 Pressure</h3><div class="l mut">…</div></div>
-  <div class="tile mt" id="t-aqi" role="button" tabindex="0" style="cursor:pointer" onclick="mdOpen('air')" onkeydown="if(event.key==='Enter')mdOpen('air')"><h3>🫁 Air</h3><div class="l mut">…</div></div>
 </div>
 <div id="dstart" style="height:0;margin:0;padding:0"></div>
 <div class="card days" id="days"><div class="mut">Loading…</div></div>
@@ -341,13 +341,13 @@ function moonInfo(date=new Date()){
   const fmt=d=>new Date(date.getTime()+d*864e5).toLocaleDateString('en-US',{timeZone:TZ,month:'short',day:'numeric'});
   return {name:ph[0].charAt(0)+ph[0].slice(1).toLowerCase(),age:Math.floor(age)+1,emoji:ph[1],illum,next:dFull<dNew?'Full '+fmt(dFull):'New '+fmt(dNew)};
 }
-function drawSky24(H,D,i0){
-  const el=$('sky24');
+function drawSky24(H,D,i0,O){O=O||{};const DK=O.dk||0;
+  const el=O.el||$('sky24');
   try{
   const W=380,HOR=122,X0=6,X1=W-6,N=24;
   const hz=s=>Date.parse(s+':00Z')/36e5;           // wall-clock hours (tz-agnostic arithmetic)
   const t0=hz(H.time[i0]);
-  const nowWall=hz(new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T').slice(0,16));
+  const nowWall=DK?-1e9:hz(new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T').slice(0,16));
   const x=t=>X0+(t-t0)/N*(X1-X0);
   const inAx=t=>t>=t0&&t<=t0+N;
   // sun events
@@ -442,15 +442,16 @@ function drawSky24(H,D,i0){
   g+=`<g id="xh" visibility="hidden"><line id="xhl" y1="2" y2="272" stroke="#e2e8f0" stroke-width="1.2" opacity=".9"/><circle id="xht" r="3.8" fill="#fb7185" stroke="#fff" stroke-width="1.3"/><circle id="xhf" r="3.3" fill="#fb923c" stroke="#fff" stroke-width="1.2"/><circle id="xhd" r="3.3" fill="#6bbf59" stroke="#fff" stroke-width="1.2"/></g>`;
   const svg=`<svg viewBox="0 0 ${W} 274" preserveAspectRatio="none" role="img" aria-label="24 hour sun, temperature, rain and wind chart. Tap or drag for hourly details.">${g}</svg>`;
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
-  const dl=D.daylight_duration[0]/3600, m=moonInfo();
-  el.innerHTML=`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[0]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span><span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[0])}</b></span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[0])}</b></span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
-   <div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${m.illum}% lit · <span class="mut">${m.next}</span></span></div></div></div><div class="xtip" id="xtip" hidden></div>`;
+  const dl=D.daylight_duration[DK]/3600, m=moonInfo();
+  let ic='';if(O.icons){for(let k=0;k<N;k+=2){const ii=i0+k;if(ii>=H.time.length)break;const hr=(Math.floor(t0)+k)%24,w=wx(H.weather_code[ii],H.is_day?H.is_day[ii]:(hr>=7&&hr<19));ic+=`<span title="${w.t}">${w.i}</span>`}ic=`<div class="dic">${ic}</div>`}
+  el.innerHTML=ic+`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span><span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[DK])}</b></span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[DK])}</b></span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
+   ${DK?'':`<div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${m.illum}% lit · <span class="mut">${m.next}</span></span></div>`}</div></div><div class="xtip"${DK?'':' id="xtip"'} hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
 }
 // ===== 24h chart crosshair + tooltip (pointer events; snaps to nearest hour) =====
 let xhTimer=null;
-function xhHide(){const el=$('sky24'),g=el&&el.querySelector('#xh'),t=$('xtip');if(g)g.setAttribute('visibility','hidden');if(t)t.hidden=true;clearTimeout(xhTimer)}
+function xhHide(){document.querySelectorAll('.sky24 #xh').forEach(g=>g.setAttribute('visibility','hidden'));document.querySelectorAll('.sky24 .xtip').forEach(t=>t.hidden=true);clearTimeout(xhTimer)}
 function xhShow(el,clientX){
   const D=el._xd,svg=el.querySelector('svg');if(!D||!svg)return;
   const rc=svg.getBoundingClientRect(),sc=rc.width/D.W,sx=(clientX-rc.left)/sc;
@@ -460,7 +461,7 @@ function xhShow(el,clientX){
   if(D.dw[k]!=null)set('xhd',{cx:xx,cy:D.ty(D.dw[k]),visibility:'visible'});else set('xhd',{visibility:'hidden'});
   svg.querySelector('#xh').setAttribute('visibility','visible');
   const h=(Math.floor(D.t0)+k)%24,lbl=(k===D.kNow?'Now · ':'')+(h%12||12)+' '+(h<12?'AM':'PM');
-  const tip=$('xtip');
+  const tip=el.querySelector('.xtip');
   tip.innerHTML=`<div class="xt">${lbl}</div><div><i style="background:#fb7185"></i>Temp <b${tS(D.tp[k])}>${r(D.tp[k])}°</b></div><div><i style="background:#fb923c"></i>Feels <b${tS(D.fl[k])}>${r(D.fl[k])}°</b></div>`+
    `<div><i style="background:#6bbf59"></i>Dew <b>${r(D.dw[k])}°</b>${D.wb[k]!=null?` · WB <b>${r(D.wb[k])}°</b>`:''}</div><div><i style="background:#38bdf8"></i>Rain <b>${D.pr[k]??0}%</b></div>`+
    (D.sw[k]>0||D.uvh[k]>0?`<div><i style="background:#fbbf24"></i>Sun <b>${Math.round(D.sw[k])}</b> W/m²</div><div><i style="background:${uvInfo(D.uvh[k])[1]}"></i>UV <b>${(+D.uvh[k]).toFixed(1)}</b></div>`:`<div><i style="background:#64748b"></i>Sun <b>0</b> · UV <b>0</b></div>`)+
@@ -740,9 +741,9 @@ function dayShow(k){const el=$('mdet'),d=window.FCD;if(!el||!d)return;const D=d.
   document.body.style.overflow='hidden';el.hidden=false;
   const ww=wx(D.weather_code[k]),title=new Date(day+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   const head=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="dayClose()">←</button><div><div class="pdtt">${title}</div><div class="pdu">${LOC.name} · ${ww.i} ${ww.t} · H <b${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</b> · L <b${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</b> · 💧${D.precipitation_probability_max[k]??0}%</div></div></div>`;
-  let rows='';H.time.forEach((t,i)=>{if(t.slice(0,10)!==day)return;const h=+t.slice(11,13),w=wx(H.weather_code[i],H.is_day?H.is_day[i]:(h>=7&&h<19)),p=H.precipitation_probability[i]??0;
-    rows+=`<div class="dh"><span class="t">${h%12||12} ${h<12?'AM':'PM'}</span><span class="i">${w.i}</span><span class="c">${w.t}</span><span class="tp"${tS(H.temperature_2m[i])}>${r(H.temperature_2m[i])}°</span><span class="p" style="opacity:${p>=20?1:.6}">💧${p}%</span></div>`});
-  el.innerHTML=head+`<div class="mdls dhl">${rows}</div><div class="pdu" style="margin-top:6px">Source: Open-Meteo hourly forecast</div>`;el.scrollTop=0}
+  const i0=H.time.findIndex(t=>t.slice(0,10)===day);
+  el.innerHTML=head+`<div class="card sky24" id="daysky"></div>`;
+  drawSky24(H,D,i0,{el:$('daysky'),dk:k,icons:1});el.scrollTop=0}
 if(MD.keys[location.hash.slice(1)])setTimeout(()=>mdShow(location.hash.slice(1)),0);
 // Beach/marine-only NWS alert types Raymond never needs (exact event names). Land/home alerts (incl. coastal flood, storm surge, tropical) still show.
 const SKIP_ALERTS=new Set(['High Surf Advisory','High Surf Warning','Rip Current Statement','Beach Hazards Statement','Small Craft Advisory','Small Craft Advisory for Hazardous Seas','Small Craft Advisory for Rough Bar','Small Craft Advisory for Winds','Marine Weather Statement','Gale Warning','Gale Watch','Storm Warning','Storm Watch','Hurricane Force Wind Warning','Hurricane Force Wind Watch','Hazardous Seas Warning','Hazardous Seas Watch','Brisk Wind Advisory','Special Marine Warning','Low Water Advisory'].map(x=>x.toLowerCase()));
