@@ -310,10 +310,10 @@ async function loadForecast(){
   const uv=uvInfo(c.uv_index),um=uvInfo(D.uv_index_max[0]);
   setTileG('t-uv',`<div class="v">${cpill((c.uv_index??0).toFixed(1),uv[1])}</div><div class="l" style="color:${uv[1]}">${uv[0]==='Very high'?'V. high':uv[0]==='Moderate'?'Mod.':uv[0]}</div>
     <div class="l" style="color:${um[1]}">Max ${r(D.uv_index_max[0])} <span style="color:${um[1]}">●</span></div>`,gUV(c.uv_index));{const h=$('t-uv').querySelector('h3');if(h)h.style.color=uv[1]}
-  const pin=c.pressure_msl*0.02953, p3=H.pressure_msl[Math.max(0,i0-3)], tr=c.pressure_msl-p3;
+  const pin=c.pressure_msl*0.02953, p3=H.pressure_msl[Math.max(0,i0-3)], tr=(()=>{const f=+new URLSearchParams(location.search).get('ptr');return f?f:c.pressure_msl-p3})(),PT=pTrend(tr);window.PTREND=PT;
   const vis=c.visibility!=null?c.visibility/1609.34:H.visibility[i0]/1609.34;
-  setTileG('t-pv',`<div class="v">${pin.toFixed(2)}″</div><div class="l">${tr>0.7?'Rising ↗':tr<-0.7?'Falling ↘':'Steady →'}</div>
-    <div class="l">Vis ${isNaN(vis)?'–':vis>=10?'10+':vis.toFixed(1)}mi</div>`,`<span id="psp">${gBaro(pin)}</span>`);
+  setTileG('t-pv',`<div class="v" style="color:${PT.c}">${pin.toFixed(2)}″</div><div class="l" style="color:${PT.c}">${PT.w}</div>
+    <div class="l">Vis ${isNaN(vis)?'–':vis>=10?'10+':vis.toFixed(1)}mi</div>`,`<span id="psp">${gBaro(pin)}</span>`);{const h=$('t-pv').querySelector('h3');if(h)h.style.color=PT.c}
   loadPressure24(c.pressure_msl);
   let iDay=H.time.findIndex(t=>t.slice(0,10)===D.time[0]);if(iDay<0)iDay=0;  // today 00:00 local -> midnight-to-midnight axis
   drawSky24(H,D,iDay);
@@ -539,12 +539,12 @@ async function loadPressure24(curHpa){
     const W=46,Hh=44,top=7,bot=33,mn=Math.min(...v),mx=Math.max(...v),span=Math.max(2,mx-mn),mid=(mx+mn)/2;
     const y=p=>bot-((p-(mid-span/2))/span)*(bot-top),x=k=>2+k/(v.length-1)*(W-6);
     const path=v.map((p,k)=>(k?'L':'M')+x(k).toFixed(1)+' '+y(p).toFixed(1)).join('');
-    const ch=v[v.length-1]-v[0],col=ch>1?'#7dd3fc':ch<-1?'#fca5a5':'#cdd7e5';
+    const ch=v[v.length-1]-v[0],col=(window.PTREND||pTrend(0)).c;
     const g=`<path d="${path}L${x(v.length-1).toFixed(1)} ${bot}L${x(0)} ${bot}Z" fill="${col}" opacity=".12"/><path d="${path}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/>`+
       `<circle cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.3" fill="${col}"/><line x1="2" y1="${bot}" x2="${W-4}" y2="${bot}" stroke="#33445f"/>`+
       `<text x="1" y="${Hh-1}" font-size="7.5" fill="#9fb0c8">24h</text><text x="${W-4}" y="${Hh-1}" font-size="7.5" fill="${col}" text-anchor="end">${ch>=0?'+':''}${ch.toFixed(1)}</text>`+
       `<text x="${W-4}" y="5" font-size="7" fill="#64748b" text-anchor="end">${Math.round(curHpa??v[v.length-1])} hPa</text>`;
-    {const h=$('t-pv').querySelector('h3');if(h)h.style.color=col}const el=$('psp');if(el)el.innerHTML=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="Pressure last 24 hours">${g}</svg>`;
+    const el=$('psp');if(el)el.innerHTML=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="Pressure last 24 hours">${g}</svg>`;
   }catch(e){}  // keep the barometer dial if this fails
 }
 // ===== What changed since the first view today (localStorage baseline per day + mode) =====
@@ -810,6 +810,8 @@ function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.0
 function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgend'),pb=parseFloat(getComputedStyle(document.body).paddingBottom)||0,T=target-pb-1,
   b=()=>pe.getBoundingClientRect().top+scrollY,set=r=>{window.RADH=Math.round(Math.max(mn,Math.min(mx,r)));hs.setProperty('--rh',window.RADH+'px');return b()};
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
+// Shared pressure tendency class (tr = hPa change over 3h). Steady within ±0.02 inHg, falling fast at <= -0.06 inHg.
+function pTrend(tr){const t=tr*0.02953;return t>0.02?{k:'rise',c:'#60a5fa',w:'Rising ↑'}:t<=-0.06?{k:'fastfall',c:'#ef4444',w:'Falling fast ↓↓'}:t<-0.02?{k:'fall',c:'#f59e0b',w:'Falling ↓'}:{k:'steady',c:'#9ca3af',w:'Steady →'}}
 function tileFit(){document.querySelectorAll('#grid .tile').forEach(t=>{t.style.zoom='';
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
   if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo});badgeMatch()}
@@ -898,7 +900,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025a').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025b').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
