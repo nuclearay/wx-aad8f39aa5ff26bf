@@ -65,6 +65,8 @@ body{padding:calc(env(safe-area-inset-top) + 4px) 7px calc(env(safe-area-inset-b
 .hr .t{color:var(--mut)}.hr .i{font-size:18px;line-height:1.3}.hr .tp{font-weight:700;font-size:14px}.hr .p{color:var(--acc)}
 .days .d{display:grid;grid-template-columns:44px 26px 1fr 50px 74px;align-items:center;padding:0 2px;line-height:18px;border-bottom:1px solid var(--line);font-size:14px}
 .days .d:last-child{border-bottom:0}
+#days.dfit .d{grid-template-columns:2.2em 1.3em minmax(0,1fr) max-content max-content;column-gap:.3em;overflow:hidden;line-height:1.15!important;font-size:var(--df)}
+#days.dfit .d>b{font-size:1em}#days.dfit .i{font-size:1.1em}#days.dfit .c{font-size:.82em;padding-left:0}#days.dfit .p{font-size:.86em;min-width:3.3em}#days.dfit .hl{font-size:1em;min-width:5.1em}
 .days .i{font-size:15px}.days .p{color:var(--acc);text-align:right}.days .hl{text-align:right;font-weight:600}
 .days .hl span{color:var(--mut);font-weight:400}
 .days .c{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
@@ -789,12 +791,12 @@ function sizeSet(v){const h=document.documentElement;h.classList.remove('size-cu
 function sizeCycle(){sizeSet(WXSIZE==='big'?'current':'big')}
 function sizeLabel(){$('szb').textContent=SZL[WXSIZE];$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
 function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
-  d.style.marginTop='';g.style.height='';d.querySelectorAll('.d').forEach(r=>r.style.lineHeight='');
+  d.style.marginTop='';g.style.height='';d.classList.remove('dfit');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
   const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
   if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
     if(S>0){const rp=Math.min(S*0.3,rows.length*5);if(rows.length)rows.forEach(r=>r.style.lineHeight=(18+rp/rows.length/z)+'px');
       if(sv){const cw=sv.getBoundingClientRect().width,cp=Math.min(S*0.3,(274-245)*cw/380);hs.setProperty('--ch',245+cp*380/cw)}}
-    radFit(innerHeight,120,178+260)}
+    daysFit();radFit(innerHeight,120,178+260)}
   $('dstart').style.height='0px';document.documentElement.classList.toggle('snapy',WXSIZE==='big');
   if(WXSIZE==='big'){document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');const Y=e=>e.getBoundingClientRect().top+scrollY,ds=$('dstart'),VH=innerHeight;
     const solve=(set,m,T,v0,mn,mx)=>{const cl=v=>Math.max(mn,Math.min(mx,v));let a=cl(v0);set(a);let fa=m();let b=cl(a+40);set(b);let fb=m();for(let k=0;k<5;k++){const sl=(fb-fa)/((b-a)||1)||1,c=cl(b+(T-fb)/sl);if(Math.abs(c-b)<.3)break;a=b;fa=fb;b=c;set(b);fb=m()}return b};
@@ -802,11 +804,19 @@ function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.0
     solve(v=>g.style.height=v+'px',()=>Y(ds),VH-1,g.offsetHeight,120,1200);
     ds.style.height=Math.max(0,VH-Y(ds))+'px';
     const rows=d.querySelectorAll('.d'),rd=$('radar');
-    if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);
+    if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);daysFit();
     radFit(2*innerHeight,200,2000);
     tileFit()}
   else document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');
   if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate()}
+// Max font in fixed 7-day rows: lock row heights, then binary-search a font size that fits worst-case text.
+function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
+  rows.forEach((r,k)=>r.style.height=hs[k]+'px');d.classList.add('dfit');const r=rows[0],sv=r.innerHTML,h=Math.min(...hs);
+  r.querySelector('b').textContent='Wed';r.querySelector('.c').textContent='Partly cloudy';r.querySelector('.p').textContent='💧100%';r.querySelector('.hl').innerHTML='<span>100°</span> <span>/ <span>100°</span></span>';
+  const ok=()=>{if(r.scrollWidth>r.clientWidth+.5)return false;const c=r.querySelector('.c');if(c.scrollWidth>c.clientWidth+.5)return false;for(const e of r.children){if(e.scrollHeight>h-1||e.offsetHeight>h-1)return false}const R0=r.getBoundingClientRect();for(const e of r.children){const q=e.getBoundingClientRect();if(q.right>R0.right+.5||q.left<R0.left-.5)return false}return true};
+  let lo=10,hi=60;for(let k=0;k<10;k++){const m=(lo+hi)/2;d.style.setProperty('--df',m+'px');if(ok())lo=m;else hi=m}
+  r.querySelector('.c').textContent='Light drizzle';d.style.setProperty('--df',lo+'px');while(!ok()&&lo>10){lo-=.25;d.style.setProperty('--df',lo+'px')}
+  d.style.setProperty('--df',lo.toFixed(2)+'px');r.innerHTML=sv}
 function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgend'),pb=parseFloat(getComputedStyle(document.body).paddingBottom)||0,T=target-pb-1,
   b=()=>pe.getBoundingClientRect().top+scrollY,set=r=>{window.RADH=Math.round(Math.max(mn,Math.min(mx,r)));hs.setProperty('--rh',window.RADH+'px');return b()};
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
@@ -900,7 +910,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025b').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025c').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
