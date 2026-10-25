@@ -810,12 +810,13 @@ function topFit(){const hd=document.querySelector('.hdr'),nw=$('now'),lg=documen
   const box=[hd,nw,lg].filter(Boolean),V=['--hs','--nb','--nl','--nc','--ng','--ss'];V.forEach(v=>hs.removeProperty(v));box.forEach(e=>{e.style.height='';e.style.overflow=''});nw.classList.remove('tf');
   if(!nw.querySelector('.big'))return;const H=box.map(e=>parseFloat(getComputedStyle(e).height));box.forEach((e,k)=>{e.style.height=H[k]+'px';e.style.overflow='hidden'});nw.classList.add('tf');
   const sw=[],swap=(e,t)=>{if(e){sw.push([e,e.innerHTML]);e.innerHTML=t}};
-  swap($('upd'),'12:59 PM');swap(nw.querySelector('.big'),'104°');const fb=nw.querySelectorAll('.lines b');swap(fb[0],'112°');swap(fb[1],'104°');swap(fb[2],'100°');
-  const cd=nw.querySelector('.cond');if(cd){const tn=[...cd.childNodes].find(n=>n.nodeType===3);if(tn){sw.push([tn,tn.textContent,1]);tn.textContent='Freezing drizzle'}}
+  swap($('upd'),'12:59 PM');/* card fits live content (refit on every refresh via sizeLayout) */
   const fits=e=>{if(e!==hd&&e.scrollWidth>e.clientWidth+.5)return false;if(e===nw&&e.scrollHeight>e.clientHeight+1.5)return false;const R=e.getBoundingClientRect(),tv=1.5;for(const q of e.querySelectorAll('*')){const r=q.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right+.5||r.left<R.left-.5||r.bottom>R.bottom+tv||r.top<R.top-tv)return false;if(q.matches('h1,.upd,.lines div')&&q.scrollWidth>q.clientWidth+.5)return false}return true};
   const fit=(vs,el,lo,hi)=>{for(let k=0;k<10;k++){const m=(lo+hi)/2;vs.forEach(v=>hs.setProperty(v,m));if(fits(el))lo=m;else hi=m}vs.forEach(v=>hs.setProperty(v,+lo.toFixed(3)));return lo};
   fit(['--hs'],hd,.6,2.5);if(lg)fit(['--ss'],lg,.6,2.5);
-  const u=fit(['--nb','--nl','--nc','--ng'],nw,.5,2.5);for(const v of ['--nc','--nb','--nl','--ng'])fit([v],nw,u,3);
+  const NV=['--nb','--nl','--nc','--ng'];NV.forEach(v=>hs.setProperty(v,1));
+  if(fits(nw)){const u=fit(NV,nw,1,2.5);for(const v of ['--nc','--nb','--nl','--ng'])fit([v],nw,u,3)}
+  else{hs.setProperty('--nl',.97);if(!fits(nw))fit(['--nc'],nw,.4,1)}/* floor: pre-388df30 sizes; only condition shrinks */
   sw.reverse().forEach(([e,t,tx])=>tx?e.textContent=t:e.innerHTML=t)}
 function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
   d.style.marginTop='';g.style.height='';d.classList.remove('dfit');g.querySelectorAll('.tile.mt').forEach(t=>t.style.height='');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
@@ -945,7 +946,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025e').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025f').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
