@@ -209,6 +209,7 @@ const tS=t=>` style="color:${tC(t)}"`;
 const hh=s=>{const h=+s.slice(11,13);return (h%12||12)+(h<12?'a':'p')};
 const dayName=(s,i)=>i===0?'Today':new Date(s+'T12:00').toLocaleDateString('en-US',{weekday:'short'});
 const nowLocal=()=>new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T').slice(0,13); // YYYY-MM-DDTHH
+const cpill=(txt,c)=>`<span class="pill" style="background:${c}26;color:${c};box-shadow:inset 0 0 0 1.5px ${c}">${txt}</span>`;
 const pill=(txt,bg,fg='#0b1220')=>`<span class="pill" style="background:${bg};color:${fg}">${txt}</span>`;
 function uvInfo(u){if(u==null)return['–','#475569'];if(u<3)return['Low','#22c55e'];if(u<6)return['Moderate','#eab308'];if(u<8)return['High','#f97316'];if(u<11)return['Very high','#ef4444'];return['Extreme','#a855f7']}
 function aqiInfo(a){if(a==null)return['–','#475569'];if(a<=50)return['Good','#22c55e'];if(a<=100)return['Moderate','#eab308'];if(a<=150)return['Unhealthy (sens.)','#f97316'];if(a<=200)return['Unhealthy','#ef4444'];if(a<=300)return['Very unhealthy','#a855f7'];return['Hazardous','#7f1d1d']}
@@ -304,11 +305,11 @@ async function loadForecast(){
     <div class="l" style="color:#38bdf8">Today ${D.precipitation_probability_max[0]??'–'}% · ${(D.precipitation_sum[0]||0).toFixed(2)}″</div>`,gRain(D.precipitation_sum[0],D.precipitation_probability_max[0]));
   setTileG('t-wind',`<div class="v" style="color:#2dd4bf">${r(c.wind_speed_10m)}<span style="font-size:12px;font-weight:600"> mph</span></div>
     <div class="l" style="color:#2dd4bf">${card(c.wind_direction_10m)} ${c.wind_direction_10m!=null?Math.round(c.wind_direction_10m)+'°':''}</div><div class="l" style="color:#5eead4">┄ Gusts ${r(c.wind_gusts_10m)}</div>`,gWind(c.wind_direction_10m));
-  setTileG('t-hum',`<div class="v">${r(c.relative_humidity_2m)}%</div><div class="l" style="color:#6bbf59">Dew ${r(c.dew_point_2m)}°</div>
-    <div class="l">${c.dew_point_2m>=70?'Muggy':c.dew_point_2m>=60?'Sticky':'Comfy'}</div>`,gHum(c.relative_humidity_2m));
+  setTileG('t-hum',`<div class="v" style="color:#3b9fd8">${r(c.relative_humidity_2m)}%</div><div class="l" style="color:#6bbf59">Dew ${r(c.dew_point_2m)}°</div>
+    <div class="l" style="color:#3b9fd8">${c.dew_point_2m>=70?'Muggy':c.dew_point_2m>=60?'Sticky':'Comfy'}</div>`,gHum(c.relative_humidity_2m));
   const uv=uvInfo(c.uv_index),um=uvInfo(D.uv_index_max[0]);
-  setTileG('t-uv',`<div class="v">${pill((c.uv_index??0).toFixed(1),uv[1])}</div><div class="l">${uv[0]==='Very high'?'V. high':uv[0]==='Moderate'?'Mod.':uv[0]}</div>
-    <div class="l">Max ${r(D.uv_index_max[0])} <span style="color:${um[1]}">●</span></div>`,gUV(c.uv_index));
+  setTileG('t-uv',`<div class="v">${cpill((c.uv_index??0).toFixed(1),uv[1])}</div><div class="l" style="color:${uv[1]}">${uv[0]==='Very high'?'V. high':uv[0]==='Moderate'?'Mod.':uv[0]}</div>
+    <div class="l" style="color:${um[1]}">Max ${r(D.uv_index_max[0])} <span style="color:${um[1]}">●</span></div>`,gUV(c.uv_index));
   const pin=c.pressure_msl*0.02953, p3=H.pressure_msl[Math.max(0,i0-3)], tr=c.pressure_msl-p3;
   const vis=c.visibility!=null?c.visibility/1609.34:H.visibility[i0]/1609.34;
   setTileG('t-pv',`<div class="v">${pin.toFixed(2)}″</div><div class="l">${tr>0.7?'Rising ↗':tr<-0.7?'Falling ↘':'Steady →'}</div>
@@ -661,7 +662,7 @@ async function loadAir(){
   const c=d.current,a=aqiInfo(c.us_aqi);
   const pol={'PM2.5':c.us_aqi_pm2_5,'PM10':c.us_aqi_pm10,'Ozone':c.us_aqi_ozone,'NO₂':c.us_aqi_nitrogen_dioxide,'SO₂':c.us_aqi_sulphur_dioxide,'CO':c.us_aqi_carbon_monoxide};
   const main=Object.entries(pol).filter(e=>e[1]!=null).sort((x,y)=>y[1]-x[1])[0];
-  setTile('t-aqi',`<div class="v">${pill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l">${a[0]}</div><div class="l">${main?'Main: '+main[0]:''}</div>`);
+  setTile('t-aqi',`<div class="v">${cpill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l" style="color:${a[1]}">${a[0]}</div><div class="l" style="color:${a[1]}">${main?'Main: '+main[0]:''}</div>`);
 }
 // ===== Row B detail screens: 24h history + 24h forecast (Open-Meteo past_days=1 / air-quality past_days=1) =====
 const MD={cache:{},push:false,keys:{rain:'Rain',wind:'Wind',humidity:'Humidity',uv:'UV index',pressure:'Pressure',air:'Air quality'}};
