@@ -300,11 +300,11 @@ async function loadForecast(){
   const pk=nx.reduce((m,h)=>h.p>m.p?h:m,nx[0]||{p:0});
   const tot=nx.reduce((s,h)=>s+(h.a||0),0);
   let rl=c.precipitation>0?`<div class="v">Raining now</div>`:start?`<div class="v">${start.p>=50?'Likely':'Chance'} ~${start.t.slice(0,13)===key?'now':hh(start.t)} (${start.p}%)</div>`:(pk.p>=20?`<div class="v">Low chance next 12h</div>`:`<div class="v">No rain next 12h</div>`);
-  setTileG('t-rain',rl+`<div class="l">Peak ${pk.p??0}% at ${pk.t?hh(pk.t):'–'}</div><div class="l">Next 12h ${tot.toFixed(2)}″</div>
-    <div class="l">Today ${D.precipitation_probability_max[0]??'–'}% · ${(D.precipitation_sum[0]||0).toFixed(2)}″</div>`,gRain(D.precipitation_sum[0],D.precipitation_probability_max[0]));
-  setTileG('t-wind',`<div class="v">${r(c.wind_speed_10m)}<span style="font-size:12px;font-weight:600"> mph</span></div>
-    <div class="l">${card(c.wind_direction_10m)} ${c.wind_direction_10m!=null?Math.round(c.wind_direction_10m)+'°':''}</div><div class="l">Gusts ${r(c.wind_gusts_10m)}</div>`,gWind(c.wind_direction_10m));
-  setTileG('t-hum',`<div class="v">${r(c.relative_humidity_2m)}%</div><div class="l">Dew ${r(c.dew_point_2m)}°</div>
+  setTileG('t-rain',rl.replace('class="v"','class="v" style="color:#38bdf8"')+`<div class="l" style="color:#38bdf8">Peak ${pk.p??0}% at ${pk.t?hh(pk.t):'–'}</div><div class="l" style="color:#38bdf8">Next 12h ${tot.toFixed(2)}″</div>
+    <div class="l" style="color:#38bdf8">Today ${D.precipitation_probability_max[0]??'–'}% · ${(D.precipitation_sum[0]||0).toFixed(2)}″</div>`,gRain(D.precipitation_sum[0],D.precipitation_probability_max[0]));
+  setTileG('t-wind',`<div class="v" style="color:#2dd4bf">${r(c.wind_speed_10m)}<span style="font-size:12px;font-weight:600"> mph</span></div>
+    <div class="l" style="color:#2dd4bf">${card(c.wind_direction_10m)} ${c.wind_direction_10m!=null?Math.round(c.wind_direction_10m)+'°':''}</div><div class="l" style="color:#5eead4">┄ Gusts ${r(c.wind_gusts_10m)}</div>`,gWind(c.wind_direction_10m));
+  setTileG('t-hum',`<div class="v">${r(c.relative_humidity_2m)}%</div><div class="l" style="color:#6bbf59">Dew ${r(c.dew_point_2m)}°</div>
     <div class="l">${c.dew_point_2m>=70?'Muggy':c.dew_point_2m>=60?'Sticky':'Comfy'}</div>`,gHum(c.relative_humidity_2m));
   const uv=uvInfo(c.uv_index),um=uvInfo(D.uv_index_max[0]);
   setTileG('t-uv',`<div class="v">${pill((c.uv_index??0).toFixed(1),uv[1])}</div><div class="l">${uv[0]==='Very high'?'V. high':uv[0]==='Moderate'?'Mod.':uv[0]}</div>
