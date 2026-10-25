@@ -136,10 +136,10 @@ a{color:var(--acc)}
 #t-rain{column-gap:5px}#t-rain .v{font-size:11.5px}
 .tile.mt{display:flex;flex-direction:column;align-items:center;text-align:center;padding:5px 3px;min-width:0}
 .mt .tg,.mt .tg>div{display:contents}
-.mt h3{font-size:9.5px;letter-spacing:.2px;white-space:nowrap;order:0;margin-bottom:1px}
-.mt .v{order:1;font-size:16px}.mt>svg,.mt .tg>svg,.mt #psp{order:2;margin:2px 0}
-.mt svg{height:32px;width:auto;max-width:100%}
-.mt .l{order:3;font-size:10.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mt h3{font-size:calc(9.5px*var(--mh,1));letter-spacing:.2px;white-space:nowrap;order:0;margin-bottom:1px}
+.mt .v{order:1;font-size:calc(16px*var(--mv,1))}#grid .mt .v *,#grid .mt .l *{font-size:inherit}#grid .tile.mt>*,#grid .mt .tg>*,#grid .mt .tg>div>*{flex-shrink:0}.mt>svg,.mt .tg>svg,.mt #psp{order:2;margin:2px 0}
+.mt svg{height:calc(32px*var(--mg,1));width:auto;max-width:100%}
+.mt .l{order:3;font-size:calc(10.5px*var(--ml,1));line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #t-aqi.mt .aqg{position:static}
 .foot{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
 </style>
@@ -791,12 +791,12 @@ function sizeSet(v){const h=document.documentElement;h.classList.remove('size-cu
 function sizeCycle(){sizeSet(WXSIZE==='big'?'current':'big')}
 function sizeLabel(){$('szb').textContent=SZL[WXSIZE];$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
 function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
-  d.style.marginTop='';g.style.height='';d.classList.remove('dfit');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
+  d.style.marginTop='';g.style.height='';d.classList.remove('dfit');g.querySelectorAll('.tile.mt').forEach(t=>t.style.height='');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
   const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
   if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
     if(S>0){const rp=Math.min(S*0.3,rows.length*5);if(rows.length)rows.forEach(r=>r.style.lineHeight=(18+rp/rows.length/z)+'px');
       if(sv){const cw=sv.getBoundingClientRect().width,cp=Math.min(S*0.3,(274-245)*cw/380);hs.setProperty('--ch',245+cp*380/cw)}}
-    daysFit();radFit(innerHeight,120,178+260)}
+    daysFit();mtFit();radFit(innerHeight,120,178+260)}
   $('dstart').style.height='0px';document.documentElement.classList.toggle('snapy',WXSIZE==='big');
   if(WXSIZE==='big'){document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');const Y=e=>e.getBoundingClientRect().top+scrollY,ds=$('dstart'),VH=innerHeight;
     const solve=(set,m,T,v0,mn,mx)=>{const cl=v=>Math.max(mn,Math.min(mx,v));let a=cl(v0);set(a);let fa=m();let b=cl(a+40);set(b);let fb=m();for(let k=0;k<5;k++){const sl=(fb-fa)/((b-a)||1)||1,c=cl(b+(T-fb)/sl);if(Math.abs(c-b)<.3)break;a=b;fa=fb;b=c;set(b);fb=m()}return b};
@@ -807,7 +807,7 @@ function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.0
     if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);daysFit();
     radFit(2*innerHeight,200,2000);
     tileFit()}
-  else document.querySelectorAll('#grid .tile').forEach(t=>t.style.zoom='');
+  else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>t.style.zoom='');
   if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate()}
 // Max font in fixed 7-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
@@ -822,9 +822,17 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
 // Shared pressure tendency class (tr = hPa change over 3h). Steady within ±0.02 inHg, falling fast at <= -0.06 inHg.
 function pTrend(tr){const t=tr*0.02953;return t>0.02?{k:'rise',c:'#60a5fa',w:'Rising ↑'}:t<=-0.06?{k:'fastfall',c:'#ef4444',w:'Falling fast ↓↓'}:t<-0.02?{k:'fall',c:'#f59e0b',w:'Falling ↓'}:{k:'steady',c:'#9ca3af',w:'Steady →'}}
-function tileFit(){document.querySelectorAll('#grid .tile').forEach(t=>{t.style.zoom='';
+function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
   if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo});badgeMatch()}
+// One shared font scale (--ms) for the five small tiles: same size per text role, maximized so every tile fits.
+function mtFit(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts.length)return;const VS=['--mh','--mv','--ml','--mg'];VS.forEach(v=>g.style.removeProperty(v));ts.forEach(t=>{t.style.zoom='';t.style.height=''});
+  const hs=ts.map(t=>parseFloat(getComputedStyle(t).height));ts.forEach((t,k)=>t.style.height=hs[k]+'px');
+  const ok=()=>ts.every(t=>{if(t.scrollWidth>t.clientWidth+.5||t.scrollHeight>t.clientHeight+.5)return false;const R=t.getBoundingClientRect();for(const e of t.querySelectorAll('h3,.v,.l,svg,.pill')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-1.5||r.left<R.left+1.5||r.bottom>R.bottom-1.5||r.top<R.top)return false;if(e.scrollWidth>e.clientWidth+.5&&e.tagName!=='svg')return false}return true});
+  const fit=(set,lo,hi)=>{for(let k=0;k<11;k++){const m=(lo+hi)/2;set(m);if(ok())lo=m;else hi=m}set(+lo.toFixed(3));return lo};
+  const u=fit(m=>VS.forEach(v=>g.style.setProperty(v,m)),.4,3);
+  // then grow each role in turn (lines, value, title, then gauges take leftover height); one value per role across all five tiles
+  for(const v of ['--mv','--ml','--mh','--mg'])fit(m=>g.style.setProperty(v,m),u,3.5)}
 function badgeMatch(){const u=$('t-uv'),a=$('t-aqi'),p=u&&u.querySelector('.v .pill');if(!p)return;const zu=parseFloat(u.style.zoom)||1,za=parseFloat(a&&a.style.zoom)||1;p.style.zoom=WXSIZE==='big'?(za/zu).toFixed(3):''}
 $('szb').onclick=sizeCycle;sizeLabel();const sizeKick=()=>{clearTimeout(sizeKick.t);sizeKick.t=setTimeout(()=>{try{sizeLayout()}catch(e){}},30)};addEventListener('resize',sizeKick);addEventListener('load',sizeKick);addEventListener('pageshow',sizeKick);addEventListener('orientationchange',()=>setTimeout(sizeKick,300));if(window.visualViewport)visualViewport.addEventListener('resize',sizeKick);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sizeKick);[150,600,1500,3000].forEach(t=>setTimeout(sizeKick,t));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(sizeKick,100)});const RO_SZ=new ResizeObserver(sizeKick);let SZSIG='';setInterval(()=>{if(document.hidden)return;const rb=Math.round($('radar').getBoundingClientRect().bottom+scrollY),sg=innerHeight+':'+rb+':'+WXSIZE;if(sg!==SZSIG){SZSIG=sg;sizeKick()}},1000);[$('grid'),$('sky24'),$('now'),$('days'),$('hdr')||document.querySelector('.hdr')].forEach(e=>e&&RO_SZ.observe(e));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-last>5*60e3)refresh()});
@@ -910,7 +918,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025c').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025d').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
