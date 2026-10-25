@@ -100,7 +100,7 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
-#daysky{margin-top:6px}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
+#daysky{margin-top:6px}.dnvs{display:flex;gap:6px;margin-left:auto}.dnv{background:#1b2740;color:#e2e8f0;border:1px solid #2c3b58;border-radius:8px;width:34px;height:32px;font-size:22px;line-height:1;padding:0;cursor:pointer}.dnv[disabled]{opacity:.25;cursor:default}@keyframes dsl{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}@keyframes dsr{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}#mdet.dsl>*{animation:dsl .28s ease-out}#mdet.dsr>*{animation:dsr .28s ease-out}#mdet{overflow-x:hidden}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
 #mdet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#mdet[hidden]{display:none}
 .mdls{margin-top:8px;background:var(--card);border-radius:14px;padding:4px 12px}.mdl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #22304a;font-size:14px}.mdl:last-child{border-bottom:0}.mdl span{color:#9fb0c8}.mdl b{text-align:right}
 #poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
@@ -735,15 +735,23 @@ async function mdShow(k){let el=$('mdet');if(!el)return;document.body.style.over
 window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);if(/^day[1-7]$/.test(k))return dayShow(+k.slice(3));MD.keys[k]?mdShow(k):mdHide()});
 // ===== Day detail: 24 hourly lines (midnight-midnight) from the main Open-Meteo forecast =====
 let DAYPUSH=false;
+function dayNav(n){if(n<1||n>7)return;const el=$('mdet'),k=el._dayK||1;history.replaceState(null,'','#day'+n);xhHide();dayShow(n,n>k?1:-1)}
+function daySwipeInit(el){if(el._swB)return;el._swB=1;let sx,sy,st,inC;
+  el.addEventListener('touchstart',e=>{if(!el._dayK||!/^#day/.test(location.hash)||e.touches.length>1){sx=null;return}const t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();inC=!!e.target.closest('svg')},{passive:true});
+  el.addEventListener('touchend',e=>{if(sx==null||!/^#day/.test(location.hash))return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy,dt=Date.now()-st;sx=null;
+    const ax=Math.abs(dx),ay=Math.abs(dy),ok=inC?(ax>90&&ay<ax*.4&&dt<350):(ax>50&&ay<ax*.6);
+    if(ok)dayNav(el._dayK+(dx<0?1:-1))},{passive:true})}
 function dayOpen(k){if(location.hash!=='#day'+k){DAYPUSH=true;location.hash='day'+k}else dayShow(k)}
 function dayClose(){if(/^#day/.test(location.hash)){if(DAYPUSH){DAYPUSH=false;history.back()}else{history.replaceState(null,'',location.pathname+location.search);mdHide()}}else mdHide()}
-function dayShow(k){const el=$('mdet'),d=window.FCD;if(!el||!d)return;const D=d.daily,H=d.hourly,day=D.time[k];if(!day)return;
+function dayShow(k,dir){const el=$('mdet'),d=window.FCD;if(!el||!d)return;const D=d.daily,H=d.hourly,day=D.time[k];if(!day)return;
   document.body.style.overflow='hidden';el.hidden=false;
   const ww=wx(D.weather_code[k]),title=new Date(day+'T12:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
-  const head=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="dayClose()">←</button><div><div class="pdtt">${title}</div><div class="pdu">${LOC.name} · ${ww.i} ${ww.t} · H <b${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</b> · L <b${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</b> · 💧${D.precipitation_probability_max[k]??0}%</div></div></div>`;
+  const nb=(n,t,l)=>`<button class="dnv" aria-label="${l}" ${n<1||n>7?'disabled':`onclick="dayNav(${n})"`}>${t}</button>`;
+  const head=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="dayClose()">←</button><div style="flex:1;min-width:0"><div class="pdtt">${title}</div><div class="pdu">${LOC.name} · ${ww.i} ${ww.t} · H <b${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</b> · L <b${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</b> · 💧${D.precipitation_probability_max[k]??0}%</div></div><div class="dnvs">${nb(k-1,'‹','Previous day')}${nb(k+1,'›','Next day')}</div></div>`;
   const i0=H.time.findIndex(t=>t.slice(0,10)===day);
   el.innerHTML=head+`<div class="card sky24" id="daysky"></div>`;
-  drawSky24(H,D,i0,{el:$('daysky'),dk:k,icons:1});el.scrollTop=0}
+  drawSky24(H,D,i0,{el:$('daysky'),dk:k,icons:1});el._dayK=k;daySwipeInit(el);
+  if(dir){el.classList.remove('dsl','dsr');void el.offsetWidth;el.classList.add(dir>0?'dsl':'dsr')}el.scrollTop=0}
 if(MD.keys[location.hash.slice(1)])setTimeout(()=>mdShow(location.hash.slice(1)),0);
 // Beach/marine-only NWS alert types Raymond never needs (exact event names). Land/home alerts (incl. coastal flood, storm surge, tropical) still show.
 const SKIP_ALERTS=new Set(['High Surf Advisory','High Surf Warning','Rip Current Statement','Beach Hazards Statement','Small Craft Advisory','Small Craft Advisory for Hazardous Seas','Small Craft Advisory for Rough Bar','Small Craft Advisory for Winds','Marine Weather Statement','Gale Warning','Gale Watch','Storm Warning','Storm Watch','Hurricane Force Wind Warning','Hurricane Force Wind Watch','Hazardous Seas Warning','Hazardous Seas Watch','Brisk Wind Advisory','Special Marine Warning','Low Water Advisory'].map(x=>x.toLowerCase()));
