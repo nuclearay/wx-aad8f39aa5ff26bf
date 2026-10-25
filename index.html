@@ -153,7 +153,7 @@ a{color:var(--acc)}
 <div class="alerts" id="alerts"></div>
 <div class="card ltg" id="ltg" hidden></div>
 <div class="card now" id="now"><div class="mut">Loading current conditions…</div></div>
-<div class="sec" style="text-align:center">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · wind <span style="text-transform:none;font-weight:400">(┄ gusts)</span></div>
+<div class="sec" style="text-align:center">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · <span style="color:#2dd4bf">wind</span> <span style="text-transform:none;font-weight:400;color:#5eead4">(┄ gusts)</span></div>
 <div class="card sky24" id="sky24"><div class="mut">Loading…</div></div>
 <div id="poldet" hidden></div>
 <div id="mdet" hidden></div>
@@ -751,7 +751,7 @@ function dayShow(k,dir){const el=$('mdet'),d=window.FCD;if(!el||!d)return;const 
   const nb=(n,t,l)=>`<button class="dnv" aria-label="${l}" ${n<1||n>7?'disabled':`onclick="dayNav(${n})"`}>${t}</button>`;
   const head=`<div class="pdt"><button class="pdx" aria-label="Back" onclick="dayClose()">←</button><div style="flex:1;min-width:0"><div class="pdtt">${title}</div><div class="pdu">${LOC.name} · ${ww.i} ${ww.t} · H <b${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</b> · L <b${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</b> · 💧${D.precipitation_probability_max[k]??0}%</div></div><div class="dnvs">${nb(k-1,'‹','Previous day')}${nb(k+1,'›','Next day')}</div></div>`;
   const i0=H.time.findIndex(t=>t.slice(0,10)===day);
-  el.innerHTML=head+`<div class="card sky24" id="daysky"></div>`;
+  el.innerHTML=head+`<div class="sec" style="text-align:center;margin-top:4px"><span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · <span style="color:#38bdf8">rain</span> · <span style="color:#2dd4bf">wind</span> <span style="text-transform:none;font-weight:400;color:#5eead4">(┄ gusts)</span></div><div class="card sky24" id="daysky"></div>`;
   drawSky24(H,D,i0,{el:$('daysky'),dk:k,icons:1});el._dayK=k;daySwipeInit(el);
   if(dir){el.classList.remove('dsl','dsr');void el.offsetWidth;el.classList.add(dir>0?'dsl':'dsr')}el.scrollTop=0}
 if(MD.keys[location.hash.slice(1)])setTimeout(()=>mdShow(location.hash.slice(1)),0);
