@@ -193,7 +193,7 @@ html.size-big{--z:1.06;--ch:290}html.size-big .now .lines div{white-space:nowrap
 html.size-big #t-pol .pring svg{max-width:none;width:62px;height:auto}html.size-big .days .d{grid-template-columns:54px 30px 1fr 52px 92px;font-size:16px;padding:0 4px}html.size-big .days .d b{font-size:18px}html.size-big .days .i{font-size:22px}html.size-big .days .c{font-size:13px}html.size-big .days .p{font-size:14px}html.size-big .days .hl{font-size:17px}
 #szb{flex:none;background:#D6191C;border:0;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:0 10px;height:24px;cursor:pointer}.hdr h1{flex:0 1 auto!important;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdr .upd,.hdr .btn{flex:none}#szb{margin-left:auto;min-width:52px}.hdr .upd,.hdr .mode{white-space:nowrap}html.size-big #t-rain.rfit{grid-template-rows:auto auto 1fr auto auto auto 1fr;align-content:stretch}html.size-big #t-rain.rfit .l{font-size:9px;line-height:1.12}html.size-big #t-rain.rfit .l:nth-of-type(2){grid-row:4}html.size-big #t-rain.rfit .l:nth-of-type(3){grid-row:5}html.size-big #t-rain.rfit .l:nth-of-type(4){grid-row:6}html.size-big #t-rain.rfit .tg svg{grid-row:3/8;height:var(--rg,50px);width:calc(var(--rg,50px)*34/80)}
 html.size-big #t-pol.pfit .prings{display:grid;grid-template-columns:auto auto;justify-content:center;column-gap:var(--pcg,4px);row-gap:0}html.size-big #t-pol.pfit .pring:first-child{grid-column:1/-1;justify-self:center;margin-bottom:var(--pov,0px)}html.size-big #t-pol.pfit .pring svg{width:var(--pw,62px)}
-html.size-big #t-rain.rfit>h3{font-size:calc(11px*var(--rh,1));white-space:nowrap;justify-self:center;text-align:center}html.size-big #t-rain.rfit .v{font-size:calc(11.5px*var(--rv,1));justify-self:center;text-align:center}
+html.size-big #t-rain.rfit>h3{font-size:calc(11px*var(--rh,1));white-space:nowrap;justify-self:center;text-align:center}html.size-big #t-rain.rfit .v{font-size:calc(11.5px*var(--rv,1));line-height:1.08;justify-self:center;text-align:center}
 </style>
 <script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','big'];let v=q==='fit'?'current':ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
 if(!v)try{v=localStorage.getItem('wxSize');if(v==='fit'){v='current';localStorage.setItem('wxSize',v)}}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
@@ -838,7 +838,7 @@ function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXS
     if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);daysFit();
     radFit(2*innerHeight,200,2000);
     tileFit()}
-  else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';t.classList.remove('rfit','pfit')});rainSvg(0);
+  else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}t.style.removeProperty('--rh');t.style.removeProperty('--rv')}t.classList.remove('rfit','pfit')});rainSvg(0);
   if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate()}
 // Max font in fixed 7-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
@@ -853,13 +853,14 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
 // Shared pressure tendency class (tr = hPa change over 3h). Steady within ±0.02 inHg, falling fast at <= -0.06 inHg.
 function pTrend(tr){const t=tr*0.02953;return t>0.02?{k:'rise',c:'#60a5fa',w:'Rising ↑'}:t<=-0.06?{k:'fastfall',c:'#ef4444',w:'Falling fast ↓↓'}:t<-0.02?{k:'fall',c:'#f59e0b',w:'Falling ↓'}:{k:'steady',c:'#9ca3af',w:'Steady →'}}
+function rv2(t){const e=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');let i=t.indexOf(' next ');if(i<0)i=t.indexOf(' (');if(i<0){const m=t.length/2;let b=-1;for(let k=0;k<t.length;k++)if(t[k]===' '&&(b<0||Math.abs(k-m)<Math.abs(b-m)))b=k;i=b}return i>0?e(t.slice(0,i))+'<br>'+e(t.slice(i+1)):e(t)}
 function rainSvg(tall){const v=document.querySelector('#t-rain svg');if(!v||!window.RAINA||!!v.dataset.tall===!!tall)return;v.outerHTML=gRain(RAINA[0],RAINA[1],tall)}
-function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rv');rainSvg(0);
+function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}}t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rv');rainSvg(0);
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
   if(t.id==='t-pol'){t.classList.add('pfit');t.style.zoom=1;const P=t.style;P.setProperty('--pov','-18%');let a=40,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;P.setProperty('--pw',m+'px');P.setProperty('--pov',(-m*.22)+'px');if(ok())a=m;else b=m}P.setProperty('--pw',a.toFixed(1)+'px');P.setProperty('--pov',(-a*.22).toFixed(1)+'px');return}
   if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo;
   if(t.id==='t-rain'){rainSvg(1);t.classList.add('rfit');{const S=t.style,vv=t.querySelector('.v'),sv=vv&&vv.textContent,fr=(v,a,b)=>{for(let k=0;k<10;k++){const m=(a+b)/2;S.setProperty(v,m);if(ok())a=m;else b=m}S.setProperty(v,+a.toFixed(3))};
-    S.setProperty('--rg','100px');if(vv&&sv.length<20)vv.textContent='Rain likely next 12h';fr('--rv',.8,3);if(vv)vv.textContent=sv;fr('--rh',.8,3)}let a=30,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;t.style.setProperty('--rg',m+'px');if(ok())a=m;else b=m}t.style.setProperty('--rg',a.toFixed(1)+'px')}});badgeMatch()}
+    S.setProperty('--rg','85px');fr('--rh',.8,1.6);if(vv){vv.dataset.o=sv;vv.innerHTML='Chance ~12p<br>next 12h';fr('--rv',.8,4);vv.innerHTML=rv2(sv)}}let a=30,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;t.style.setProperty('--rg',m+'px');if(ok())a=m;else b=m}t.style.setProperty('--rg',a.toFixed(1)+'px')}});badgeMatch()}
 // One shared font scale (--ms) for the five small tiles: same size per text role, maximized so every tile fits.
 function mtFit(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts.length)return;const VS=['--mh','--mv','--ml','--mg'];VS.forEach(v=>g.style.removeProperty(v));ts.forEach(t=>{t.style.zoom='';t.style.height=''});
   const hs=ts.map(t=>parseFloat(getComputedStyle(t).height));ts.forEach((t,k)=>t.style.height=hs[k]+'px');
@@ -953,7 +954,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025h').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025i').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
