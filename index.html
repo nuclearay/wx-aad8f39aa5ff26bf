@@ -839,7 +839,7 @@ function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXS
     if(rows.length)solve(v=>rows.forEach(r=>r.style.lineHeight=v+'px'),()=>Y(rd),VH*1.33,30,22,80);daysFit();
     radFit(2*innerHeight,200,2000);
     tileFit()}
-  else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv')}t.classList.remove('rfit','pfit')});rainSvg(0);
+  else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const h3o=t.querySelector('h3');if(h3o&&h3o.dataset.o!=null){h3o.textContent=h3o.dataset.o;delete h3o.dataset.o}const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv')}t.classList.remove('rfit','pfit')});rainSvg(0);
   if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate()}
 // Max font in fixed 7-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
@@ -856,12 +856,12 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
 function pTrend(tr){const t=tr*0.02953;return t>0.02?{k:'rise',c:'#60a5fa',w:'Rising ↑'}:t<=-0.06?{k:'fastfall',c:'#ef4444',w:'Falling fast ↓↓'}:t<-0.02?{k:'fall',c:'#f59e0b',w:'Falling ↓'}:{k:'steady',c:'#9ca3af',w:'Steady →'}}
 function rv2(t){const e=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');let i=t.indexOf(' next ');if(i<0)i=t.indexOf(' (');if(i<0){const m=t.length/2;let b=-1;for(let k=0;k<t.length;k++)if(t[k]===' '&&(b<0||Math.abs(k-m)<Math.abs(b-m)))b=k;i=b}return i>0?e(t.slice(0,i))+'<br>'+e(t.slice(i+1)):e(t)}
 function rainSvg(tall){const v=document.querySelector('#t-rain svg');if(!v||!window.RAINA||!!v.dataset.tall===!!tall)return;v.outerHTML=gRain(RAINA[0],RAINA[1],tall)}
-function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}}t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv');rainSvg(0);
+function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const h3o=t.querySelector('h3');if(h3o&&h3o.dataset.o!=null){h3o.textContent=h3o.dataset.o;delete h3o.dataset.o}const vv=t.querySelector('.v');if(vv&&vv.dataset.o!=null){vv.textContent=vv.dataset.o;delete vv.dataset.o}}t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv');rainSvg(0);
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
   if(t.id==='t-pol'){t.classList.add('pfit');t.style.zoom=1;const P=t.style;P.setProperty('--pov','-18%');let a=40,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;P.setProperty('--pw',m+'px');P.setProperty('--pov',(-m*.22)+'px');if(ok())a=m;else b=m}P.setProperty('--pw',a.toFixed(1)+'px');P.setProperty('--pov',(-a*.22).toFixed(1)+'px');return}
   if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo;
   if(t.id==='t-rain'){rainSvg(1);t.classList.add('rfit');{const S=t.style,vv=t.querySelector('.v'),sv=vv&&vv.textContent,fr=(v,a,b)=>{for(let k=0;k<10;k++){const m=(a+b)/2;S.setProperty(v,m);if(ok())a=m;else b=m}S.setProperty(v,+a.toFixed(3))};
-    S.setProperty('--rg','70px');fr('--rh',.8,1.6);if(vv){vv.dataset.o=sv;vv.innerHTML='Chance ~12p<br>next 12h';fr('--rv',.8,4);vv.innerHTML=rv2(sv)}const L=[...t.querySelectorAll('.tg .l')],LS=L.map(e=>e.textContent),LP=['Peak 100% at 12p','Next 12h 10.55″','Today 100% · 10.55″'];L.forEach((e,k)=>{if(LS[k].length<LP[k].length)e.textContent=LP[k]});fr('--rl',.6,4);L.forEach((e,k)=>e.textContent=LS[k])}let a=30,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;t.style.setProperty('--rg',m+'px');if(ok())a=m;else b=m}t.style.setProperty('--rg',a.toFixed(1)+'px')}});badgeMatch()}
+    const hh3=t.querySelector('h3');if(hh3&&hh3.dataset.o==null){hh3.dataset.o=hh3.textContent;hh3.textContent=[...hh3.textContent.trim()][0]}S.setProperty('--rg','112px');fr('--rh',.8,2.4);if(vv){vv.dataset.o=sv;vv.innerHTML='Chance ~12p<br>next 12h';fr('--rv',.8,4);vv.innerHTML=rv2(sv)}const L=[...t.querySelectorAll('.tg .l')],LS=L.map(e=>e.textContent),LP=['Peak 100% at 12p','Next 12h 10.55″','Today 100% · 10.55″'];L.forEach((e,k)=>{if(LS[k].length<LP[k].length)e.textContent=LP[k]});fr('--rl',.6,4);L.forEach((e,k)=>e.textContent=LS[k])}let a=30,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;t.style.setProperty('--rg',m+'px');if(ok())a=m;else b=m}t.style.setProperty('--rg',a.toFixed(1)+'px')}});badgeMatch()}
 // One shared font scale (--ms) for the five small tiles: same size per text role, maximized so every tile fits.
 function mtFit(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts.length)return;const VS=['--mh','--mv','--ml','--mg'];VS.forEach(v=>g.style.removeProperty(v));ts.forEach(t=>{t.style.zoom='';t.style.height=''});
   const hs=ts.map(t=>parseFloat(getComputedStyle(t).height));ts.forEach((t,k)=>t.style.height=hs[k]+'px');
@@ -955,7 +955,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025k').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025l').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
