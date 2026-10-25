@@ -142,6 +142,21 @@ a{color:var(--acc)}
 .mt .l{order:3;font-size:calc(10.5px*var(--ml,1));line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #t-aqi.mt .aqg{position:static}
 .foot{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}
+
+/* top-area fit: one scale var per role, set by topFit() */
+.hdr .mode{font-size:calc(12px*var(--hs,1));height:calc(24px*var(--hs,1));padding:0 calc(9px*var(--hs,1))}
+.hdr h1{font-size:calc(16px*var(--hs,1))!important}
+.hdr .upd{font-size:calc(12px*var(--hs,1))!important}
+.hdr .btn{font-size:calc(16px*var(--hs,1));width:calc(34px*var(--hs,1));height:calc(30px*var(--hs,1))}
+#szb{font-size:calc(12px*var(--hs,1))!important;height:calc(24px*var(--hs,1))!important;min-width:calc(52px*var(--hs,1))!important;padding:0 calc(10px*var(--hs,1))!important}
+#now .big{font-size:calc(48px*var(--nb,1))!important}
+#now .lines div.fl,#now .lines div.hl{font-size:calc(16.5px*var(--nl,1))!important}
+#now .cond{font-size:calc(18px*var(--nc,1))!important;white-space:normal;text-align:center;line-height:1.1;min-width:0;justify-content:center}#now{grid-template-columns:auto max-content minmax(0,1fr)}#now .lines div{white-space:nowrap}
+#now .cond .ci{font-size:calc(34px*var(--nc,1))!important}
+html.size-big #now .cond{font-size:calc(16px*var(--nc,1))!important;max-width:none!important}
+html.size-big #now .cond .ci{font-size:calc(30px*var(--nc,1))!important}html.size-big #now.tf .cond{line-height:1!important}html.size-big #now.tf .cond .ci{line-height:1!important}
+#now>svg{width:calc(84px*var(--ng,1));height:calc(46px*var(--ng,1))}
+body>.sec.lgd{font-size:calc(11px*var(--ss,1))!important}
 </style>
 </head>
 <body>
@@ -155,7 +170,7 @@ a{color:var(--acc)}
 <div class="alerts" id="alerts"></div>
 <div class="card ltg" id="ltg" hidden></div>
 <div class="card now" id="now"><div class="mut">Loading current conditions…</div></div>
-<div class="sec" style="text-align:center">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · <span style="color:#2dd4bf">wind</span> <span style="text-transform:none;font-weight:400;color:#5eead4">(┄ gusts)</span></div>
+<div class="sec lgd" style="text-align:center">Today · <span style="color:#fb7185">temp</span> · <span style="color:#fb923c">┄ feels</span> · <span style="color:#6bbf59">dew</span> · <span style="color:#fbbf24">sun W/m²</span> · <span style="color:#2dd4bf">wind</span> <span style="text-transform:none;font-weight:400;color:#5eead4">(┄ gusts)</span></div>
 <div class="card sky24" id="sky24"><div class="mut">Loading…</div></div>
 <div id="poldet" hidden></div>
 <div id="mdet" hidden></div>
@@ -228,7 +243,7 @@ function gTemp(t,f){ // semicircle 20..110°F, rainbow gradient, dots for actual
   if(f!=null&&Math.round(f)!==Math.round(t)){const [x,y]=pt(cx,cy,R,ang(f));g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" fill="#fb923c" stroke="#141d2f" stroke-width="1.6"/>`}
   if(t!=null){const [x,y]=pt(cx,cy,R,ang(t));g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.6" fill="#fff" stroke="#141d2f" stroke-width="1.8"/>`}
   if(t!=null&&f!=null){const dd=Math.round(f)-Math.round(t);
-    g+=`<text x="${cx}" y="${cy-13}" font-size="8.5" fill="#9fb0c8" text-anchor="middle">feels</text><text x="${cx}" y="${cy+1}" font-size="14" font-weight="700" fill="${dd>0?'#fb923c':dd<0?'#7dd3fc':'#cdd7e5'}" text-anchor="middle">${dd>0?'+':''}${dd}°</text>`}
+    g+=`<text x="${cx}" y="${cy-13}" font-size="8.5" fill="#9fb0c8" text-anchor="middle">feels</text><text x="${cx}" y="${cy+1}" font-size="14" font-weight="700" fill="${dd>0?'#fb923c':dd<0?'#7dd3fc':'#cdd7e5'}" text-anchor="middle">${Math.round(f)}°</text>`}
   return `<svg width="${W}" height="46" viewBox="0 0 ${W} 46" aria-label="Temperature gauge">${g}</svg>`}
 function gHum(h){ // donut ring
   const R=17,C=2*Math.PI*R,f=clamp(h??0,0,100)/100;
@@ -790,7 +805,19 @@ function sizeSet(v){const h=document.documentElement;h.classList.remove('size-cu
   const u=new URL(location.href);if(u.searchParams.has('size')){u.searchParams.set('size',v);history.replaceState(null,'',u)}sizeLabel();sizeLayout()}
 function sizeCycle(){sizeSet(WXSIZE==='big'?'current':'big')}
 function sizeLabel(){$('szb').textContent=SZL[WXSIZE];$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
-function sizeLayout(){const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
+// Maximize header / current-conditions / legend text inside their existing heights, using worst-case probe text.
+function topFit(){const hd=document.querySelector('.hdr'),nw=$('now'),lg=document.querySelector('body>.sec.lgd'),hs=document.documentElement.style;
+  const box=[hd,nw,lg].filter(Boolean),V=['--hs','--nb','--nl','--nc','--ng','--ss'];V.forEach(v=>hs.removeProperty(v));box.forEach(e=>{e.style.height='';e.style.overflow=''});nw.classList.remove('tf');
+  if(!nw.querySelector('.big'))return;const H=box.map(e=>parseFloat(getComputedStyle(e).height));box.forEach((e,k)=>{e.style.height=H[k]+'px';e.style.overflow='hidden'});nw.classList.add('tf');
+  const sw=[],swap=(e,t)=>{if(e){sw.push([e,e.innerHTML]);e.innerHTML=t}};
+  swap($('upd'),'12:59 PM');swap(nw.querySelector('.big'),'104°');const fb=nw.querySelectorAll('.lines b');swap(fb[0],'112°');swap(fb[1],'104°');swap(fb[2],'100°');
+  const cd=nw.querySelector('.cond');if(cd){const tn=[...cd.childNodes].find(n=>n.nodeType===3);if(tn){sw.push([tn,tn.textContent,1]);tn.textContent='Freezing drizzle'}}
+  const fits=e=>{if(e!==hd&&e.scrollWidth>e.clientWidth+.5)return false;if(e===nw&&e.scrollHeight>e.clientHeight+1.5)return false;const R=e.getBoundingClientRect(),tv=1.5;for(const q of e.querySelectorAll('*')){const r=q.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right+.5||r.left<R.left-.5||r.bottom>R.bottom+tv||r.top<R.top-tv)return false;if(q.matches('h1,.upd,.lines div')&&q.scrollWidth>q.clientWidth+.5)return false}return true};
+  const fit=(vs,el,lo,hi)=>{for(let k=0;k<10;k++){const m=(lo+hi)/2;vs.forEach(v=>hs.setProperty(v,m));if(fits(el))lo=m;else hi=m}vs.forEach(v=>hs.setProperty(v,+lo.toFixed(3)));return lo};
+  fit(['--hs'],hd,.6,2.5);if(lg)fit(['--ss'],lg,.6,2.5);
+  const u=fit(['--nb','--nl','--nc','--ng'],nw,.5,2.5);for(const v of ['--nc','--nb','--nl','--ng'])fit([v],nw,u,3);
+  sw.reverse().forEach(([e,t,tx])=>tx?e.textContent=t:e.innerHTML=t)}
+function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
   d.style.marginTop='';g.style.height='';d.classList.remove('dfit');g.querySelectorAll('.tile.mt').forEach(t=>t.style.height='');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
   const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
   if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
@@ -918,7 +945,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025d').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025e').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
