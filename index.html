@@ -100,7 +100,7 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
-#t-rain,#t-rain h3{color:#38bdf8}#daysky{margin-top:6px}.dnvs{display:flex;gap:6px;margin-left:auto}.dnv{background:#1b2740;color:#e2e8f0;border:1px solid #2c3b58;border-radius:8px;width:34px;height:32px;font-size:22px;line-height:1;padding:0;cursor:pointer}.dnv[disabled]{opacity:.25;cursor:default}@keyframes dsl{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}@keyframes dsr{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}#mdet.dsl>*{animation:dsl .28s ease-out}#mdet.dsr>*{animation:dsr .28s ease-out}#mdet{overflow-x:hidden}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
+#t-rain,#t-rain h3{color:#38bdf8}#t-hum h3{color:#3b9fd8}#t-uv .v .pill,#t-aqi .v .pill{min-width:2.4em;text-align:center;box-sizing:border-box}#t-wind h3{color:#2dd4bf}#daysky{margin-top:6px}.dnvs{display:flex;gap:6px;margin-left:auto}.dnv{background:#1b2740;color:#e2e8f0;border:1px solid #2c3b58;border-radius:8px;width:34px;height:32px;font-size:22px;line-height:1;padding:0;cursor:pointer}.dnv[disabled]{opacity:.25;cursor:default}@keyframes dsl{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}@keyframes dsr{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}#mdet.dsl>*{animation:dsl .28s ease-out}#mdet.dsr>*{animation:dsr .28s ease-out}#mdet{overflow-x:hidden}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
 #mdet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#mdet[hidden]{display:none}
 .mdls{margin-top:8px;background:var(--card);border-radius:14px;padding:4px 12px}.mdl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #22304a;font-size:14px}.mdl:last-child{border-bottom:0}.mdl span{color:#9fb0c8}.mdl b{text-align:right}
 #poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
@@ -309,7 +309,7 @@ async function loadForecast(){
     <div class="l" style="color:#3b9fd8">${c.dew_point_2m>=70?'Muggy':c.dew_point_2m>=60?'Sticky':'Comfy'}</div>`,gHum(c.relative_humidity_2m));
   const uv=uvInfo(c.uv_index),um=uvInfo(D.uv_index_max[0]);
   setTileG('t-uv',`<div class="v">${cpill((c.uv_index??0).toFixed(1),uv[1])}</div><div class="l" style="color:${uv[1]}">${uv[0]==='Very high'?'V. high':uv[0]==='Moderate'?'Mod.':uv[0]}</div>
-    <div class="l" style="color:${um[1]}">Max ${r(D.uv_index_max[0])} <span style="color:${um[1]}">●</span></div>`,gUV(c.uv_index));
+    <div class="l" style="color:${um[1]}">Max ${r(D.uv_index_max[0])} <span style="color:${um[1]}">●</span></div>`,gUV(c.uv_index));{const h=$('t-uv').querySelector('h3');if(h)h.style.color=uv[1]}
   const pin=c.pressure_msl*0.02953, p3=H.pressure_msl[Math.max(0,i0-3)], tr=c.pressure_msl-p3;
   const vis=c.visibility!=null?c.visibility/1609.34:H.visibility[i0]/1609.34;
   setTileG('t-pv',`<div class="v">${pin.toFixed(2)}″</div><div class="l">${tr>0.7?'Rising ↗':tr<-0.7?'Falling ↘':'Steady →'}</div>
@@ -544,7 +544,7 @@ async function loadPressure24(curHpa){
       `<circle cx="${x(v.length-1).toFixed(1)}" cy="${y(v[v.length-1]).toFixed(1)}" r="2.3" fill="${col}"/><line x1="2" y1="${bot}" x2="${W-4}" y2="${bot}" stroke="#33445f"/>`+
       `<text x="1" y="${Hh-1}" font-size="7.5" fill="#9fb0c8">24h</text><text x="${W-4}" y="${Hh-1}" font-size="7.5" fill="${col}" text-anchor="end">${ch>=0?'+':''}${ch.toFixed(1)}</text>`+
       `<text x="${W-4}" y="5" font-size="7" fill="#64748b" text-anchor="end">${Math.round(curHpa??v[v.length-1])} hPa</text>`;
-    const el=$('psp');if(el)el.innerHTML=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="Pressure last 24 hours">${g}</svg>`;
+    {const h=$('t-pv').querySelector('h3');if(h)h.style.color=col}const el=$('psp');if(el)el.innerHTML=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" aria-label="Pressure last 24 hours">${g}</svg>`;
   }catch(e){}  // keep the barometer dial if this fails
 }
 // ===== What changed since the first view today (localStorage baseline per day + mode) =====
@@ -662,7 +662,7 @@ async function loadAir(){
   const c=d.current,a=aqiInfo(c.us_aqi);
   const pol={'PM2.5':c.us_aqi_pm2_5,'PM10':c.us_aqi_pm10,'Ozone':c.us_aqi_ozone,'NO₂':c.us_aqi_nitrogen_dioxide,'SO₂':c.us_aqi_sulphur_dioxide,'CO':c.us_aqi_carbon_monoxide};
   const main=Object.entries(pol).filter(e=>e[1]!=null).sort((x,y)=>y[1]-x[1])[0];
-  setTile('t-aqi',`<div class="v">${cpill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l" style="color:${a[1]}">${a[0]}</div><div class="l" style="color:${a[1]}">${main?'Main: '+main[0]:''}</div>`);
+  setTile('t-aqi',`<div class="v">${cpill(r(c.us_aqi),a[1])}</div>${gAQI(c.us_aqi).replace('<svg ','<svg class="aqg" ')}<div class="l" style="color:${a[1]}">${a[0]}</div><div class="l" style="color:${a[1]}">${main?'Main: '+main[0]:''}</div>`);{const h=$('t-aqi').querySelector('h3');if(h)h.style.color=a[1]}
 }
 // ===== Row B detail screens: 24h history + 24h forecast (Open-Meteo past_days=1 / air-quality past_days=1) =====
 const MD={cache:{},push:false,keys:{rain:'Rain',wind:'Wind',humidity:'Humidity',uv:'UV index',pressure:'Pressure',air:'Air quality'}};
@@ -812,7 +812,8 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
   let r0=178,b0=set(r0),r1=r0+100,b1=set(r1),k=(b1-b0)/(r1-r0)||.87;let r=r0+(T-b0)/k;for(let i=0;i<4;i++){const br=set(r);if(Math.abs(br-T)<=.5)break;r=window.RADH+(T-br)/k}}
 function tileFit(){document.querySelectorAll('#grid .tile').forEach(t=>{t.style.zoom='';
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
-  if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo})}
+  if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo});badgeMatch()}
+function badgeMatch(){const u=$('t-uv'),a=$('t-aqi'),p=u&&u.querySelector('.v .pill');if(!p)return;const zu=parseFloat(u.style.zoom)||1,za=parseFloat(a&&a.style.zoom)||1;p.style.zoom=WXSIZE==='big'?(za/zu).toFixed(3):''}
 $('szb').onclick=sizeCycle;sizeLabel();const sizeKick=()=>{clearTimeout(sizeKick.t);sizeKick.t=setTimeout(()=>{try{sizeLayout()}catch(e){}},30)};addEventListener('resize',sizeKick);addEventListener('load',sizeKick);addEventListener('pageshow',sizeKick);addEventListener('orientationchange',()=>setTimeout(sizeKick,300));if(window.visualViewport)visualViewport.addEventListener('resize',sizeKick);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sizeKick);[150,600,1500,3000].forEach(t=>setTimeout(sizeKick,t));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(sizeKick,100)});const RO_SZ=new ResizeObserver(sizeKick);let SZSIG='';setInterval(()=>{if(document.hidden)return;const rb=Math.round($('radar').getBoundingClientRect().bottom+scrollY),sg=innerHeight+':'+rb+':'+WXSIZE;if(sg!==SZSIG){SZSIG=sg;sizeKick()}},1000);[$('grid'),$('sky24'),$('now'),$('days'),$('hdr')||document.querySelector('.hdr')].forEach(e=>e&&RO_SZ.observe(e));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-last>5*60e3)refresh()});
 setInterval(refresh,15*60e3);
@@ -897,7 +898,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025a').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
