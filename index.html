@@ -100,7 +100,7 @@ a{color:var(--acc)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:5px}
 .tg>div{min-width:0;flex:1}
 #t-pv .l{white-space:nowrap}
-#daysky{margin-top:6px}.dnvs{display:flex;gap:6px;margin-left:auto}.dnv{background:#1b2740;color:#e2e8f0;border:1px solid #2c3b58;border-radius:8px;width:34px;height:32px;font-size:22px;line-height:1;padding:0;cursor:pointer}.dnv[disabled]{opacity:.25;cursor:default}@keyframes dsl{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}@keyframes dsr{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}#mdet.dsl>*{animation:dsl .28s ease-out}#mdet.dsr>*{animation:dsr .28s ease-out}#mdet{overflow-x:hidden}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
+#t-rain,#t-rain h3{color:#38bdf8}#daysky{margin-top:6px}.dnvs{display:flex;gap:6px;margin-left:auto}.dnv{background:#1b2740;color:#e2e8f0;border:1px solid #2c3b58;border-radius:8px;width:34px;height:32px;font-size:22px;line-height:1;padding:0;cursor:pointer}.dnv[disabled]{opacity:.25;cursor:default}@keyframes dsl{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}@keyframes dsr{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}#mdet.dsl>*{animation:dsl .28s ease-out}#mdet.dsr>*{animation:dsr .28s ease-out}#mdet{overflow-x:hidden}.dic{display:grid;grid-template-columns:repeat(12,1fr);margin:0 1.6%;text-align:center;font-size:17px;line-height:1.3}html.size-big .dic{font-size:22px}html.size-big #mdet:has(#daysky){zoom:1}
 #mdet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#mdet[hidden]{display:none}
 .mdls{margin-top:8px;background:var(--card);border-radius:14px;padding:4px 12px}.mdl{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #22304a;font-size:14px}.mdl:last-child{border-bottom:0}.mdl span{color:#9fb0c8}.mdl b{text-align:right}
 #poldet{position:fixed;inset:0;z-index:999;background:#0b1220;overflow:auto;padding:8px 12px 12px}#poldet[hidden]{display:none}
@@ -247,7 +247,7 @@ function gRain(inches,pct){ // rain-gauge cylinder: fills with today's forecast 
   if(h>0)g+=`<rect x="${x0+.5}" y="${(bot-h).toFixed(1)}" width="${x1-x0-1}" height="${h.toFixed(1)}" fill="#38bdf8" opacity=".9"/><ellipse cx="${(x0+x1)/2}" cy="${(bot-h).toFixed(1)}" rx="${(x1-x0)/2-.5}" ry="2" fill="#7dd3fc"/>`;
   g+=`<ellipse cx="${(x0+x1)/2}" cy="${bot}" rx="${(x1-x0)/2}" ry="2.4" fill="${h>0?'#38bdf8':'#334155'}" stroke="#5b6b85" stroke-width="1"/><ellipse cx="${(x0+x1)/2}" cy="${top}" rx="${(x1-x0)/2}" ry="2.4" fill="#1e293b" stroke="#8a9ab3" stroke-width="1"/>`;
   for(let k=1;k<4;k++){const y=bot-(bot-top)*k/4;g+=`<line x1="${x1-4}" y1="${y.toFixed(1)}" x2="${x1}" y2="${y.toFixed(1)}" stroke="#8a9ab3" stroke-width=".8"/>`}
-  g+=`<text x="${x1+2}" y="${top+3}" font-size="7.5" fill="#9fb0c8">${max}″</text><text x="${x1+2}" y="${bot+2}" font-size="7.5" fill="#9fb0c8">0</text>`;
+  g+=`<text x="${x1+2}" y="${top+3}" font-size="7.5" fill="#38bdf8">${max}″</text><text x="${x1+2}" y="${bot+2}" font-size="7.5" fill="#38bdf8">0</text>`;
   return `<svg width="34" height="48" viewBox="0 0 34 48" aria-label="Rain gauge, today's forecast total">${g}</svg>`}
 function gBaro(inHg){ // barometer dial 28.9–30.9 inHg (outer ticks), hPa readout inside, red needle
   const cx=23,cy=23,R=20,lo=28.9,hi=30.9,ang=v=>-135+clamp((v-lo)/(hi-lo),0,1)*270;
