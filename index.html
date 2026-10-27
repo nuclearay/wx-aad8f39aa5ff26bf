@@ -81,7 +81,7 @@ a{color:var(--acc)}
 .xtip b{font-weight:700}
 .sky24 .sunov .sl{justify-content:space-evenly!important;align-items:center}.sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
 .skyw{position:relative}.sky24 svg.sic{display:inline-block;width:16px;height:16px;vertical-align:-3px;cursor:default}.sunov{position:absolute;left:0;right:0;pointer-events:none}.sunov .sl,.sunov .ml{padding-top:0!important}
-.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
+.sky24 .az{font-size:.82em;color:var(--mut);margin-left:1px}html.size-big .sky24 .sl .az{font-size:.7em;margin-left:0}.sky24 .mev{margin:0 2px}.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
 .ltg{display:grid;grid-template-columns:84px 1fr 104px;gap:8px;align-items:center;margin-bottom:6px;border-color:#a16207;background:#1f1a0e}
 .ltg[hidden]{display:none}
 .ltg svg{width:84px;height:84px;display:block}
@@ -200,7 +200,7 @@ html.size-big #t-rain.rfit{grid-template-columns:1fr auto auto 1fr;grid-template
 if(!v)try{v=localStorage.getItem('wxSize');if(v==='fit'){v='current';localStorage.setItem('wxSize',v)}}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
 <script>
 const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
-let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
+let SUNAZ=[null,null];let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
 const LOC={mode:'home',name:HOME.name,note:''};
 const $=id=>document.getElementById(id);
 const WMO={0:['Clear','☀️','🌙'],1:['Mostly clear','🌤','🌙'],2:['Partly cloudy','⛅','☁️'],3:['Overcast','☁️','☁️'],45:['Fog','🌫','🌫'],48:['Freezing fog','🌫','🌫'],51:['Light drizzle','🌦','🌧'],53:['Drizzle','🌦','🌧'],55:['Heavy drizzle','🌧','🌧'],56:['Freezing drizzle','🌧','🌧'],57:['Freezing drizzle','🌧','🌧'],61:['Light rain','🌦','🌧'],63:['Rain','🌧','🌧'],65:['Heavy rain','🌧','🌧'],66:['Freezing rain','🌧','🌧'],67:['Freezing rain','🌧','🌧'],71:['Light snow','🌨','🌨'],73:['Snow','🌨','🌨'],75:['Heavy snow','❄️','❄️'],77:['Snow grains','🌨','🌨'],80:['Showers','🌦','🌧'],81:['Showers','🌧','🌧'],82:['Heavy showers','⛈','⛈'],85:['Snow showers','🌨','🌨'],86:['Snow showers','🌨','🌨'],95:['Thunderstorm','⛈','⛈'],96:['T-storm + hail','⛈','⛈'],99:['T-storm + hail','⛈','⛈']};
@@ -355,6 +355,20 @@ async function loadForecast(){
     return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${ww.t}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
+// Sun/moon rise-set azimuths (SunCalc formulas, client-side). Compass bearing = SunCalc azimuth + 180°.
+const SC=(()=>{const R=Math.PI/180,e=R*23.4397,toD=t=>t/864e5-0.5+2440588-2451545,ra=(l,b)=>Math.atan2(Math.sin(l)*Math.cos(e)-Math.tan(b)*Math.sin(e),Math.cos(l)),de=(l,b)=>Math.asin(Math.sin(b)*Math.cos(e)+Math.cos(b)*Math.sin(e)*Math.sin(l)),
+  az=(H,p,d)=>Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(p)-Math.tan(d)*Math.cos(p)),alt=(H,p,d)=>Math.asin(Math.sin(p)*Math.sin(d)+Math.cos(p)*Math.cos(d)*Math.cos(H)),st=(d,lw)=>R*(280.16+360.9856235*d)-lw,
+  refr=h=>h<0?0:0.0002967/Math.tan(h+0.00312536/(h+0.08901179)),cmp=a=>((a/R+180)%360+360)%360;
+  const sunPos=(t,lat,lon)=>{const d=toD(+t),M=R*(357.5291+0.98560028*d),C=R*(1.9148*Math.sin(M)+0.02*Math.sin(2*M)+0.0003*Math.sin(3*M)),L=M+C+R*102.9372+Math.PI,dc=de(L,0),H=st(d,R*-lon)-ra(L,0);return {az:cmp(az(H,R*lat,dc)),alt:alt(H,R*lat,dc)}};
+  const moonPos=(t,lat,lon)=>{const d=toD(+t),L=R*(218.316+13.176396*d),M=R*(134.963+13.064993*d),F=R*(93.272+13.22935*d),E=R*(297.85+12.190749*d),Ms=R*(357.529+0.98560028*d),l=L+R*(6.289*Math.sin(M)+1.274*Math.sin(2*E-M)+0.658*Math.sin(2*E)+0.214*Math.sin(2*M)-0.186*Math.sin(Ms)-0.114*Math.sin(2*F)),b=R*(5.128*Math.sin(F)+0.281*Math.sin(M+F)+0.278*Math.sin(M-F)+0.173*Math.sin(2*E-F)),dc=de(l,b),H=st(d,R*-lon)-ra(l,b),h=alt(H,R*lat,dc);return {az:cmp(az(H,R*lat,dc)),alt:h+refr(h)}};
+  const mid=ref=>{const [Y,M,D]=ref.toLocaleDateString('sv-SE',{timeZone:TZ}).split('-').map(Number),g=Date.UTC(Y,M-1,D);let m=g;for(let k=0;k<2;k++){const w=Date.parse(new Date(m).toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T')+'Z');m+=g-w}return m};
+  const moonTimes=(ref,lat,lon)=>{const t=mid(ref),hc=0.133*R,A=h=>moonPos(t+h*36e5,lat,lon).alt-hc;let h0=A(0),rise,set;
+    for(let i=1;i<=24;i+=2){const h1=A(i),h2=A(i+1),a=(h0+h2)/2-h1,b=(h2-h0)/2,xe=-b/(2*a),ye=(a*xe+b)*xe+h1,dd=b*b-4*a*h1;let n=0,x1=0,x2=0;
+      if(dd>=0){const dx=Math.sqrt(dd)/(Math.abs(a)*2);x1=xe-dx;x2=xe+dx;if(Math.abs(x1)<=1)n++;if(Math.abs(x2)<=1)n++;if(x1<-1)x1=x2}
+      if(n===1){if(h0<0)rise=i+x1;else set=i+x1}else if(n===2){rise=i+(ye<0?x2:x1);set=i+(ye<0?x1:x2)}if(rise!=null&&set!=null)break;h0=h2}
+    const ev=[];if(rise!=null){const d=new Date(t+rise*36e5);ev.push({up:1,d,az:moonPos(d,lat,lon).az})}if(set!=null){const d=new Date(t+set*36e5);ev.push({up:0,d,az:moonPos(d,lat,lon).az})}return ev.sort((x,y)=>x.d-y.d)};
+  return {sunPos,moonPos,moonTimes}})();
+const azS=a=>`<span class="az">@${a.toFixed(1)}°</span>`;
 function moonInfo(date=new Date()){
   const SYN=29.530588853, ref=Date.UTC(2000,0,6,18,14);
   const age=(((date-ref)/864e5)%SYN+SYN)%SYN;
@@ -468,8 +482,8 @@ function drawSky24(H,D,i0,O){O=O||{};const DK=O.dk||0;
   el._xd={W,X0,X1,N,t0,x,ty,tp,fl,dw,wb:tp.map((_,k)=>H.wet_bulb_temperature_2m?.[i0+k]??null),pr,ws,wg,wd,sw,uvh,kNow:Math.floor(nowWall)-Math.floor(t0)};
   const dl=D.daylight_duration[DK]/3600, m=moonInfo();
   let ic='';if(O.icons){for(let k=0;k<N;k+=2){const ii=i0+k;if(ii>=H.time.length)break;const hr=(Math.floor(t0)+k)%24,w=wx(H.weather_code[ii],H.is_day?H.is_day[ii]:(hr>=7&&hr<19));ic+=`<span title="${w.t}">${w.i}</span>`}ic=`<div class="dic">${ic}</div>`}
-  el.innerHTML=ic+`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span><span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[DK])}</b></span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[DK])}</b></span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
-   ${DK?'':`<div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${m.illum}% lit · <span class="mut">${m.next}</span></span></div>`}</div></div><div class="xtip"${DK?'':' id="xtip"'} hidden></div>`;
+  el.innerHTML=ic+`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span>${(()=>{const [r,st]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'),-0.833);SUNAZ=[r?SC.sunPos(r,LAT,LON).az:null,st?SC.sunPos(st,LAT,LON).az:null];return ''})()}<span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[DK])}</b>${SUNAZ[0]!=null?azS(SUNAZ[0]):''}</span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[DK])}</b>${SUNAZ[1]!=null?azS(SUNAZ[1]):''}</span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
+   ${DK?'':`<div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${SC.moonTimes(new Date(),LAT,LON).map(v=>`<span class="mev" title="Moon${v.up?'rise':'set'}">${sunIc(v.up?"#3CC4E4":"#2747C9",v.up?"#0b1a2a":"#ffffff",v.up,"Moon"+(v.up?'rise':'set'))} ${hmD(v.d)}${azS(v.az)}</span>`).join(' ')} · ${m.illum}% · <span class="mut">${m.next}</span></span></div>`}</div></div><div class="xtip"${DK?'':' id="xtip"'} hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
 }
@@ -955,7 +969,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261025n').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261027a').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
