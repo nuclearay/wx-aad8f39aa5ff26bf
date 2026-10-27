@@ -81,7 +81,7 @@ a{color:var(--acc)}
 .xtip b{font-weight:700}
 .sky24 .sunov .sl{justify-content:space-evenly!important;align-items:center}.sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
 .skyw{position:relative}.sky24 svg.sic{display:inline-block;width:16px;height:16px;vertical-align:-3px;cursor:default}.sunov{position:absolute;left:0;right:0;pointer-events:none}.sunov .sl,.sunov .ml{padding-top:0!important}
-.sky24 .az{font-size:.82em;color:var(--mut);margin-left:1px}html.size-big .sky24 .az{font-size:.7em;margin-left:0}html.size-big .sky24 .mev{margin:0}.sky24 .mev{margin:0 2px}.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
+.sky24 svg.az{display:inline-block;width:1em;height:1em;vertical-align:-.14em;margin-left:2px}html.size-big .sky24 .mev{margin:0}.sky24 .mev{margin:0 2px}.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
 .ltg{display:grid;grid-template-columns:84px 1fr 104px;gap:8px;align-items:center;margin-bottom:6px;border-color:#a16207;background:#1f1a0e}
 .ltg[hidden]{display:none}
 .ltg svg{width:84px;height:84px;display:block}
@@ -368,7 +368,7 @@ const SC=(()=>{const R=Math.PI/180,e=R*23.4397,toD=t=>t/864e5-0.5+2440588-245154
       if(n===1){if(h0<0)rise=i+x1;else set=i+x1}else if(n===2){rise=i+(ye<0?x2:x1);set=i+(ye<0?x1:x2)}if(rise!=null&&set!=null)break;h0=h2}
     const ev=[];if(rise!=null){const d=new Date(t+rise*36e5);ev.push({up:1,d,az:moonPos(d,lat,lon).az})}if(set!=null){const d=new Date(t+set*36e5);ev.push({up:0,d,az:moonPos(d,lat,lon).az})}return ev.sort((x,y)=>x.d-y.d)};
   return {sunPos,moonPos,moonTimes}})();
-const azS=a=>`<span class="az">@${a.toFixed(1)}°</span>`;
+const azS=a=>`<svg class="az" viewBox="-6.5 -6.5 13 13" role="img" aria-label="bearing ${Math.round(a)}°"><title>${Math.round(a)}°</title><circle r="6" fill="#0f1a2c" stroke="#33445f" stroke-width=".9"/><path d="M0 4.4 L3.7 -3.9 L0 -0.9 L-3.7 -3.9 Z" fill="#ccfbf1" stroke="#0f1a2c" stroke-width=".5" transform="rotate(${(a+180).toFixed(1)})"/></svg>`;
 function moonInfo(date=new Date()){
   const SYN=29.530588853, ref=Date.UTC(2000,0,6,18,14);
   const age=(((date-ref)/864e5)%SYN+SYN)%SYN;
@@ -969,7 +969,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261027b').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261027c').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
