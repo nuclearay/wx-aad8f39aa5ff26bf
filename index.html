@@ -81,7 +81,7 @@ a{color:var(--acc)}
 .xtip b{font-weight:700}
 .sky24 .sunov .sl{justify-content:space-evenly!important;align-items:center}.sky24 .sl{display:flex;justify-content:space-between;font-size:13px;padding:2px 4px 0;white-space:nowrap}.sky24 .sl .tw{color:var(--mut);font-size:12px}
 .skyw{position:relative}.sky24 svg.sic{display:inline-block;width:16px;height:16px;vertical-align:-3px;cursor:default}.sunov{position:absolute;left:0;right:0;pointer-events:none}.sunov .sl,.sunov .ml{padding-top:0!important}
-.sky24 svg.az{display:inline-block;width:1em;height:1em;vertical-align:-.14em;margin-left:2px}html.size-big .sky24 .mev{margin:0}.sky24 .mev{margin:0 2px}.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
+.sky24 svg.az{display:inline-block;width:1em;height:1em;vertical-align:-.14em;margin-left:2px}html.size-big .sky24 .mev{margin:0}.sky24 .mev{margin:0 2px}.sky24 .ml.mlr{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;white-space:nowrap}.sky24 .mlr>:first-child{justify-self:center}.sky24 .mlr>:last-child{justify-self:center}.sky24 .mlr .mc{padding:0 4px}.sky24 .ml{font-size:12px;color:#cdd7e5;padding:2px 4px 0;display:flex;justify-content:space-between}
 .ltg{display:grid;grid-template-columns:84px 1fr 104px;gap:8px;align-items:center;margin-bottom:6px;border-color:#a16207;background:#1f1a0e}
 .ltg[hidden]{display:none}
 .ltg svg{width:84px;height:84px;display:block}
@@ -483,7 +483,7 @@ function drawSky24(H,D,i0,O){O=O||{};const DK=O.dk||0;
   const dl=D.daylight_duration[DK]/3600, m=moonInfo();
   let ic='';if(O.icons){for(let k=0;k<N;k+=2){const ii=i0+k;if(ii>=H.time.length)break;const hr=(Math.floor(t0)+k)%24,w=wx(H.weather_code[ii],H.is_day?H.is_day[ii]:(hr>=7&&hr<19));ic+=`<span title="${w.t}">${w.i}</span>`}ic=`<div class="dic">${ic}</div>`}
   el.innerHTML=ic+`<div class="skyw">`+svg+`<div class="sunov" style="top:64.60%"><div class="sl">${(()=>{const [dw,dk]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'));SUNTW=[dw,dk];return ''})()}<span class="tw" title="Dawn" aria-label="Dawn ${hmD(SUNTW[0])}">${sunIc("#1F3FBF","#dbe4ff",1,"Dawn")} ${hmD(SUNTW[0])}</span>${(()=>{const [r,st]=civilTw(LAT,LON,new Date(D.sunrise[DK]+':00'),-0.833);SUNAZ=[r?SC.sunPos(r,LAT,LON).az:null,st?SC.sunPos(st,LAT,LON).az:null];return ''})()}<span title="Sunrise">${sunIc("#F5D33B","#1a1a1a",1,"Sunrise")} <b>${hm(D.sunrise[DK])}</b>${SUNAZ[0]!=null?azS(SUNAZ[0]):''}</span><span style="color:#F5D33B">☀️ <b style="color:#F5D33B">${Math.floor(dl)}h ${Math.round((dl%1)*60)}m</b></span><span title="Sunset">${sunIc("#F4511E","#1a1a1a",0,"Sunset")} <b>${hm(D.sunset[DK])}</b>${SUNAZ[1]!=null?azS(SUNAZ[1]):''}</span><span class="tw" title="Dusk" aria-label="Dusk ${hmD(SUNTW[1])}">${sunIc("#7B3FC4","#efe4ff",0,"Dusk")} ${hmD(SUNTW[1])}</span></div>
-   ${DK?'':`<div class="ml" style="justify-content:center;white-space:nowrap"><span>${m.emoji} ${m.name} · ${SC.moonTimes(new Date(),LAT,LON).map(v=>`<span class="mev" title="Moon${v.up?'rise':'set'}">${sunIc(v.up?"#3CC4E4":"#2747C9",v.up?"#0b1a2a":"#ffffff",v.up,"Moon"+(v.up?'rise':'set'))} ${hmD(v.d)}${azS(v.az)}</span>`).join(' ')} · ${m.illum}% lit</span></div>`}</div></div><div class="xtip"${DK?'':' id="xtip"'} hidden></div>`;
+   ${DK?'':`<div class="ml mlr">${(()=>{const ev=SC.moonTimes(new Date(),LAT,LON).map(v=>`<span class="mev" title="Moon${v.up?'rise':'set'}">${sunIc(v.up?"#3CC4E4":"#2747C9",v.up?"#0b1a2a":"#ffffff",v.up,"Moon"+(v.up?'rise':'set'))} ${hmD(v.d)}${azS(v.az)}</span>`);return (ev[0]||'<span></span>')+`<span class="mc">${m.emoji} ${m.name} · ${m.illum}% lit</span>`+(ev[1]||'<span></span>')})()}</div>`}</div></div><div class="xtip"${DK?'':' id="xtip"'} hidden></div>`;
   xhInit(el);
   }catch(e){el.innerHTML=`<div class="err">⚠ 24-hour chart error (${e.message})</div>`}
 }
@@ -969,7 +969,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261027c').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261027d').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
