@@ -66,7 +66,7 @@ body{padding:calc(env(safe-area-inset-top) + 4px) 7px calc(env(safe-area-inset-b
 #days .d{display:grid;grid-template-columns:max-content 26px minmax(0,1fr) max-content max-content;align-items:center;padding:0 2px;line-height:18px;border-bottom:1px solid var(--line);font-size:14px}
 .days .d:last-child{border-bottom:0}
 #days.dfit .d{grid-template-columns:max-content 1.35em minmax(0,1fr) max-content max-content;column-gap:.3em;overflow:hidden;line-height:1.1!important;font-size:var(--df)}
-#days.dfit .d>*{white-space:nowrap;line-height:1.1;overflow:hidden}#days.dfit .d>b{font-size:1em}#days.dfit .i{font-size:1.15em;justify-self:center}#days.dfit .c{font-size:.88em;min-width:0;padding-left:2px;text-overflow:ellipsis}#days.dfit .p{font-size:.9em;justify-self:end}#days.dfit .hl{font-size:1em;justify-self:end}
+#days.dfit .d{align-items:center}#days.dfit .d>*{white-space:nowrap;line-height:1;overflow:hidden;align-self:center}#days.dfit .d>b,#days.dfit .c{display:inline-flex;align-items:center}#days.dfit .d>b{font-size:1em}#days.dfit .i{font-size:1.2em;justify-self:center;display:inline-flex;align-items:center;justify-content:center;line-height:1;height:1.2em}#days.dfit .c{font-size:.88em;min-width:0;padding-left:2px;text-overflow:ellipsis}#days.dfit .p{font-size:.9em;justify-self:end}#days.dfit .hl{font-size:1em;justify-self:end}
 .days .i{font-size:15px}.days .p{color:var(--acc);text-align:right}.days .hl{text-align:right;font-weight:600}
 .days .hl span{color:var(--mut);font-weight:400}
 .days .c{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
@@ -354,7 +354,7 @@ async function loadForecast(){
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
   $('days').innerHTML=D.time.slice(0,10).map((t,k)=>{const ww=wx(D.weather_code[k]);
-    return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${dayCond(ww.t)}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
+    return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${dayCond(ww.t)}</span><span class="p">${D.precipitation_probability_max[k]??0}% 💧</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
 // Sun/moon rise-set azimuths (SunCalc formulas, client-side). Compass bearing = SunCalc azimuth + 180°.
@@ -864,7 +864,7 @@ function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXS
 // Max font in fixed 10-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
   rows.forEach((r,k)=>r.style.height=hs[k]+'px');d.classList.add('dfit');const r=rows[0],sv=r.innerHTML,h=Math.min(...hs);
-  r.querySelector('b').textContent='Wed 31';r.querySelector('.c').textContent='Frz drizzle';r.querySelector('.p').textContent='💧100%';r.querySelector('.hl').innerHTML='<span>100°</span> <span>/ <span>100°</span></span>';
+  r.querySelector('b').textContent='Wed 31';r.querySelector('.c').textContent='Frz drizzle';r.querySelector('.p').textContent='100% 💧';r.querySelector('.hl').innerHTML='<span>100°</span> <span>/ <span>100°</span></span>';
   const ok=()=>{if(r.scrollWidth>r.clientWidth+.5)return false;const c=r.querySelector('.c');if(c&&c.scrollWidth>c.clientWidth+1&&c.clientWidth<28)return false;for(const e of r.children){if(e===c)continue;if(e.scrollHeight>h+1||e.offsetHeight>h+1)return false}const R0=r.getBoundingClientRect();for(const e of r.children){const q=e.getBoundingClientRect();if(q.right>R0.right+.5||q.left<R0.left-.5)return false}return true};
   let lo=10,hi=60;for(let k=0;k<10;k++){const m=(lo+hi)/2;d.style.setProperty('--df',m+'px');if(ok())lo=m;else hi=m}
   d.style.setProperty('--df',lo+'px');while(!ok()&&lo>10){lo-=.25;d.style.setProperty('--df',lo+'px')}
@@ -975,7 +975,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261030a').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261030b').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
