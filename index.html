@@ -63,10 +63,10 @@ body{padding:calc(env(safe-area-inset-top) + 4px) 7px calc(env(safe-area-inset-b
 .sec{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:1px 2px 2px;font-weight:600}
 .hr{flex:0 0 52px;background:var(--card);border:.5px solid var(--line);border-radius:8px;text-align:center;padding:4px 0;font-size:12px}
 .hr .t{color:var(--mut)}.hr .i{font-size:18px;line-height:1.3}.hr .tp{font-weight:700;font-size:14px}.hr .p{color:var(--acc)}
-#days .d{display:grid;grid-template-columns:max-content 28px 1fr max-content;align-items:center;padding:0 2px;line-height:18px;border-bottom:1px solid var(--line);font-size:14px}
+#days .d{display:grid;grid-template-columns:max-content 26px minmax(0,1fr) max-content max-content;align-items:center;padding:0 2px;line-height:18px;border-bottom:1px solid var(--line);font-size:14px}
 .days .d:last-child{border-bottom:0}
-#days.dfit .d{grid-template-columns:max-content 1.5em 1fr max-content;column-gap:.4em;overflow:hidden;line-height:1.1!important;font-size:var(--df)}
-#days.dfit .d>*{white-space:nowrap;line-height:1.1;overflow:hidden}#days.dfit .d>b{font-size:1em}#days.dfit .i{font-size:1.2em;justify-self:center}#days.dfit .p{font-size:.92em;justify-self:end}#days.dfit .hl{font-size:1em;justify-self:end}
+#days.dfit .d{grid-template-columns:max-content 1.35em minmax(0,1fr) max-content max-content;column-gap:.3em;overflow:hidden;line-height:1.1!important;font-size:var(--df)}
+#days.dfit .d>*{white-space:nowrap;line-height:1.1;overflow:hidden}#days.dfit .d>b{font-size:1em}#days.dfit .i{font-size:1.15em;justify-self:center}#days.dfit .c{font-size:.88em;min-width:0;padding-left:2px;text-overflow:ellipsis}#days.dfit .p{font-size:.9em;justify-self:end}#days.dfit .hl{font-size:1em;justify-self:end}
 .days .i{font-size:15px}.days .p{color:var(--acc);text-align:right}.days .hl{text-align:right;font-weight:600}
 .days .hl span{color:var(--mut);font-weight:400}
 .days .c{color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}
@@ -190,7 +190,7 @@ body>.sec.lgd{font-size:calc(11px*var(--ss,1))!important}body>.sec.lgd.lgf{displ
 
 <style>body>.hdr,body>.alerts,body>.ltg,body>#now,body>.sec,body>#sky24,body>#grid,body>#days,body>#radar,body>.foot{zoom:var(--z,.87)}#sky24 .skyw>svg{display:block;width:100%;height:auto;aspect-ratio:380/var(--ch,245)}
 html.size-big{--z:1.06;--ch:290}html.size-big #now{grid-template-columns:minmax(0,1fr) max-content auto}html.size-big #now>.cond{order:-1;justify-self:start}html.size-big #now>svg{order:1;justify-self:end}html.size-big #now>.note{order:2}html.size-big #sky24 .sl,html.size-big #sky24 .ml{zoom:1.08}html.size-big .now .lines div{white-space:nowrap}html.size-big .sec{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}html.size-big #t-rain .tg>div>*{white-space:nowrap;width:max-content}html.size-big .now .cond{white-space:normal;max-width:118px;text-align:right;font-size:16px;min-width:0;flex-shrink:1}html.size-big .now .cond{flex-direction:column;gap:0;align-items:center;text-align:center}html.size-big .now .cond .ci{font-size:30px;order:-1}html.size-big #grid .tile{overflow:hidden;min-height:0}html.size-big #grid{grid-template-rows:minmax(0,1fr) minmax(0,1fr)}html.size-big #t-rain{grid-template-columns:auto 1fr;grid-template-rows:auto;align-content:space-evenly;column-gap:6px}html.size-big #t-rain>h3{grid-column:1/-1;grid-row:1}html.size-big #t-rain .tg>div{display:contents}html.size-big #t-rain .v{grid-column:1/-1;grid-row:2}html.size-big #t-rain .l:nth-of-type(2){grid-column:2;grid-row:3}html.size-big #t-rain .l:nth-of-type(3){grid-column:2;grid-row:4}html.size-big #t-rain .l:nth-of-type(4){grid-column:2;grid-row:5}html.size-big #t-rain .tg svg{grid-column:1;grid-row:3/6;height:50px;align-self:center}html.size-big .mt .l{overflow:visible;text-overflow:clip;max-width:none}html.size-big .tile.mt{justify-content:space-evenly}
-html.size-big #t-pol .pring svg{max-width:none;width:62px;height:auto}html.size-big .days .d{grid-template-columns:max-content 32px 1fr max-content;font-size:16px;padding:0 6px}html.size-big .days .d b{font-size:18px}html.size-big .days .i{font-size:22px}html.size-big .days .c{font-size:13px}html.size-big .days .p{font-size:14px}html.size-big .days .hl{font-size:17px}
+html.size-big #t-pol .pring svg{max-width:none;width:62px;height:auto}html.size-big .days .d{grid-template-columns:max-content 30px minmax(0,1fr) max-content max-content;font-size:16px;padding:0 4px}html.size-big .days .d b{font-size:18px}html.size-big .days .i{font-size:22px}html.size-big .days .c{font-size:13px}html.size-big .days .p{font-size:14px}html.size-big .days .hl{font-size:17px}
 #szb{flex:none;background:#D6191C;border:0;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:0 10px;height:24px;cursor:pointer}.hdr h1{flex:0 1 auto!important;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hdr .upd,.hdr .btn{flex:none}#szb{margin-left:auto;min-width:52px}.hdr .upd,.hdr .mode{white-space:nowrap}html.size-big #t-rain.rfit{grid-template-rows:auto auto 1fr auto auto auto 1fr;align-content:stretch}html.size-big #t-rain.rfit .l{font-size:9px;line-height:1.12}html.size-big #t-rain.rfit .l:nth-of-type(2){grid-row:4}html.size-big #t-rain.rfit .l:nth-of-type(3){grid-row:5}html.size-big #t-rain.rfit .l:nth-of-type(4){grid-row:6}html.size-big #t-rain.rfit .tg svg{grid-row:3/8;height:var(--rg,50px);width:calc(var(--rg,50px)*42/38)}
 html.size-big #t-pol.pfit .prings{display:grid;grid-template-columns:auto auto;justify-content:center;column-gap:var(--pcg,4px);row-gap:0}html.size-big #t-pol.pfit .pring:first-child{grid-column:1/-1;justify-self:center;margin-bottom:var(--pov,0px)}html.size-big #t-pol.pfit .pring svg{width:var(--pw,62px)}
 html.size-big #t-rain.rfit>h3{font-size:calc(11px*var(--rh,1));line-height:1;white-space:nowrap;justify-self:center;text-align:center}html.size-big #t-rain.rfit .v{font-size:calc(11.5px*var(--rv,1));line-height:1.08;justify-self:center;text-align:center}
@@ -229,6 +229,7 @@ const tC=t=>{if(t==null||isNaN(t))return '#e5e7eb';const S=[[32,[59,110,255]],[4
 const tS=t=>` style="color:${tC(t)}"`;
 const hh=s=>{const h=+s.slice(11,13);return (h%12||12)+(h<12?'a':'p')};
 const dayName=(s,i)=>{const d=new Date(s+'T12:00');return i===0?'Today':d.toLocaleDateString('en-US',{weekday:'short'})+' '+d.getDate()};
+const dayCond=t=>({ 'Mostly clear':'Mostly clr','Partly cloudy':'Partly cldy','Freezing fog':'Frz fog','Light drizzle':'Lt drizzle','Heavy drizzle':'Hvy drizzle','Freezing drizzle':'Frz drizzle','Light rain':'Lt rain','Heavy rain':'Hvy rain','Freezing rain':'Frz rain','Light snow':'Lt snow','Heavy snow':'Hvy snow','Snow grains':'Snow grns','Heavy showers':'Hvy shwrs','Snow showers':'Snow shwrs','Thunderstorm':'T-storms','T-storm + hail':'T-storm hail'}[t]||t);
 const nowLocal=()=>new Date().toLocaleString('sv-SE',{timeZone:TZ}).replace(' ','T').slice(0,13); // YYYY-MM-DDTHH
 const cpill=(txt,c)=>`<span class="pill" style="background:${c}26;color:${c};box-shadow:inset 0 0 0 1.5px ${c}">${txt}</span>`;
 const pill=(txt,bg,fg='#0b1220')=>`<span class="pill" style="background:${bg};color:${fg}">${txt}</span>`;
@@ -353,7 +354,7 @@ async function loadForecast(){
   // Daily
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
   $('days').innerHTML=D.time.slice(0,10).map((t,k)=>{const ww=wx(D.weather_code[k]);
-    return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
+    return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${dayCond(ww.t)}</span><span class="p">💧${D.precipitation_probability_max[k]??0}%</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
   return true;
 }
 // Sun/moon rise-set azimuths (SunCalc formulas, client-side). Compass bearing = SunCalc azimuth + 180°.
@@ -863,8 +864,8 @@ function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXS
 // Max font in fixed 10-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
   rows.forEach((r,k)=>r.style.height=hs[k]+'px');d.classList.add('dfit');const r=rows[0],sv=r.innerHTML,h=Math.min(...hs);
-  r.querySelector('b').textContent='Wed 31';r.querySelector('.p').textContent='💧100%';r.querySelector('.hl').innerHTML='<span>100°</span> <span>/ <span>100°</span></span>';
-  const ok=()=>{if(r.scrollWidth>r.clientWidth+.5)return false;for(const e of r.children){if(e.scrollHeight>h+1||e.offsetHeight>h+1)return false}const R0=r.getBoundingClientRect();for(const e of r.children){const q=e.getBoundingClientRect();if(q.right>R0.right+.5||q.left<R0.left-.5)return false}return true};
+  r.querySelector('b').textContent='Wed 31';r.querySelector('.c').textContent='Frz drizzle';r.querySelector('.p').textContent='💧100%';r.querySelector('.hl').innerHTML='<span>100°</span> <span>/ <span>100°</span></span>';
+  const ok=()=>{if(r.scrollWidth>r.clientWidth+.5)return false;const c=r.querySelector('.c');if(c&&c.scrollWidth>c.clientWidth+1&&c.clientWidth<28)return false;for(const e of r.children){if(e===c)continue;if(e.scrollHeight>h+1||e.offsetHeight>h+1)return false}const R0=r.getBoundingClientRect();for(const e of r.children){const q=e.getBoundingClientRect();if(q.right>R0.right+.5||q.left<R0.left-.5)return false}return true};
   let lo=10,hi=60;for(let k=0;k<10;k++){const m=(lo+hi)/2;d.style.setProperty('--df',m+'px');if(ok())lo=m;else hi=m}
   d.style.setProperty('--df',lo+'px');while(!ok()&&lo>10){lo-=.25;d.style.setProperty('--df',lo+'px')}
   d.style.setProperty('--df',lo.toFixed(2)+'px');r.innerHTML=sv}
@@ -974,7 +975,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261029a').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261030a').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
