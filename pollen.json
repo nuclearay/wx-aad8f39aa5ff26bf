@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-11-03T12:13:53+00:00",
+ "fetchedAt": "2026-11-05T12:13:29+00:00",
  "source": "Google Pollen API",
  "location": {
   "lat": 27.96,
@@ -7,296 +7,6 @@
  },
  "regionCode": "US",
  "days": [
-  {
-   "date": "2026-11-03",
-   "types": {
-    "GRASS": {
-     "name": "Grass",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    "TREE": {
-     "name": "Tree",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    "WEED": {
-     "name": "Weed",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    }
-   },
-   "plants": [
-    {
-     "code": "ELM",
-     "name": "Elm",
-     "type": "TREE",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "GRAMINALES",
-     "name": "Grasses",
-     "type": "GRASS",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "RAGWEED",
-     "name": "Ragweed",
-     "type": "WEED",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "MAPLE",
-     "name": "Maple",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "COTTONWOOD",
-     "name": "Cottonwood",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "ALDER",
-     "name": "Alder",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "BIRCH",
-     "name": "Birch",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "ASH",
-     "name": "Ash",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "PINE",
-     "name": "Pine",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "OAK",
-     "name": "Oak",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "JUNIPER",
-     "name": "Juniper",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    }
-   ]
-  },
-  {
-   "date": "2026-11-04",
-   "types": {
-    "GRASS": {
-     "name": "Grass",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    "TREE": {
-     "name": "Tree",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    "WEED": {
-     "name": "Weed",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    }
-   },
-   "plants": [
-    {
-     "code": "ELM",
-     "name": "Elm",
-     "type": "TREE",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "GRAMINALES",
-     "name": "Grasses",
-     "type": "GRASS",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "RAGWEED",
-     "name": "Ragweed",
-     "type": "WEED",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "MAPLE",
-     "name": "Maple",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "COTTONWOOD",
-     "name": "Cottonwood",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "ALDER",
-     "name": "Alder",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "BIRCH",
-     "name": "Birch",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "ASH",
-     "name": "Ash",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "PINE",
-     "name": "Pine",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "OAK",
-     "name": "Oak",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    },
-    {
-     "code": "JUNIPER",
-     "name": "Juniper",
-     "type": "TREE",
-     "inSeason": null,
-     "upi": null,
-     "category": null,
-     "color": null
-    }
-   ]
-  },
   {
    "date": "2026-11-05",
    "types": {
@@ -323,15 +33,29 @@
     "WEED": {
      "name": "Weed",
      "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
+     "upi": 2,
+     "category": "Low",
      "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
+      "red": 0.5176471,
+      "green": 0.8117647,
+      "blue": 0.2
      }
     }
    },
    "plants": [
+    {
+     "code": "RAGWEED",
+     "name": "Ragweed",
+     "type": "WEED",
+     "inSeason": false,
+     "upi": 2,
+     "category": "Low",
+     "color": {
+      "red": 0.5176471,
+      "green": 0.8117647,
+      "blue": 0.2
+     }
+    },
     {
      "code": "ELM",
      "name": "Elm",
@@ -348,18 +72,6 @@
      "code": "GRAMINALES",
      "name": "Grasses",
      "type": "GRASS",
-     "inSeason": false,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "green": 0.61960787,
-      "blue": 0.22745098
-     }
-    },
-    {
-     "code": "RAGWEED",
-     "name": "Ragweed",
-     "type": "WEED",
      "inSeason": false,
      "upi": 1,
      "category": "Very Low",
@@ -468,6 +180,151 @@
     "WEED": {
      "name": "Weed",
      "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    }
+   },
+   "plants": [
+    {
+     "code": "ELM",
+     "name": "Elm",
+     "type": "TREE",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "GRAMINALES",
+     "name": "Grasses",
+     "type": "GRASS",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "RAGWEED",
+     "name": "Ragweed",
+     "type": "WEED",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "MAPLE",
+     "name": "Maple",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "COTTONWOOD",
+     "name": "Cottonwood",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "ALDER",
+     "name": "Alder",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "BIRCH",
+     "name": "Birch",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "ASH",
+     "name": "Ash",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "PINE",
+     "name": "Pine",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "OAK",
+     "name": "Oak",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "JUNIPER",
+     "name": "Juniper",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    }
+   ]
+  },
+  {
+   "date": "2026-11-07",
+   "types": {
+    "GRASS": {
+     "name": "Grass",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    "TREE": {
+     "name": "Tree",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    "WEED": {
+     "name": "Weed",
+     "inSeason": false,
      "upi": 2,
      "category": "Low",
      "color": {
@@ -590,7 +447,7 @@
    ]
   },
   {
-   "date": "2026-11-07",
+   "date": "2026-11-08",
    "types": {
     "GRASS": {
      "name": "Grass",
@@ -652,6 +509,151 @@
      "code": "GRAMINALES",
      "name": "Grasses",
      "type": "GRASS",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "MAPLE",
+     "name": "Maple",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "COTTONWOOD",
+     "name": "Cottonwood",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "ALDER",
+     "name": "Alder",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "BIRCH",
+     "name": "Birch",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "ASH",
+     "name": "Ash",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "PINE",
+     "name": "Pine",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "OAK",
+     "name": "Oak",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    },
+    {
+     "code": "JUNIPER",
+     "name": "Juniper",
+     "type": "TREE",
+     "inSeason": null,
+     "upi": null,
+     "category": null,
+     "color": null
+    }
+   ]
+  },
+  {
+   "date": "2026-11-09",
+   "types": {
+    "GRASS": {
+     "name": "Grass",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    "TREE": {
+     "name": "Tree",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    "WEED": {
+     "name": "Weed",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    }
+   },
+   "plants": [
+    {
+     "code": "ELM",
+     "name": "Elm",
+     "type": "TREE",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "GRAMINALES",
+     "name": "Grasses",
+     "type": "GRASS",
+     "inSeason": false,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "green": 0.61960787,
+      "blue": 0.22745098
+     }
+    },
+    {
+     "code": "RAGWEED",
+     "name": "Ragweed",
+     "type": "WEED",
      "inSeason": false,
      "upi": 1,
      "category": "Very Low",
