@@ -946,10 +946,22 @@ function sizeSet(v){const h=document.documentElement;h.classList.remove('size-cu
   const u=new URL(location.href);if(u.searchParams.has('size')){u.searchParams.set('size',v);history.replaceState(null,'',u)}sizeLabel();const sk=$('sky24');if(sk&&sk._args)try{drawSky24(...sk._args)}catch(e){}sizeLayout()}
 function sizeCycle(){sizeSet(WXSIZE==='big'?'current':'big')}
 function sizeLabel(){$('szb').textContent=SZL[WXSIZE];$('szb').title='Size: '+SZN[WXSIZE];$('szb').setAttribute('aria-label','Dashboard size: '+SZN[WXSIZE]+'. Tap to change')}
+// Hide heavy siblings while measuring a small region. Restored before paint, so the fit uses the same widths.
+function layoutHide(ids){const els=ids.map(id=>$(id)).filter(Boolean),prev=els.map(e=>e.style.contentVisibility);
+  els.forEach(e=>{e.style.contentVisibility='hidden'});return ()=>els.forEach((e,i)=>{e.style.contentVisibility=prev[i]})}
+// Inputs that change the fit. Same key means another pass would redo the same measurements.
+function layoutKey(){const vv=window.visualViewport;
+  return [innerWidth,innerHeight,WXSIZE,vv?Math.round(vv.height)+'/'+vv.scale:'',document.fonts&&document.fonts.status,
+    $('now')&&$('now').innerText,$('days')&&$('days').innerText,$('grid')&&$('grid').innerText,
+    $('alerts')&&$('alerts').childElementCount,$('ltg')&&$('ltg').hidden?0:1].join('\n')}
 // Maximize header / current-conditions / legend text inside their existing heights, using worst-case probe text.
-function topFit(){const hd=document.querySelector('.hdr'),nw=$('now'),lg=document.querySelector('body>.sec.lgd'),hs=document.documentElement.style;
+function topFit(){topFitBody()}
+function topFitBody(){const hd=document.querySelector('.hdr'),nw=$('now'),lg=document.querySelector('body>.sec.lgd'),hs=document.documentElement.style;
   const box=[hd,nw,lg].filter(Boolean),V=['--hs','--nb','--nl','--nc','--ng','--ss'];V.forEach(v=>hs.removeProperty(v));box.forEach(e=>{e.style.height='';e.style.overflow=''});nw.classList.remove('tf');
   if(!nw.querySelector('.big'))return;const H=box.map(e=>parseFloat(getComputedStyle(e).height));box.forEach((e,k)=>{e.style.height=H[k]+'px';e.style.overflow='hidden'});nw.classList.add('tf');
+  const unhide=layoutHide(['sky24','days','grid']);
+  try{topFitSearch()}finally{unhide()}
+  function topFitSearch(){
   const sw=[],swap=(e,t)=>{if(e){sw.push([e,e.innerHTML]);e.innerHTML=t}};
   swap($('upd'),'12:59 PM');/* card fits live content (refit on every refresh via sizeLayout) */
   const fits=e=>{if(e!==hd&&e.scrollWidth>e.clientWidth+.5)return false;if(e===nw&&e.scrollHeight>e.clientHeight+1.5)return false;if(e===nw){const k=[...nw.children].filter(c=>!c.matches('.note')&&c.getBoundingClientRect().width).map(c=>c.getBoundingClientRect()).sort((a,b)=>a.left-b.left);for(let i=1;i<k.length;i++)if(k[i].left<k[i-1].right-.5)return false}const R=e.getBoundingClientRect(),tv=1.5;for(const q of e.querySelectorAll('*')){const r=q.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right+.5||r.left<R.left-.5||r.bottom>R.bottom+tv||r.top<R.top-tv)return false;if(q.matches('h1,.upd,.lines div')&&q.scrollWidth>q.clientWidth+.5)return false}return true};
@@ -958,8 +970,8 @@ function topFit(){const hd=document.querySelector('.hdr'),nw=$('now'),lg=documen
   const NV=['--nb','--nl','--nc','--ng'];NV.forEach(v=>hs.setProperty(v,1));
   if(fits(nw)){const u=fit(NV,nw,1,2.5);for(const v of ['--nc','--nb','--nl','--ng'])fit([v],nw,u,3)}
   else{hs.setProperty('--nl',.97);if(!fits(nw))fit(['--nc'],nw,.4,1)}/* floor: pre-388df30 sizes; only condition shrinks */
-  sw.reverse().forEach(([e,t,tx])=>tx?e.textContent=t:e.innerHTML=t)}
-function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
+  sw.reverse().forEach(([e,t,tx])=>tx?e.textContent=t:e.innerHTML=t)}}
+function sizeLayout(){const key=layoutKey();if(key===sizeLayout.key)return;try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXSIZE==='current'?.87:1.06,abs=e=>e.getBoundingClientRect().bottom+scrollY;
   d.style.marginTop='';g.style.height='';d.classList.remove('dfit');g.querySelectorAll('.tile.mt').forEach(t=>t.style.height='');d.querySelectorAll('.d').forEach(r=>{r.style.lineHeight='';r.style.height=''});
   const hs=document.documentElement.style,oldRH=window.RADH||178;hs.removeProperty('--ch');hs.removeProperty('--rh');window.RADH=178;
   if(WXSIZE==='current'){const rd=$('radar'),rows=d.querySelectorAll('.d'),sv=$('sky24').querySelector('svg'),tail=Math.ceil(parseFloat(getComputedStyle(rd).marginBottom)*z+parseFloat(getComputedStyle(document.body).paddingBottom))+1,S=innerHeight-tail-abs(rd);
@@ -977,7 +989,7 @@ function sizeLayout(){try{topFit()}catch(e){}const d=$('days'),g=$('grid'),z=WXS
     radFit(2*innerHeight,200,2000);
     tileFit()}
   else document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const h3o=t.querySelector('h3');if(h3o&&h3o.dataset.o!=null){h3o.textContent=h3o.dataset.o;delete h3o.dataset.o}const vv=t.querySelector('.v');if(vv)vv.style.transform='';if(vv&&vv.dataset.o!=null){vv.innerHTML=vv.dataset.o;delete vv.dataset.o}t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv')}t.classList.remove('rfit','pfit')});if(WXSIZE!=='big')rainSvg(0);
-  if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate()}
+  if(Math.abs((window.RADH||178)-oldRH)>2&&window.radarUpdate)radarUpdate();sizeLayout.key=key}
 // Max font in fixed 10-day rows: lock row heights, then binary-search a font size that fits worst-case text.
 function daysFit(){const d=$('days'),rows=[...d.querySelectorAll('.d')];if(!rows.length)return;const hs=rows.map(r=>parseFloat(getComputedStyle(r).height));
   rows.forEach((r,k)=>r.style.height=hs[k]+'px');d.classList.add('dfit');const r=rows[0],sv=r.innerHTML,h=Math.min(...hs);
@@ -993,14 +1005,16 @@ function radFit(target,mn,mx){const hs=document.documentElement.style,pe=$('pgen
 function pTrend(tr){const t=tr*0.02953;return t>0.02?{k:'rise',c:'#60a5fa',w:'Rising ↑'}:t<=-0.06?{k:'fastfall',c:'#ef4444',w:'Falling fast ↓↓'}:t<-0.02?{k:'fall',c:'#f59e0b',w:'Falling ↓'}:{k:'steady',c:'#9ca3af',w:'Steady →'}}
 function rv2(t){const e=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');let i=t.indexOf(' next ');if(i<0)i=t.indexOf(' (');if(i<0){const m=t.length/2;let b=-1;for(let k=0;k<t.length;k++)if(t[k]===' '&&(b<0||Math.abs(k-m)<Math.abs(b-m)))b=k;i=b}return i>0?e(t.slice(0,i))+'<br>'+e(t.slice(i+1)):e(t)}
 function rainSvg(tall){const v=document.querySelector('#t-rain svg');if(!v||!window.RAINA||(+v.dataset.tall||0)===(+tall||0))return;v.outerHTML=gRain(RAINA[0],RAINA[1],tall)}
-function tileFit(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const h3o=t.querySelector('h3');if(h3o&&h3o.dataset.o!=null){h3o.textContent=h3o.dataset.o;delete h3o.dataset.o}const vv=t.querySelector('.v');if(vv)vv.style.transform='';if(vv&&vv.dataset.o!=null){vv.innerHTML=vv.dataset.o;delete vv.dataset.o}}t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv');if(t.id==='t-rain')rainSvg(0);
+function tileFit(){const unhide=layoutHide(['sky24','days','radar']);try{tileFitBody()}finally{unhide()}}
+function tileFitBody(){mtFit();document.querySelectorAll('#grid .tile:not(.mt)').forEach(t=>{t.style.zoom='';if(t.id==='t-rain'){const h3o=t.querySelector('h3');if(h3o&&h3o.dataset.o!=null){h3o.textContent=h3o.dataset.o;delete h3o.dataset.o}const vv=t.querySelector('.v');if(vv)vv.style.transform='';if(vv&&vv.dataset.o!=null){vv.innerHTML=vv.dataset.o;delete vv.dataset.o}}t.classList.remove('rfit','pfit');t.style.removeProperty('--rh');t.style.removeProperty('--rl');t.style.removeProperty('--rv');if(t.id==='t-rain')rainSvg(0);
   const ok=()=>{if(t.scrollWidth>t.clientWidth+1||t.scrollHeight>t.clientHeight+1)return false;const R=t.getBoundingClientRect(),zz=parseFloat(t.style.zoom)||1,p=3*zz;for(const e of t.querySelectorAll('*')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-p||r.left<R.left+p-.5||r.bottom>R.bottom-p)return false}return true};let lo=1,hi=2.6;
   if(t.id==='t-pol'){t.classList.add('pfit');t.style.zoom=1;const P=t.style;P.setProperty('--pov','-18%');let a=40,b=400;for(let k=0;k<10;k++){const m=(a+b)/2;P.setProperty('--pw',m+'px');P.setProperty('--pov',(-m*.22)+'px');if(ok())a=m;else b=m}P.setProperty('--pw',a.toFixed(1)+'px');P.setProperty('--pov',(-a*.22).toFixed(1)+'px');return}
   if(!ok()){lo=.4;hi=1}for(let k=0;k<9;k++){const m=(lo+hi)/2;t.style.zoom=m;if(ok())lo=m;else hi=m}t.style.zoom=lo;
   if(t.id==='t-rain'){rainSvg(2);t.classList.add('rfit');{const S=t.style,vv=t.querySelector('.v'),sv=vv&&vv.innerHTML,fr=(v,a,b)=>{for(let k=0;k<10;k++){const m=(a+b)/2;S.setProperty(v,m);if(ok())a=m;else b=m}S.setProperty(v,+a.toFixed(3))};
     const hh3=t.querySelector('h3');if(hh3&&hh3.dataset.o==null){hh3.dataset.o=hh3.textContent;hh3.textContent=[...hh3.textContent.trim()][0]}t.style.zoom=1;const TH=t.clientHeight;S.setProperty('--rg',(TH*.30).toFixed(1)+'px');S.setProperty('--rh',(TH*.2/11).toFixed(3));if(vv){vv.dataset.o=sv;vv.innerHTML='Chance ~12p<br>next 12h';fr('--rv',.8,2.5);const ra=+(parseFloat(S.getPropertyValue('--rv'))*.765).toFixed(3);S.setProperty('--rv',ra);vv.innerHTML=sv.includes('<br>')?sv:rv2(vv.textContent=sv.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'));if(!ok())fr('--rv',.6,ra)}const L=[...t.querySelectorAll('.tg .l')],LS=L.map(e=>e.textContent),LP=['Peak 100% at 12p','Next 12h 10.55″','Today 100% · 10.55″'];fr('--rl',.6,2.6)}{const vv=t.querySelector('.v'),h=t.querySelector('h3'),g=t.querySelector('svg'),l=t.querySelector('.tg .l');if(vv&&g&&l){vv.style.transform='';const vr=vv.getBoundingClientRect(),top=Math.max(g.getBoundingClientRect().bottom,h?h.getBoundingClientRect().bottom:0),d=((l.getBoundingClientRect().top-vr.bottom)-(vr.top-top))/2;vv.style.transform='translateY('+(d/(parseFloat(t.style.zoom)||1)).toFixed(2)+'px)'}}}});badgeMatch()}
 // One shared font scale (--ms) for the five small tiles: same size per text role, maximized so every tile fits.
-function mtFit(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts.length)return;const VS=['--mh','--mv','--ml','--mg'];VS.forEach(v=>g.style.removeProperty(v));ts.forEach(t=>{t.style.zoom='';t.style.height=''});
+function mtFit(){const unhide=layoutHide(['sky24','days','radar']);try{mtFitBody()}finally{unhide()}}
+function mtFitBody(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts.length)return;const VS=['--mh','--mv','--ml','--mg'];VS.forEach(v=>g.style.removeProperty(v));ts.forEach(t=>{t.style.zoom='';t.style.height=''});
   const hs=ts.map(t=>parseFloat(getComputedStyle(t).height));ts.forEach((t,k)=>t.style.height=hs[k]+'px');
   const ok=()=>ts.every(t=>{if(t.scrollWidth>t.clientWidth+.5||t.scrollHeight>t.clientHeight+.5)return false;const R=t.getBoundingClientRect();for(const e of t.querySelectorAll('h3,.v,.l,svg,.pill')){const r=e.getBoundingClientRect();if(!r.width)continue;if(r.right>R.right-1.5||r.left<R.left+1.5||r.bottom>R.bottom-1.5||r.top<R.top)return false;if(e.scrollWidth>e.clientWidth+.5&&e.tagName!=='svg')return false}return true});
   const fit=(set,lo,hi)=>{for(let k=0;k<11;k++){const m=(lo+hi)/2;set(m);if(ok())lo=m;else hi=m}set(+lo.toFixed(3));return lo};
