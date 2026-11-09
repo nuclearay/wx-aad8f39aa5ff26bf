@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://api.open-meteo.com">
+<link rel="preconnect" href="https://air-quality-api.open-meteo.com">
+<link rel="dns-prefetch" href="https://api.weather.gov">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Clearwater Weather</title>
 <meta name="robots" content="noindex,nofollow">
@@ -199,8 +202,62 @@ html.size-big #t-rain.rfit{grid-template-columns:1fr auto auto 1fr;grid-template
 <script>(function(){const q=new URLSearchParams(location.search).get('size'),ok=['current','big'];let v=q==='fit'?'current':ok.includes(q)?q:null;if(v)try{localStorage.setItem('wxSize',v)}catch(e){}
 if(!v)try{v=localStorage.getItem('wxSize');if(v==='fit'){v='current';localStorage.setItem('wxSize',v)}}catch(e){}if(!ok.includes(v))v='current';document.documentElement.classList.add('size-'+v);window.WXSIZE=v})();</script>
 <script>
-const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW'};  // coarse home point (no exact address in a public file)
-let SUNAZ=[null,null];let LAT=HOME.lat, LON=HOME.lon, TZ='America/New_York';
+// Start the forecast (and the other small reads) and paint the last saved view before the big script compiles.
+// Cached numbers keep their real fetch time in the header ("as of … · Nh ago") until a new response replaces them.
+(function(){
+  const HOME={lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW',tz:'America/New_York'};
+  window.__WXHOME=HOME;
+  function wxForecastURL(lat,lon,tz){return 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,uv_index&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day,uv_index,visibility,pressure_msl,apparent_temperature,dew_point_2m,wet_bulb_temperature_2m,shortwave_radiation_instant,wind_speed_10m,wind_gusts_10m,wind_direction_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset,uv_index_max,wind_speed_10m_max,wind_gusts_10m_max,daylight_duration&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(tz)+'&forecast_days=10'}
+  function wxAirURL(lat,lon,tz){return 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=us_aqi,us_aqi_pm2_5,us_aqi_pm10,us_aqi_ozone,us_aqi_nitrogen_dioxide,us_aqi_sulphur_dioxide,us_aqi_carbon_monoxide,pm2_5&timezone='+encodeURIComponent(tz)}
+  function wxAlertsURL(lat,lon){return 'https://api.weather.gov/alerts/active?point='+lat+','+lon}
+  window.wxForecastURL=wxForecastURL;window.wxAirURL=wxAirURL;window.wxAlertsURL=wxAlertsURL;
+  window.wxFormatAsOf=function(ts){
+    ts=+ts;const dt=new Date(ts);
+    const t=dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const day=dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const mins=Math.max(0,Math.round((Date.now()-ts)/60000));
+    const rel=mins<1?'<1m ago':mins<60?mins+'m ago':Math.round(mins/60)+'h ago';
+    return 'as of '+(day===today?t:day+' '+t)+' · '+rel;
+  };
+  let mode='home';try{mode=localStorage.getItem('wxMode')||'home'}catch(e){}
+  if(mode!=='here')mode='home';
+  const jobs={},NWSH={headers:{Accept:'application/geo+json'}};
+  const grab=(url,opt)=>{const p=fetch(url,opt).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});p.catch(()=>{});return p};
+  if(mode==='home'){
+    try{performance.mark('wx-fetch-start')}catch(e){}
+    jobs.forecast=grab(wxForecastURL(HOME.lat,HOME.lon,HOME.tz));
+    jobs.air=grab(wxAirURL(HOME.lat,HOME.lon,HOME.tz));
+    jobs.alerts=grab(wxAlertsURL(HOME.lat,HOME.lon),NWSH);
+    jobs.pollen=grab('pollen.json',{cache:'no-cache'});
+  }else if(navigator.geolocation&&window.isSecureContext){
+    const geo=new Promise(res=>navigator.geolocation.getCurrentPosition(p=>res(p),e=>res(e),{timeout:12000,maximumAge:600000,enableHighAccuracy:false}));
+    window.__WXGEO=geo;
+    try{performance.mark('wx-fetch-start')}catch(e){}
+    const coords=pos=>{if(!pos||!pos.coords)throw new Error('nogeo');return pos.coords};
+    jobs.forecast=geo.then(pos=>{const c=coords(pos);let tz=HOME.tz;try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||tz}catch(e){}window.__WXHERE={lat:c.latitude,lon:c.longitude,tz};return grab(wxForecastURL(c.latitude,c.longitude,tz))});
+    jobs.air=geo.then(pos=>{const c=coords(pos);const h=window.__WXHERE||{lat:c.latitude,lon:c.longitude,tz:HOME.tz};return grab(wxAirURL(h.lat,h.lon,h.tz))});
+    jobs.alerts=geo.then(pos=>{const c=coords(pos);return grab(wxAlertsURL(c.latitude,c.longitude),NWSH)});
+    jobs.pollen=grab('pollen.json',{cache:'no-cache'});
+  }
+  let pack=null;try{pack=JSON.parse(localStorage.getItem('wxView:v1')||'null')}catch(e){}
+  const age=pack?Date.now()-+pack.at:1/0;
+  if(pack&&pack.v===1&&pack.mode===mode&&age>=-6e4&&age<=72*36e5&&pack.now&&String(pack.now).indexOf('class="big"')>=0){
+    const set=(id,html)=>{const el=document.getElementById(id);if(el&&html!=null)el.innerHTML=html};
+    set('now',pack.now);set('days',pack.days);set('sky24',pack.sky);set('alerts',pack.alerts);
+    if(pack.tiles)for(const id in pack.tiles)set(id,pack.tiles[id]);
+    const place=document.getElementById('place');if(place&&pack.place)place.textContent=pack.place;
+    const upd=document.getElementById('upd');if(upd)upd.textContent=window.wxFormatAsOf(pack.at);
+    document.body.dataset.cached='1';document.body.dataset.asof=String(pack.at);
+    window.__wxCacheDom=performance.now();
+    try{performance.mark('wx-cache-dom')}catch(e){}
+  }
+  window.__WX={mode:mode,jobs:jobs};
+})();
+</script>
+<script>
+const HOME=window.__WXHOME||{lat:27.96,lon:-82.75,name:'Clearwater, FL',obsStation:'KCLW',tz:'America/New_York'};  // coarse home point (no exact address in a public file)
+let SUNAZ=[null,null];let LAT=HOME.lat, LON=HOME.lon, TZ=HOME.tz||'America/New_York';
 const LOC={mode:'home',name:HOME.name,note:''};
 const $=id=>document.getElementById(id);
 const WMO={0:['Clear','☀️','🌙'],1:['Mostly clear','🌤','🌙'],2:['Partly cloudy','⛅','☁️'],3:['Overcast','☁️','☁️'],45:['Fog','🌫','🌫'],48:['Freezing fog','🌫','🌫'],51:['Light drizzle','🌦','🌧'],53:['Drizzle','🌦','🌧'],55:['Heavy drizzle','🌧','🌧'],56:['Freezing drizzle','🌧','🌧'],57:['Freezing drizzle','🌧','🌧'],61:['Light rain','🌦','🌧'],63:['Rain','🌧','🌧'],65:['Heavy rain','🌧','🌧'],66:['Freezing rain','🌧','🌧'],67:['Freezing rain','🌧','🌧'],71:['Light snow','🌨','🌨'],73:['Snow','🌨','🌨'],75:['Heavy snow','❄️','❄️'],77:['Snow grains','🌨','🌨'],80:['Showers','🌦','🌧'],81:['Showers','🌧','🌧'],82:['Heavy showers','⛈','⛈'],85:['Snow showers','🌨','🌨'],86:['Snow showers','🌨','🌨'],95:['Thunderstorm','⛈','⛈'],96:['T-storm + hail','⛈','⛈'],99:['T-storm + hail','⛈','⛈']};
@@ -292,15 +349,24 @@ function gAQI(a){ // segmented semicircle in AQI category colours with a white m
   return `<svg width="48" height="28" viewBox="0 0 48 28" aria-label="Air quality gauge">${g}</svg>`}
 const tileErr=(id,msg)=>setTile(id,`<div class="err">⚠ ${msg}</div>`);
 async function getJSON(url,opt){const res=await fetch(url,opt);if(!res.ok)throw new Error('HTTP '+res.status);return res.json()}
+// Reuse the fetch the boot script already started, once, and only if it is for this location.
+async function jobOr(name,url,opt){
+  const wx=window.__WX,jobs=wx&&wx.jobs,p=jobs&&jobs[name];
+  if(p&&!jobs[name+'Used']){
+    jobs[name+'Used']=1;
+    const here=window.__WXHERE;
+    const locOk=name==='pollen'||(wx.mode===LOC.mode&&(LOC.mode!=='here'||(here&&Math.abs(here.lat-LAT)<1e-5&&Math.abs(here.lon-LON)<1e-5)));
+    if(locOk){try{return await p}catch(e){}}
+  }
+  return getJSON(url,opt);
+}
+function cachedPaint(){return document.body.dataset.cached==='1'&&!!$('now').querySelector('.big')}
 
 async function loadForecast(){
-  const u='https://api.open-meteo.com/v1/forecast?latitude='+LAT+'&longitude='+LON+
-  '&current=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,uv_index'+
-  '&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,is_day,uv_index,visibility,pressure_msl,apparent_temperature,dew_point_2m,wet_bulb_temperature_2m,shortwave_radiation_instant,wind_speed_10m,wind_gusts_10m,wind_direction_10m'+
-  '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset,uv_index_max,wind_speed_10m_max,wind_gusts_10m_max,daylight_duration'+
-  '&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone='+encodeURIComponent(TZ)+'&forecast_days=10';
+  const u=wxForecastURL(LAT,LON,TZ);
   let d;
-  try{d=await getJSON(u)}catch(e){
+  try{d=await jobOr('forecast',u)}catch(e){
+    if(cachedPaint())return false;
     $('now').innerHTML=`<div class="err">⚠ Forecast unavailable (${e.message})</div>`;
     ['t-rain','t-wind','t-hum','t-uv','t-pv'].forEach(id=>tileErr(id,'unavailable'));
     $('sky24').innerHTML='<div class="err">⚠ Forecast unavailable</div>';$('days').innerHTML='<div class="err">⚠ Forecast unavailable</div>';return false}
@@ -355,6 +421,8 @@ async function loadForecast(){
   const lo=Math.min(...D.temperature_2m_min),hi=Math.max(...D.temperature_2m_max);
   $('days').innerHTML=D.time.slice(0,10).map((t,k)=>{const ww=wx(D.weather_code[k]);
     return `<div class="d" role="button" tabindex="0" onclick="dayOpen(${k})" onkeydown="if(event.key==='Enter')dayOpen(${k})" style="cursor:pointer"><b>${dayName(t,k)}</b><span class="i">${ww.i}</span><span class="c">${dayCond(ww.t)}</span><span class="p">${D.precipitation_probability_max[k]??0}% 💧</span><span class="hl"><span${tS(D.temperature_2m_max[k])}>${r(D.temperature_2m_max[k])}°</span> <span>/ <span${tS(D.temperature_2m_min[k])}>${r(D.temperature_2m_min[k])}°</span></span></span></div>`}).join('');
+  try{performance.mark('wx-fresh-dom')}catch(e){}
+  window.__wxFreshDom=performance.now();
   return true;
 }
 // Sun/moon rise-set azimuths (SunCalc formulas, client-side). Compass bearing = SunCalc azimuth + 180°.
@@ -558,18 +626,28 @@ async function resolveLoc(){
   if(want==='here'){
     if(!('geolocation'in navigator)||!window.isSecureContext)locErr('location needs HTTPS');
     else{
-      const pos=await new Promise(res=>navigator.geolocation.getCurrentPosition(p=>res(p),e=>res(e),{timeout:12000,maximumAge:600e3,enableHighAccuracy:false}));
-      if(pos&&pos.coords){LOC.mode='here';try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||TZ}catch(e){}LAT=pos.coords.latitude;LON=pos.coords.longitude;LOC.name=LAT.toFixed(2)+', '+LON.toFixed(2);
-        try{const pt=await getJSON('https://api.weather.gov/points/'+LAT.toFixed(4)+','+LON.toFixed(4),NWSH);LOC.points=pt;
-          const rl=pt.properties.relativeLocation&&pt.properties.relativeLocation.properties;if(rl)LOC.name=rl.city+', '+rl.state}catch(e){}}
+      const pos=window.__WXGEO?await window.__WXGEO:await new Promise(res=>navigator.geolocation.getCurrentPosition(p=>res(p),e=>res(e),{timeout:12000,maximumAge:600e3,enableHighAccuracy:false}));
+      if(pos&&pos.coords){LOC.mode='here';
+        try{TZ=(window.__WXHERE&&window.__WXHERE.tz)||Intl.DateTimeFormat().resolvedOptions().timeZone||TZ}catch(e){}
+        LAT=pos.coords.latitude;LON=pos.coords.longitude;LOC.name=LAT.toFixed(2)+', '+LON.toFixed(2);
+        // Place name is a label only. Do not hold the forecast behind this extra round trip.
+        getJSON('https://api.weather.gov/points/'+LAT.toFixed(4)+','+LON.toFixed(4),NWSH).then(pt=>{LOC.points=pt;
+          const rl=pt.properties.relativeLocation&&pt.properties.relativeLocation.properties;
+          if(rl){LOC.name=rl.city+', '+rl.state;const pl=$('place');if(pl)pl.textContent='📡 '+LOC.name}}).catch(()=>{});
+      }
       else{if(pos&&pos.code===1){try{localStorage.setItem('wxMode','home')}catch(e){}locErr('location denied')}else locErr('location unavailable')}
     }
   }
+  if(document.body.dataset.cached==='1'&&window.__WX&&__WX.mode!==LOC.mode){
+    document.body.dataset.cached='0';
+    $('now').innerHTML='<div class="mut">Loading current conditions…</div>';
+    $('days').innerHTML='<div class="mut">Loading…</div>';
+    $('sky24').innerHTML='<div class="mut">Loading…</div>';
+  }
   const pl=$('place'),mb=$('mode');
-  pl.textContent=(LOC.mode==='here'?'📡 ':'📍 ')+LOC.name;
+  if(document.body.dataset.cached!=='1')pl.textContent=(LOC.mode==='here'?'📡 ':'📍 ')+LOC.name;
   mb.textContent=LOC.mode==='here'?'📡 Here':'🏠 Home';mb.classList.toggle('here',LOC.mode==='here');
   mb.title=LOC.note?('Using Home: '+LOC.note):(LOC.mode==='here'?'Showing your current location. Tap for Home.':'Showing Home. Tap to use your current location.');
-  
 }
 $('mode').onclick=()=>{let cur=LOC.mode;try{localStorage.setItem('wxMode',cur==='here'?'home':'here')}catch(e){}location.reload()};
 // ===== Pressure: last-24h sparkline (separate small Open-Meteo call with past_hours) =====
@@ -672,11 +750,12 @@ function polClose(){if(location.hash==='#pollen'){if(POLPUSH){POLPUSH=false;hist
 window.addEventListener('hashchange',()=>{location.hash==='#pollen'?polShow():polHide()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('poldet').hidden)polClose()});
 async function loadPollen(){
-  let d;try{d=await getJSON('pollen.json?_='+Date.now())}catch(e){d=null}
+  let d;try{d=await jobOr('pollen','pollen.json',{cache:'no-cache'})}catch(e){d=null}
   // Recolor by level (0-5): None gray, Very Low/Low green, Moderate orange, High red, Very High magenta
   const PC=[{red:.39,green:.45,blue:.55},{red:.10,green:.60,blue:.31},{red:.52,green:.81,blue:.20},{red:1,green:.55,blue:.10},{red:.84,green:.10,blue:.11},{red:.70,green:.05,blue:.47}];
   if(d&&Array.isArray(d.days))d.days.forEach(x=>{[...Object.values(x.types||{}),...(x.plants||[])].forEach(v=>{if(v&&v.upi!=null)v.color=PC[Math.max(0,Math.min(5,v.upi))]})});
   if(!d||!Array.isArray(d.days)||!d.days.length){
+    if(document.body.dataset.cached==='1'&&$('t-pol').querySelector('.pring'))return;
     setTile('t-pol',`<div class="l">Tree · Grass · Weed: <b>n/a</b></div><div class="l mut">No pollen data file yet</div><div class="l">${POLLEN_LINK}</div>`);return}
   const ageH=(Date.now()-Date.parse(d.fetchedAt))/36e5,stale=!(ageH<=36);
   const today=new Date().toLocaleDateString('sv-SE',{timeZone:TZ});
@@ -697,9 +776,9 @@ async function loadPollen(){
   if(location.hash==='#pollen')polShow();
 }
 async function loadAir(){
-  const u='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+LAT+'&longitude='+LON+
-   '&current=us_aqi,us_aqi_pm2_5,us_aqi_pm10,us_aqi_ozone,us_aqi_nitrogen_dioxide,us_aqi_sulphur_dioxide,us_aqi_carbon_monoxide,pm2_5&timezone='+encodeURIComponent(TZ);
-  let d;try{d=await getJSON(u)}catch(e){tileErr('t-aqi','AQI unavailable');return}
+  let d;try{d=await jobOr('air',wxAirURL(LAT,LON,TZ))}catch(e){
+    if(document.body.dataset.cached==='1'&&$('t-aqi').querySelector('.pill'))return;
+    tileErr('t-aqi','AQI unavailable');return}
   const c=d.current,a=aqiInfo(c.us_aqi);
   const pol={'PM2.5':c.us_aqi_pm2_5,'PM10':c.us_aqi_pm10,'Ozone':c.us_aqi_ozone,'NO₂':c.us_aqi_nitrogen_dioxide,'SO₂':c.us_aqi_sulphur_dioxide,'CO':c.us_aqi_carbon_monoxide};
   const main=Object.entries(pol).filter(e=>e[1]!=null).sort((x,y)=>y[1]-x[1])[0];
@@ -802,24 +881,62 @@ const SKIP_ALERTS=new Set(['High Surf Advisory','High Surf Warning','Rip Current
 async function loadAlerts(){
   const box=$('alerts');
   try{
-    const d=await getJSON('https://api.weather.gov/alerts/active?point='+LAT+','+LON,{headers:{Accept:'application/geo+json'}});
+    const d=await jobOr('alerts',wxAlertsURL(LAT,LON),NWSH);
     const f=(d.features||[]).filter(a=>!SKIP_ALERTS.has((a.properties.event||'').trim().toLowerCase()));
     WXSNAP.alerts=[...new Set(f.map(a=>a.properties.event))];
     box.innerHTML=f.map(a=>{const p=a.properties,ex=new Date(p.ends||p.expires);
       const exs=ex.toLocaleString('en-US',{timeZone:TZ,weekday:'short',hour:'numeric',minute:'2-digit'});
       const esc=s=>(s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
       return `<div class="alert ${p.severity||'Unknown'}" onclick="this.classList.toggle('open')"><b>⚠ ${esc(p.event)}</b> <span class="ex">until ${exs} ▾</span><div class="desc">${esc(p.description)}${p.instruction?'\n\n'+esc(p.instruction):''}</div></div>`}).join('');
-  }catch(e){box.innerHTML=`<div class="err">⚠ NWS alerts unavailable (${e.message})</div>`}
+  }catch(e){
+    if(document.body.dataset.cached==='1'&&box.innerHTML.trim())return;
+    box.innerHTML=`<div class="err">⚠ NWS alerts unavailable (${e.message})</div>`}
 }
 let busy=false,last=0;
+function showFreshClock(){
+  document.body.dataset.cached='0';document.body.dataset.fresh='1';
+  document.body.removeAttribute('data-asof');
+  $('upd').textContent=(LOC.note?'⚠ Home · ':'')+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function showUpdateFailed(){
+  const u=$('upd');
+  if(document.body.dataset.cached==='1'){
+    if(u&&u.textContent.indexOf('update failed')<0)u.textContent+=' · update failed';
+    document.body.dataset.update='failed';
+  }else if(u)u.textContent='update failed';
+}
+function saveView(){
+  if(!$('now').querySelector('.big'))return;
+  const tiles={};
+  ['t-hum','t-wind','t-pv','t-uv','t-aqi','t-rain','t-pol'].forEach(id=>{const el=$(id);if(el)tiles[id]=el.innerHTML});
+  const pack={v:1,at:Date.now(),mode:LOC.mode,lat:+LAT,lon:+LON,tz:TZ,place:$('place').textContent,note:LOC.note||'',
+    now:$('now').innerHTML,days:$('days').innerHTML,sky:$('sky24').innerHTML,alerts:$('alerts').innerHTML,tiles};
+  try{localStorage.setItem('wxView:v1',JSON.stringify(pack))}catch(e){}
+}
 async function refresh(){
   if(busy)return;busy=true;$('rf').classList.add('spin');
-  await Promise.allSettled([loadForecast(),loadAir(),loadPollen(),loadAlerts()]);
-  try{whatChanged()}catch(e){}
-  radarUpdate().catch(()=>{});
-  last=Date.now();
-  $('upd').textContent=(LOC.note?'⚠ Home · ':'')+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  $('rf').classList.remove('spin');busy=false;document.body.dataset.loaded='1';setTimeout(()=>window.sizeLayout&&sizeLayout(),50);
+  try{
+    const fp=loadForecast();
+    let radarStarted=false;
+    const startRadar=()=>{if(radarStarted)return;radarStarted=true;radarUpdate().catch(()=>{})};
+    fp.finally(startRadar);
+    const results=await Promise.allSettled([fp,loadAir(),loadPollen(),loadAlerts()]);
+    try{whatChanged()}catch(e){}
+    const fcOk=results[0].status==='fulfilled'&&results[0].value!==false;
+    if(fcOk)last=Date.now();
+    if(fcOk){showFreshClock();saveView()}else showUpdateFailed();
+  }finally{
+    $('rf').classList.remove('spin');busy=false;document.body.dataset.loaded='1';setTimeout(()=>window.sizeLayout&&sizeLayout(),50);
+    scheduleShellCache();
+  }
+}
+function scheduleShellCache(){
+  if(scheduleShellCache.done||!navigator.serviceWorker)return;
+  scheduleShellCache.done=1;
+  const send=()=>{const c=navigator.serviceWorker.controller;if(c)c.postMessage({type:'shell-cache'})};
+  navigator.serviceWorker.ready.then(send).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',send);
+  setTimeout(send,2000);
 }
 $('rf').onclick=e=>{if(RFLP){RFLP=false;return}refresh()};
 let RFLP=false,rfT;$('rf').addEventListener('pointerdown',()=>{rfT=setTimeout(()=>{RFLP=true;sizeCycle()},600)});['pointerup','pointerleave','pointercancel'].forEach(t=>$('rf').addEventListener(t,()=>clearTimeout(rfT)));
@@ -891,7 +1008,7 @@ function mtFit(){const g=$('grid'),ts=[...g.querySelectorAll('.tile.mt')];if(!ts
   // then grow each role in turn (lines, value, title, then gauges take leftover height); one value per role across all five tiles
   for(const v of ['--mv','--ml','--mh','--mg'])fit(m=>g.style.setProperty(v,m),u,3.5)}
 function badgeMatch(){const u=$('t-uv'),a=$('t-aqi'),p=u&&u.querySelector('.v .pill');if(!p)return;const zu=parseFloat(u.style.zoom)||1,za=parseFloat(a&&a.style.zoom)||1;p.style.zoom=WXSIZE==='big'?(za/zu).toFixed(3):''}
-$('szb').onclick=sizeCycle;sizeLabel();const sizeKick=()=>{clearTimeout(sizeKick.t);sizeKick.t=setTimeout(()=>{try{sizeLayout()}catch(e){}},30)};addEventListener('resize',sizeKick);addEventListener('load',sizeKick);addEventListener('pageshow',sizeKick);addEventListener('orientationchange',()=>setTimeout(sizeKick,300));if(window.visualViewport)visualViewport.addEventListener('resize',sizeKick);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sizeKick);[150,600,1500,3000].forEach(t=>setTimeout(sizeKick,t));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(sizeKick,100)});const RO_SZ=new ResizeObserver(sizeKick);let SZSIG='';setInterval(()=>{if(document.hidden)return;const rb=Math.round($('radar').getBoundingClientRect().bottom+scrollY),sg=innerHeight+':'+rb+':'+WXSIZE;if(sg!==SZSIG){SZSIG=sg;sizeKick()}},1000);[$('grid'),$('sky24'),$('now'),$('days'),$('hdr')||document.querySelector('.hdr')].forEach(e=>e&&RO_SZ.observe(e));
+$('szb').onclick=sizeCycle;sizeLabel();const sizeKick=()=>{if(busy)return;clearTimeout(sizeKick.t);sizeKick.t=setTimeout(()=>{try{if(!busy)sizeLayout()}catch(e){}},30)};addEventListener('resize',sizeKick);addEventListener('load',sizeKick);addEventListener('pageshow',sizeKick);addEventListener('orientationchange',()=>setTimeout(sizeKick,300));if(window.visualViewport)visualViewport.addEventListener('resize',sizeKick);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(sizeKick);[150,600,1500,3000].forEach(t=>setTimeout(sizeKick,t));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(sizeKick,100)});const RO_SZ=new ResizeObserver(sizeKick);let SZSIG='';setInterval(()=>{if(document.hidden)return;const rb=Math.round($('radar').getBoundingClientRect().bottom+scrollY),sg=innerHeight+':'+rb+':'+WXSIZE;if(sg!==SZSIG){SZSIG=sg;sizeKick()}},1000);[$('grid'),$('sky24'),$('now'),$('days'),$('hdr')||document.querySelector('.hdr')].forEach(e=>e&&RO_SZ.observe(e));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-last>5*60e3)refresh()});
 setInterval(refresh,15*60e3);
 // ===== Lightning: GOES-19 GLM flashes via WxAlerts public MQTT-over-WebSocket feed =====
@@ -975,7 +1092,7 @@ function ltgRender(){
   const bell=$('ltgbell');if(bell)bell.onclick=()=>Notification.requestPermission().then(ltgRender);
 }
 function ltgInit(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261030c').catch(()=>{});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=20261109a').catch(()=>{});
   if(QS.has('lightningdemo')){ltgDemo();ltgRender();return}
   try{LTG.strikes=(JSON.parse(localStorage.getItem(LTG.KEY)||'[]')).filter(s=>s&&s.ts).map(s=>{const [d,b]=distBear(s.lat,s.lon);return {...s,d,b}}).filter(s=>s.d<=LTG.R)}catch(e){}
   ltgConnect();ltgRender();
@@ -983,6 +1100,8 @@ function ltgInit(){
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){ltgConnect();ltgRender()}});
   if(QS.has('lightningtest')){LTG.R=20000;window.__ltg=LTG}  // debug: accept strikes from anywhere in subscribed cells
 }
+try{performance.mark('wx-app-start')}catch(e){}
+window.__wxAppStart=performance.now();
 (async()=>{await resolveLoc();LTG.KEY=LOC.mode==='here'?'ltgBufHere':'ltgBuf';refresh();ltgInit()})();
 </script>
 </body>

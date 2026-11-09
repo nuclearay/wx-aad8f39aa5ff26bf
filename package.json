@@ -1,0 +1,11 @@
+{
+  "name": "wx",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/startup.test.mjs",
+    "perf": "node test/perf.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "24.2.0"
+  }
+}
