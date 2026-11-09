@@ -256,6 +256,27 @@ test('dashboard startup, cache age, layouts, and offline shell', async () => {
     assert.match(first.cls, /size-current/);
     assert.equal(first.pollen, 3);
     assert.equal(first.fit, true);
+    const refit = await page.evaluate(() => {
+      sizeLayout();
+      const hs = document.documentElement.style;
+      const days = document.getElementById('days');
+      const before = [hs.getPropertyValue('--hs'), hs.getPropertyValue('--nb'), days.style.getPropertyValue('--df')].join('|');
+      const t = performance.now();
+      sizeLayout();
+      const dt = performance.now() - t;
+      const after = [hs.getPropertyValue('--hs'), hs.getPropertyValue('--nb'), days.style.getPropertyValue('--df')].join('|');
+      const rows = [...days.querySelectorAll('.d')];
+      return {
+        same: before === after && before.length > 2,
+        dt, sky: getComputedStyle(document.getElementById('sky24')).contentVisibility,
+        fit: rows.every(r => r.scrollWidth <= r.clientWidth + 2), n: rows.length
+      };
+    });
+    assert.equal(refit.same, true);
+    assert.equal(refit.sky, 'visible');
+    assert.equal(refit.n, 10);
+    assert.equal(refit.fit, true);
+    assert.ok(refit.dt < 40, 'repeat layout fit took ' + refit.dt);
     assert.ok(forecastURLs.some(u => u.includes('forecast_days=10') && u.includes('latitude=27.96')));
     assert.ok(pollenURLs.length >= 1);
     assert.ok(pollenURLs.every(u => !u.includes('_=')));
