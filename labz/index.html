@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LABZ">
+  <title>LABZ</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="../icons/labz-192.png">
+  <link rel="apple-touch-icon" href="../icons/labz-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="../icons/labz-512.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0d1117;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      border: 0;
+      display: block;
+      background: #0d1117;
+    }
+    #fallback {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: max(16px, env(safe-area-inset-bottom, 0px));
+      text-align: center;
+      z-index: 2;
+      font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #fallback a {
+      color: #8b949e;
+      text-decoration: none;
+    }
+    #fallback a:hover,
+    #fallback a:focus {
+      color: #c9d1d9;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <iframe
+    id="labz"
+    title="LABZ"
+    src="https://script.google.com/macros/s/AKfycbzqwh1EYWuTO9BzcFmDOVDUCDpQbxOS030-MjVXMUy4-YxzoPqAS-azVpwMChYWQaay3w/exec"
+    allow="clipboard-write; fullscreen"></iframe>
+  <div id="fallback">
+    <a href="https://script.google.com/macros/s/AKfycbzqwh1EYWuTO9BzcFmDOVDUCDpQbxOS030-MjVXMUy4-YxzoPqAS-azVpwMChYWQaay3w/exec" target="_top">Open LABZ directly</a>
+  </div>
+  <script>
+    (function () {
+      var frame = document.getElementById('labz');
+      var fallback = document.getElementById('fallback');
+      var loaded = false;
+      frame.addEventListener('load', function () {
+        loaded = true;
+        fallback.style.display = 'none';
+      });
+      setTimeout(function () {
+        if (!loaded) fallback.style.display = 'block';
+      }, 8000);
+    })();
+  </script>
+</body>
+</html>
