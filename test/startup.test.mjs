@@ -132,8 +132,8 @@ test('source keeps forecast, pollen, and secrets in the right places', async () 
   assert.equal(html.includes('pollen.json?_='), false);
   assert.equal(html.includes('GOOGLE_POLLEN_API_KEY'), false);
   assert.equal(sw.includes('GOOGLE_POLLEN_API_KEY'), false);
-  assert.match(html, /sw\.js\?v=20261109a/);
-  assert.match(sw, /wx-shell-20261109a/);
+  assert.match(html, /sw\.js\?v=20261112a/);
+  assert.match(sw, /wx-shell-20261112a/);
   assert.match(sw, /pollen\.json/);
   assert.equal(sw.includes("SHELL_FILES=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png']"), true);
   assert.match(html, /% 💧/);
