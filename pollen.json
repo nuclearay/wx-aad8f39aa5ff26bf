@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-11-15T12:17:13+00:00",
+ "fetchedAt": "2026-11-17T12:19:16+00:00",
  "source": "pollen.com (IQVIA) public forecast (fallback: Google Pollen API failed)",
  "location": {
   "zip": "33764",
@@ -9,18 +9,18 @@
  "scale": "upi 0-5 mapped from pollen.com index 0-12",
  "days": [
   {
-   "date": "2026-11-15",
-   "index": 4.0,
+   "date": "2026-11-17",
+   "index": 0.8,
    "types": {
     "WEED": {
      "name": "Weed",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     }
    },
@@ -30,12 +30,12 @@
      "name": "Ragweed",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     },
     {
@@ -43,12 +43,12 @@
      "name": "Composites",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     },
     {
@@ -56,29 +56,29 @@
      "name": "Chenopods",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     }
    ]
   },
   {
-   "date": "2026-11-16",
-   "index": 4.0,
+   "date": "2026-11-18",
+   "index": 0.6,
    "types": {
     "WEED": {
      "name": "Weed",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     }
    },
@@ -88,12 +88,12 @@
      "name": "Ragweed",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     },
     {
@@ -101,12 +101,12 @@
      "name": "Composites",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     },
     {
@@ -114,15 +114,69 @@
      "name": "Chenopods",
      "type": "WEED",
      "inSeason": true,
-     "upi": 2,
-     "category": "Low",
+     "upi": 1,
+     "category": "Very Low",
      "color": {
-      "red": 0.5176471,
-      "green": 0.8117647,
-      "blue": 0.2
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
      }
     }
    ]
+  },
+  {
+   "date": "2026-11-19",
+   "index": 0.1,
+   "types": {
+    "OVERALL": {
+     "name": "Overall",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    }
+   },
+   "plants": []
+  },
+  {
+   "date": "2026-11-20",
+   "index": 0.4,
+   "types": {
+    "OVERALL": {
+     "name": "Overall",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    }
+   },
+   "plants": []
+  },
+  {
+   "date": "2026-11-21",
+   "index": 1.2,
+   "types": {
+    "OVERALL": {
+     "name": "Overall",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    }
+   },
+   "plants": []
   }
  ]
 }
