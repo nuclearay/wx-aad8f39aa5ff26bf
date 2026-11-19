@@ -1,8 +1,8 @@
 // App shell for faster return visits, plus lightning notifications.
-// version 20261112a
+// version 20261119a
 // Navigations: serve the cached page immediately when we have one, and refresh that copy in the background.
 // pollen.json is not handled here. It is republished on its own schedule and the page revalidates it.
-const SHELL='wx-shell-20261112a';
+const SHELL='wx-shell-20261119a';
 const SHELL_FILES=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
 
 function storedResponse(res,body){
