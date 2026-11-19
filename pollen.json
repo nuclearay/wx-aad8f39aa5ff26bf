@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-11-17T12:19:16+00:00",
+ "fetchedAt": "2026-11-19T12:12:24+00:00",
  "source": "pollen.com (IQVIA) public forecast (fallback: Google Pollen API failed)",
  "location": {
   "zip": "33764",
@@ -9,65 +9,7 @@
  "scale": "upi 0-5 mapped from pollen.com index 0-12",
  "days": [
   {
-   "date": "2026-11-17",
-   "index": 0.8,
-   "types": {
-    "WEED": {
-     "name": "Weed",
-     "inSeason": true,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "red": 0.0,
-      "green": 0.6,
-      "blue": 0.3
-     }
-    }
-   },
-   "plants": [
-    {
-     "code": "Ambrosia",
-     "name": "Ragweed",
-     "type": "WEED",
-     "inSeason": true,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "red": 0.0,
-      "green": 0.6,
-      "blue": 0.3
-     }
-    },
-    {
-     "code": "Composites",
-     "name": "Composites",
-     "type": "WEED",
-     "inSeason": true,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "red": 0.0,
-      "green": 0.6,
-      "blue": 0.3
-     }
-    },
-    {
-     "code": "Chenopods",
-     "name": "Chenopods",
-     "type": "WEED",
-     "inSeason": true,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "red": 0.0,
-      "green": 0.6,
-      "blue": 0.3
-     }
-    }
-   ]
-  },
-  {
-   "date": "2026-11-18",
+   "date": "2026-11-19",
    "index": 0.6,
    "types": {
     "WEED": {
@@ -125,29 +67,11 @@
    ]
   },
   {
-   "date": "2026-11-19",
-   "index": 0.1,
-   "types": {
-    "OVERALL": {
-     "name": "Overall",
-     "inSeason": true,
-     "upi": 1,
-     "category": "Very Low",
-     "color": {
-      "red": 0.0,
-      "green": 0.6,
-      "blue": 0.3
-     }
-    }
-   },
-   "plants": []
-  },
-  {
    "date": "2026-11-20",
-   "index": 0.4,
+   "index": 1.7,
    "types": {
-    "OVERALL": {
-     "name": "Overall",
+    "WEED": {
+     "name": "Weed",
      "inSeason": true,
      "upi": 1,
      "category": "Very Low",
@@ -158,11 +82,51 @@
      }
     }
    },
-   "plants": []
+   "plants": [
+    {
+     "code": "Ambrosia",
+     "name": "Ragweed",
+     "type": "WEED",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    },
+    {
+     "code": "Composites",
+     "name": "Composites",
+     "type": "WEED",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    },
+    {
+     "code": "Chenopods",
+     "name": "Chenopods",
+     "type": "WEED",
+     "inSeason": true,
+     "upi": 1,
+     "category": "Very Low",
+     "color": {
+      "red": 0.0,
+      "green": 0.6,
+      "blue": 0.3
+     }
+    }
+   ]
   },
   {
    "date": "2026-11-21",
-   "index": 1.2,
+   "index": 0.5,
    "types": {
     "OVERALL": {
      "name": "Overall",
@@ -173,6 +137,42 @@
       "red": 0.0,
       "green": 0.6,
       "blue": 0.3
+     }
+    }
+   },
+   "plants": []
+  },
+  {
+   "date": "2026-11-22",
+   "index": 4.0,
+   "types": {
+    "OVERALL": {
+     "name": "Overall",
+     "inSeason": true,
+     "upi": 2,
+     "category": "Low",
+     "color": {
+      "red": 0.5176471,
+      "green": 0.8117647,
+      "blue": 0.2
+     }
+    }
+   },
+   "plants": []
+  },
+  {
+   "date": "2026-11-23",
+   "index": 4.9,
+   "types": {
+    "OVERALL": {
+     "name": "Overall",
+     "inSeason": true,
+     "upi": 3,
+     "category": "Moderate",
+     "color": {
+      "red": 1,
+      "green": 0.8,
+      "blue": 0
      }
     }
    },
